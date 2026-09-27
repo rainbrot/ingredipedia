@@ -1,0 +1,47 @@
+{
+  "name": "assay",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Assay — scan any ingredient label and understand the science behind every ingredient.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "dev": "concurrently -k -n api,web -c cyan,magenta \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "tsx watch --env-file-if-exists=.env server/index.ts",
+    "dev:web": "vite",
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "start": "NODE_ENV=production tsx --env-file-if-exists=.env server/index.ts",
+    "seed": "tsx --env-file-if-exists=.env server/seed/run.ts",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@fontsource/ibm-plex-sans": "^5.3.0",
+    "@fontsource/newsreader": "^5.3.0",
+    "3dmol": "^2.5.5",
+    "express": "^5.2.1",
+    "lucide-react": "^1.48.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-router-dom": "^7.18.4",
+    "tesseract.js": "^7.0.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "concurrently": "^10.0.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.1",
+    "vitest": "^5.0.2"
+  }
+}
