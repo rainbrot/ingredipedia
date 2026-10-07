@@ -1,5 +1,5 @@
-// Assay service worker: offline app shell + cached ingredient profiles and structures.
-const VERSION = "assay-v1";
+// Assay service worker: offline app shell, cached profiles and structures, and the data lessons need.
+const VERSION = "assay-v2";
 const SHELL = `${VERSION}-shell`;
 const DATA = `${VERSION}-data`;
 
@@ -16,8 +16,10 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-const isProfileData = (url) =>
-  /^\/api\/ingredients\/[^/]+(\/(sdf|structure\.png))?$/.test(url.pathname) || url.pathname === "/api/ingredients";
+const isCachedData = (url) =>
+  /^\/api\/ingredients\/[^/]+(\/(sdf|structure\.png))?$/.test(url.pathname) ||
+  /^\/api\/molecule\/\d+\/(sdf|structure\.png)$/.test(url.pathname) ||
+  ["/api/ingredients", "/api/learn/myths", "/api/lexicon", "/api/stats", "/api/config"].includes(url.pathname);
 
 self.addEventListener("fetch", (event) => {
   const req = event.request;
@@ -47,8 +49,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Verified profiles and structures: stale-while-revalidate so previously viewed ones work offline.
-  if (isProfileData(url)) {
+  // Profiles, structures and lesson data: stale-while-revalidate so previously used ones work offline.
+  if (isCachedData(url)) {
     event.respondWith(
       caches.open(DATA).then(async (cache) => {
         const hit = await cache.match(req);

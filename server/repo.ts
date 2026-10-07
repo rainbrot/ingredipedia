@@ -3,8 +3,6 @@
 import { db, now, parseJson, tx } from "./db";
 import { normalizeKey } from "../shared/parse";
 import type {
-  AdminIngredient,
-  AiUsage,
   Citation,
   DraftMeta,
   Identity,
@@ -47,7 +45,6 @@ export interface IngredientWrite {
   researchError?: string | null;
   draft?: DraftMeta | null;
   createdBy?: string | null;
-  verifiedAt?: string | null;
 }
 
 export function slugify(name: string): string {
@@ -88,11 +85,10 @@ function toIngredient(r: Row): Ingredient {
     identity: parseJson<Identity>(r.identity, {}),
     profile: parseJson<Profile | null>(r.profile, null),
     citations: parseJson<Citation[]>(r.citations, []),
-    hasCustomSdf: r.sdf_source === "upload",
+    sources: parseJson<SourceDoc[]>(r.sources, []),
     draft: parseJson<DraftMeta | null>(r.draft, null),
     createdAt: r.created_at as string,
     updatedAt: r.updated_at as string,
-    verifiedAt: (r.verified_at as string | null) ?? null,
   };
 }
 
@@ -102,26 +98,6 @@ function toIngredient(r: Row): Ingredient {
 export function getIngredient(id: string): Ingredient | null {
   const row = db.prepare("SELECT * FROM ingredients WHERE id = ?").get(id) as Row | undefined;
   return row ? toIngredient(row) : null;
-}
-
-export function getAdminIngredient(id: string): AdminIngredient | null {
-  const row = db.prepare("SELECT * FROM ingredients WHERE id = ?").get(id) as Row | undefined;
-  if (!row) return null;
-  const usage = db
-    .prepare("SELECT COUNT(*) calls, COALESCE(SUM(input_tokens),0) i, COALESCE(SUM(output_tokens),0) o, COALESCE(SUM(cost_usd),0) c FROM ai_ledger WHERE ingredient_id = ?")
-    .get(id) as Row;
-  const scans = db.prepare("SELECT COUNT(DISTINCT scan_id) n FROM scan_items WHERE ingredient_id = ?").get(id) as Row;
-  const aiUsage: AiUsage | null =
-    Number(usage.calls) > 0
-      ? { calls: Number(usage.calls), inputTokens: Number(usage.i), outputTokens: Number(usage.o), costUsd: Number(usage.c) }
-      : null;
-  return {
-    ...toIngredient(row),
-    sources: parseJson<SourceDoc[]>(row.sources, []),
-    aiUsage,
-    researchError: (row.research_error as string | null) ?? null,
-    scanCount: Number(scans.n),
-  };
 }
 
 export function findByCid(cid: number): IngredientSummary | null {
@@ -171,7 +147,7 @@ export function listIngredients(query: ListQuery): { items: IngredientSummary[];
     score_desc: "i.health_score DESC, i.name",
     research_desc: "COALESCE(i.research_count, -1) DESC, i.name",
     research_asc: "COALESCE(i.research_count, 1e12) ASC, i.name",
-    recent: "COALESCE(i.verified_at, i.updated_at) DESC",
+    recent: "i.updated_at DESC",
   }[query.sort ?? "name"];
   const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
   const total = Number((db.prepare(`SELECT COUNT(*) n FROM ingredients i ${whereSql}`).get(...params) as Row).n);
@@ -206,7 +182,6 @@ const COLUMN_MAP: Record<keyof Omit<IngredientWrite, "id">, [string, "json" | "r
   researchError: ["research_error", "raw"],
   draft: ["draft", "json"],
   createdBy: ["created_by", "raw"],
-  verifiedAt: ["verified_at", "raw"],
 };
 
 function encode(value: unknown, mode: "json" | "raw"): string | number | null {
@@ -228,6 +203,20 @@ function writeAliases(id: string, name: string, aliases: string[], identity?: Id
   const insert = db.prepare("INSERT INTO aliases (key, ingredient_id) VALUES (?, ?) ON CONFLICT(key) DO NOTHING");
   for (const k of keys) insert.run(k, id);
   aliasCache = null;
+}
+
+/**
+ * Rebuilds every lookup key from the stored names, so changes to key normalization apply to existing
+ * data. Curated profiles go first so they keep shared keys.
+ */
+export function reindexAliases() {
+  const rows = db
+    .prepare("SELECT id, name, aliases, identity FROM ingredients ORDER BY CASE status WHEN 'curated' THEN 0 WHEN 'researched' THEN 1 ELSE 2 END, created_at")
+    .all() as Row[];
+  tx(() => {
+    db.prepare("DELETE FROM aliases").run();
+    for (const r of rows) writeAliases(r.id as string, r.name as string, parseJson<string[]>(r.aliases, []), parseJson<Identity | undefined>(r.identity, undefined));
+  });
 }
 
 export function upsertIngredient(w: IngredientWrite): Ingredient {
@@ -260,7 +249,7 @@ export function patchIngredient(id: string, patch: Omit<IngredientWrite, "id" | 
   return upsertIngredient({ ...patch, id, name: patch.name ?? current.name });
 }
 
-export function setSdf(id: string, sdf: string | null, source: "pubchem-3d" | "pubchem-2d" | "upload" | null) {
+export function setSdf(id: string, sdf: string | null, source: "pubchem-3d" | "pubchem-2d" | null) {
   db.prepare("UPDATE ingredients SET sdf = ?, sdf_source = ?, updated_at = ? WHERE id = ?").run(sdf, source, now(), id);
 }
 
@@ -268,25 +257,6 @@ export function getSdf(id: string): { sdf: string; source: string } | null {
   const row = db.prepare("SELECT sdf, sdf_source FROM ingredients WHERE id = ?").get(id) as Row | undefined;
   if (!row || !row.sdf) return null;
   return { sdf: row.sdf as string, source: row.sdf_source as string };
-}
-
-export function deleteIngredient(id: string) {
-  db.prepare("DELETE FROM ingredients WHERE id = ?").run(id);
-  aliasCache = null;
-}
-
-/** Folds a duplicate (typically an OCR misspelling) into an existing profile and repoints scans at it. */
-export function mergeIngredient(fromId: string, intoId: string) {
-  tx(() => {
-    const from = getIngredient(fromId);
-    const into = getIngredient(intoId);
-    if (!from || !into) throw new Error("Unknown ingredient");
-    db.prepare("UPDATE scan_items SET ingredient_id = ? WHERE ingredient_id = ?").run(intoId, fromId);
-    const aliases = [...new Set([...into.aliases, from.name, ...from.aliases])];
-    db.prepare("UPDATE ingredients SET aliases = ?, updated_at = ? WHERE id = ?").run(JSON.stringify(aliases), now(), intoId);
-    db.prepare("DELETE FROM ingredients WHERE id = ?").run(fromId);
-    writeAliases(intoId, into.name, aliases, into.identity);
-  });
 }
 
 let aliasCache: Map<string, string> | null = null;
@@ -299,13 +269,13 @@ export function aliasIndex(): Map<string, string> {
   return aliasCache;
 }
 
-/** Verified profiles still missing PubMed evidence (publication count or citations). */
+/** Curated profiles still missing PubMed evidence (publication count or citations). */
 export function missingEvidence(limit: number): string[] {
   return (
     db
       .prepare(
         `SELECT i.id FROM ingredients i
-         WHERE i.status = 'verified' AND (i.research_count IS NULL OR i.citations = '[]')
+         WHERE i.status = 'curated' AND (i.research_count IS NULL OR i.citations = '[]')
            AND NOT EXISTS (SELECT 1 FROM jobs j WHERE j.ingredient_id = i.id AND j.state IN ('queued','running'))
          LIMIT ?`,
       )
@@ -313,36 +283,24 @@ export function missingEvidence(limit: number): string[] {
   ).map((r) => r.id as string);
 }
 
+/** Every myth/consensus pair across complete profiles, for the Myth or Fact game. */
+export function allMyths(): { ingredientId: string; ingredientName: string; claim: string; consensus: string }[] {
+  const rows = db.prepare("SELECT id, name, profile FROM ingredients WHERE status != 'preliminary' AND profile IS NOT NULL").all() as Row[];
+  return rows.flatMap((r) =>
+    (parseJson<{ myths?: { claim: string; consensus: string }[] } | null>(r.profile, null)?.myths ?? []).map((m) => ({
+      ingredientId: r.id as string,
+      ingredientName: r.name as string,
+      claim: m.claim,
+      consensus: m.consensus,
+    })),
+  );
+}
+
 export function countByStatus(): Record<Status, number> {
   const rows = db.prepare("SELECT status, COUNT(*) n FROM ingredients GROUP BY status").all() as Row[];
-  const out: Record<Status, number> = { verified: 0, needs_verification: 0 };
+  const out: Record<Status, number> = { curated: 0, researched: 0, preliminary: 0 };
   for (const r of rows) out[r.status as Status] = Number(r.n);
   return out;
-}
-
-export function reviewQueue(): (IngredientSummary & { createdAt: string; scanCount: number; draftModel: string | null })[] {
-  const rows = db
-    .prepare(
-      `SELECT i.*, (SELECT COUNT(DISTINCT scan_id) FROM scan_items s WHERE s.ingredient_id = i.id) AS scan_count
-       FROM ingredients i WHERE i.status = 'needs_verification'
-       ORDER BY CASE i.research_state WHEN 'complete' THEN 0 WHEN 'failed' THEN 1 WHEN 'running' THEN 2 ELSE 3 END, scan_count DESC, i.created_at ASC`,
-    )
-    .all() as Row[];
-  return rows.map((r) => ({
-    ...toSummary(r),
-    createdAt: r.created_at as string,
-    scanCount: Number(r.scan_count),
-    draftModel: parseJson<DraftMeta | null>(r.draft, null)?.model ?? null,
-  }));
-}
-
-/** A draft is only visible to users who scanned a product containing it (plan: "published only to the scanning user"). */
-export function deviceHasScanned(deviceId: string, ingredientId: string): boolean {
-  if (!deviceId) return false;
-  const row = db
-    .prepare("SELECT 1 FROM scan_items si JOIN scans s ON s.id = si.scan_id WHERE s.device_id = ? AND si.ingredient_id = ? LIMIT 1")
-    .get(deviceId, ingredientId);
-  return !!row;
 }
 
 // ---------------------------------------------------------------------------
@@ -357,15 +315,20 @@ export interface ScanItemWrite {
   ingredientId: string | null;
 }
 
-export function createScan(scan: { id: string; deviceId: string; name: string; sector: Sector; rawText: string; score: number }, items: ScanItemWrite[]) {
+export function createScan(
+  scan: { id: string; deviceId: string; name: string; sector: Sector; rawText: string; score: number; barcode: string | null; imageUrl: string | null },
+  items: ScanItemWrite[],
+) {
   tx(() => {
-    db.prepare("INSERT INTO scans (id, device_id, name, sector, raw_text, score, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)").run(
+    db.prepare("INSERT INTO scans (id, device_id, name, sector, raw_text, score, barcode, image_url, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)").run(
       scan.id,
       scan.deviceId,
       scan.name,
       scan.sector,
       scan.rawText,
       scan.score,
+      scan.barcode,
+      scan.imageUrl,
       now(),
     );
     const ins = db.prepare(
@@ -382,6 +345,8 @@ export interface ScanRow {
   sector: Sector;
   rawText: string;
   score: number;
+  barcode: string | null;
+  imageUrl: string | null;
   createdAt: string;
   items: ScanItemWrite[];
 }
@@ -404,6 +369,8 @@ export function getScanRow(id: string): ScanRow | null {
     sector: r.sector as Sector,
     rawText: r.raw_text as string,
     score: Number(r.score),
+    barcode: (r.barcode as string | null) ?? null,
+    imageUrl: (r.image_url as string | null) ?? null,
     createdAt: r.created_at as string,
     items,
   };
@@ -413,7 +380,7 @@ export function listScans(deviceId: string) {
   return (
     db
       .prepare(
-        `SELECT s.id, s.name, s.sector, s.score, s.created_at, (SELECT COUNT(*) FROM scan_items i WHERE i.scan_id = s.id) AS item_count
+        `SELECT s.id, s.name, s.sector, s.score, s.image_url, s.created_at, (SELECT COUNT(*) FROM scan_items i WHERE i.scan_id = s.id) AS item_count
          FROM scans s WHERE s.device_id = ? ORDER BY s.created_at DESC LIMIT 200`,
       )
       .all(deviceId) as Row[]
@@ -424,6 +391,7 @@ export function listScans(deviceId: string) {
     score: Number(r.score),
     createdAt: r.created_at as string,
     itemCount: Number(r.item_count),
+    imageUrl: (r.image_url as string | null) ?? null,
   }));
 }
 
@@ -443,7 +411,7 @@ export function deleteDeviceData(deviceId: string): number {
   return Number(db.prepare("DELETE FROM scans WHERE device_id = ?").run(deviceId).changes);
 }
 
-/** Scans that contain an ingredient, so their stored score can be refreshed when it is verified. */
+/** Scans that contain an ingredient, so their stored score can be refreshed when it changes. */
 export function scansContaining(ingredientId: string): string[] {
   return (db.prepare("SELECT DISTINCT scan_id FROM scan_items WHERE ingredient_id = ?").all(ingredientId) as Row[]).map((r) => r.scan_id as string);
 }
@@ -504,11 +472,6 @@ export function recoverJobs() {
   db.prepare("UPDATE ingredients SET research_state = 'queued' WHERE research_state = 'running'").run();
 }
 
-export function jobCounts(): Record<string, number> {
-  const rows = db.prepare("SELECT state, COUNT(*) n FROM jobs GROUP BY state").all() as Row[];
-  return Object.fromEntries(rows.map((r) => [r.state as string, Number(r.n)]));
-}
-
 // ---------------------------------------------------------------------------
 // AI cost ledger and audit log
 
@@ -524,48 +487,25 @@ export function recordAiUsage(entry: { ingredientId: string | null; purpose: str
   );
 }
 
-export function aiTotals(sinceIso?: string) {
-  const row = db
-    .prepare(
-      `SELECT COUNT(*) calls, COALESCE(SUM(input_tokens),0) i, COALESCE(SUM(output_tokens),0) o, COALESCE(SUM(cost_usd),0) c,
-              COUNT(DISTINCT ingredient_id) ingredients
-       FROM ai_ledger WHERE created_at >= ?`,
-    )
-    .get(sinceIso ?? "1970-01-01") as Row;
-  return {
-    calls: Number(row.calls),
-    inputTokens: Number(row.i),
-    outputTokens: Number(row.o),
-    costUsd: Number(row.c),
-    ingredients: Number(row.ingredients),
-  };
-}
-
 export function logAudit(ingredientId: string | null, action: string, detail?: string) {
   db.prepare("INSERT INTO audit (ingredient_id, action, detail, created_at) VALUES (?, ?, ?, ?)").run(ingredientId, action, detail ?? null, now());
 }
 
-export function recentAudit(limit = 20) {
-  return (
-    db
-      .prepare("SELECT a.*, i.name FROM audit a LEFT JOIN ingredients i ON i.id = a.ingredient_id ORDER BY a.id DESC LIMIT ?")
-      .all(limit) as Row[]
-  ).map((r) => ({
-    id: Number(r.id),
-    ingredientId: (r.ingredient_id as string | null) ?? null,
-    name: (r.name as string | null) ?? null,
-    action: r.action as string,
-    detail: (r.detail as string | null) ?? null,
-    createdAt: r.created_at as string,
-  }));
-}
-
-export function activeDevices(sinceIso: string): number {
-  return Number((db.prepare("SELECT COUNT(DISTINCT device_id) n FROM scans WHERE created_at >= ?").get(sinceIso) as Row).n);
-}
-
 export function totalScans(): number {
   return Number((db.prepare("SELECT COUNT(*) n FROM scans").get() as Row).n);
+}
+
+// ---------------------------------------------------------------------------
+// User reports trigger automatic re-research (no human moderation queue).
+
+export function addReport(ingredientId: string, deviceId: string, reason: string) {
+  db.prepare("INSERT INTO reports (ingredient_id, device_id, reason, created_at) VALUES (?, ?, ?, ?)").run(ingredientId, deviceId, reason, now());
+}
+
+/** True when this ingredient was already re-researched because of a report in the last day. */
+export function recentlyReported(ingredientId: string): boolean {
+  const since = new Date(Date.now() - 86400_000).toISOString();
+  return !!db.prepare("SELECT 1 FROM reports WHERE ingredient_id = ? AND created_at >= ? LIMIT 1").get(ingredientId, since);
 }
 
 // ---------------------------------------------------------------------------

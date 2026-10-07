@@ -2,7 +2,7 @@
 //   1. the instant "Basic AI Draft" shown only to the scanning user,
 //   2. context-grounded (RAG) extraction from retrieved PubMed/PubChem text,
 //   3. optional label OCR from a photo.
-// Every call is metered into the AI cost ledger shown on the admin dashboard.
+// Every call is metered into the ai_usage table so the cost per ingredient stays visible.
 
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
@@ -103,7 +103,7 @@ export async function basicDraft(input: { name: string; sector: string; facts: s
       model: AI_MODEL,
       max_tokens: 1500,
       system: `You are a formulation chemist and toxicologist writing a short provisional profile of a consumer-product ingredient.
-The profile is shown to one user immediately and later fact-checked by a human reviewer.
+The profile is published immediately and refined automatically once a literature search finishes, so stay conservative and factual.
 ${SCORE_GUIDE}
 Use the PubChem facts provided when they exist. If the label text is not a real ingredient (OCR noise, marketing words, a sentence), set isIngredient to false.`,
       messages: [
@@ -125,30 +125,49 @@ Use the PubChem facts provided when they exist. If the label text is not a real 
 // ---------------------------------------------------------------------------
 // 2. Context-grounded extraction (RAG)
 
-const SourcedItem = z.object({
-  title: z.string(),
-  description: z.string(),
-  equation: z.string().nullable().describe("Balanced equation using plain formulas, e.g. 'C6H8O7 + 3 NaHCO3 → Na3C6H5O7 + 3 H2O + 3 CO2'"),
-  sources: z.array(z.string()).describe("Document ids that support this item"),
-});
-
 export const ExtractionSchema = z.object({
-  summary: z.string().describe("Two or three plain-language sentences for consumers"),
-  function: z.string(),
-  reactions: z.array(SourcedItem),
-  mechanisms: z.array(SourcedItem),
+  summary: z.string().describe("Two or three plain-language sentences for students and consumers"),
+  overview: z.array(z.string()).describe("Two or three teaching paragraphs: what the molecule is, its structure, and why it behaves as it does"),
+  function: z.string().describe("Why formulators include it"),
+  mechanisms: z.array(
+    z.object({
+      title: z.string(),
+      chemical: z.string().describe("What happens at the molecular scale"),
+      biological: z.string().describe("What that means for cells, tissues or the body"),
+      evidence: z.enum(["established", "human", "lab", "emerging"]),
+      sources: z.array(z.string()),
+    }),
+  ),
+  reactions: z.array(
+    z.object({
+      title: z.string(),
+      summary: z.string(),
+      steps: z.array(z.object({ name: z.string(), text: z.string() })).describe("Mechanism steps in order, e.g. initiation, propagation"),
+      equation: z.string().nullable().describe("Balanced equation using plain formulas, e.g. 'C6H8O7 + 3 NaHCO3 → Na3C6H5O7 + 3 H2O + 3 CO2'"),
+      result: z.string().describe("The practical outcome a student would notice"),
+      sources: z.array(z.string()),
+    }),
+  ),
   regulatory: z.array(z.object({ body: z.string(), status: z.string(), limit: z.string().nullable() })),
-  toxicology: z.object({ mechanism: z.string(), dosage: z.string() }),
-  sensitization: z.string(),
+  hazards: z.array(z.object({ title: z.string(), summary: z.string(), chemical: z.string(), biological: z.string() })),
+  dosage: z.string().describe("Safe consumer-use concentrations versus high-dose or occupational exposure"),
   myths: z.array(z.object({ claim: z.string(), consensus: z.string() })),
-  synthesis: z.object({ method: z.string(), steps: z.array(z.string()), equations: z.array(z.string()) }),
   environment: z.object({ persistence: z.string(), biodegradability: z.string(), aquaticToxicity: z.string() }),
-  fun: z.object({ history: z.string(), uses: z.array(z.string()), occurrence: z.string() }),
+  synthesis: z.array(
+    z.object({
+      title: z.string().describe("e.g. 'Biological synthesis', 'Chemical synthesis', 'Industrial manufacturing'"),
+      summary: z.string(),
+      mechanism: z.string(),
+      steps: z.array(z.string()),
+      equation: z.string().nullable(),
+      significance: z.string(),
+    }),
+  ),
   physical: z.object({ state: z.string(), solubility: z.string(), phStability: z.string(), meltingPoint: z.string() }),
   functionalGroups: z.array(z.string()),
   unsupportedFields: z
     .array(z.string())
-    .describe("Dot paths of fields written from general knowledge rather than the documents, e.g. 'fun.history'"),
+    .describe("Field names written from general chemistry knowledge rather than the documents, e.g. 'synthesis'"),
 });
 export type Extraction = z.infer<typeof ExtractionSchema>;
 
@@ -161,17 +180,17 @@ export async function groundedExtraction(input: { name: string; identity: string
     const response = await getClient().messages.parse({
       model: AI_MODEL,
       max_tokens: 6000,
-      system: `You extract a scientific ingredient profile from the documents provided, for a consumer app that a human scientist reviews before publication.
+      system: `You write an educational ingredient profile for a chemistry-learning app used by high-school students. It is published automatically, so accuracy matters more than completeness.
 
-Strict grounding rule: extract and summarize the specific chemical reactions, biological mechanisms, toxicology and concentration context directly from the documents.
-- reactions, mechanisms, toxicology.mechanism and toxicology.dosage must come only from the documents. Cite the supporting document ids in each item's sources.
-  If the documents do not describe something, return an empty list or the sentence "Not described in the retrieved sources."
-- regulatory entries may use regulatory statements found in the documents (FDA, CIR, ECHA, EFSA, EPA Safer Choice).
-- Other fields (history, surprising uses, natural occurrence, synthesis, environmental profile, myths, physical properties) may draw on well-established chemistry knowledge
-  when the documents are silent, but list every such field path in unsupportedFields so the reviewer checks it.
-- Clearly distinguish safe consumer-use concentrations from high-dose or occupational exposures in toxicology.dosage.
-- For myths, contrast a common online claim with the current scientific consensus. Be accurate and calm.
-- Write for curious non-experts: precise, concise, no hype.`,
+Grounding rule: mechanisms, reactions, hazards and dosage must be supported by the documents provided. Cite supporting document ids in each item's sources.
+If the documents do not support something, leave that list empty rather than guessing.
+- Explain every mechanism at two scales: "chemical" (what the molecule does: bonds, binding, reactivity) and "biological" (what cells, tissues or the body experience).
+- Label evidence honestly: "established" for textbook chemistry or regulatory consensus, "human" for human studies, "lab" for cell or animal studies, "emerging" for preliminary or debated findings.
+- Reactions should walk through mechanism steps in order and end with the practical result.
+- Hazards pair the chemical mechanism with the biological effect, and must distinguish the pure chemical from the amount in a product.
+- Regulatory entries may use statements found in the documents (FDA, CIR, ECHA, EFSA, EPA Safer Choice).
+- overview, synthesis, environment, myths and physical properties may use well-established chemistry when the documents are silent; list each such field name in unsupportedFields.
+- Write for curious 15-year-olds: precise, vivid, calm, no hype, no fearmongering.`,
       messages: [
         {
           role: "user",

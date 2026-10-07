@@ -40,14 +40,13 @@ db.exec(`
     profile          TEXT,
     citations        TEXT NOT NULL DEFAULT '[]',
     sources          TEXT NOT NULL DEFAULT '[]',
-    status           TEXT NOT NULL DEFAULT 'needs_verification',
+    status           TEXT NOT NULL DEFAULT 'preliminary',
     research_state   TEXT,
     research_error   TEXT,
     draft            TEXT,
     created_by       TEXT,
     created_at       TEXT NOT NULL,
-    updated_at       TEXT NOT NULL,
-    verified_at      TEXT
+    updated_at       TEXT NOT NULL
   );
   CREATE INDEX IF NOT EXISTS ingredients_status ON ingredients(status);
 
@@ -64,6 +63,8 @@ db.exec(`
     sector     TEXT NOT NULL,
     raw_text   TEXT NOT NULL,
     score      INTEGER NOT NULL DEFAULT 0,
+    barcode    TEXT,
+    image_url  TEXT,
     created_at TEXT NOT NULL
   );
   CREATE INDEX IF NOT EXISTS scans_device ON scans(device_id, created_at);
@@ -109,6 +110,14 @@ db.exec(`
     ingredient_id TEXT,
     action        TEXT NOT NULL,
     detail        TEXT,
+    created_at    TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS reports (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    ingredient_id TEXT NOT NULL,
+    device_id     TEXT,
+    reason        TEXT NOT NULL,
     created_at    TEXT NOT NULL
   );
 

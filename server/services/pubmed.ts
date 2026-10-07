@@ -1,5 +1,5 @@
 // PubMed via NCBI E-utilities: publication counts (the "most/least researched" sort) and
-// abstracts that ground the AI extraction and the admin fact-check.
+// abstracts that ground automatic research and the citations shown on every profile.
 
 import { RateLimiter, getJson, getText } from "./http";
 import type { Citation } from "../../shared/types";

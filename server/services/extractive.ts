@@ -1,10 +1,10 @@
 // Extractive fallback used when no AI key is configured: builds the draft and the research profile
 // by selecting and classifying sentences from PubChem sections and PubMed abstracts. Everything it
-// outputs is quoted or trimmed from a real source, so the admin can fact-check it the same way.
+// outputs is quoted or trimmed from a real source, so anyone can check it against the cited source.
 
 import type { Extraction, BasicDraft } from "./ai";
-import { firstSentences, heuristicScore, type HazardFacts, type PubChemCompound, type ViewEntry } from "./pubchem";
-import type { Kind, Origin, Sector, SourceDoc } from "../../shared/types";
+import { firstSentences, heuristicScore, splitSentences, type HazardFacts, type PubChemCompound, type ViewEntry } from "./pubchem";
+import type { EvidenceLevel, Hazard, Kind, Origin, Sector, SourceDoc } from "../../shared/types";
 
 export interface Facts {
   compound: PubChemCompound | null;
@@ -183,7 +183,7 @@ export function extractiveBasicDraft(name: string, sector: Sector, facts: Facts)
     scoreRationale: rationale,
     summary: description
       ? firstSentences(description, 2)
-      : `${displayName} is listed on this label as an ingredient. A full profile is being researched and will be reviewed by a scientist.`,
+      : `${displayName} is listed on this label as ${role === "Ingredient" ? "an ingredient" : `a ${role.toLowerCase()}`}. Assay is searching PubChem and PubMed for more, and this profile updates automatically.`,
     productFunction: role === "Ingredient" ? "Function not yet identified." : `Used as a ${role.toLowerCase()}.`,
     sensitization: facts.ghs.hCodes.includes("H317")
       ? "Classified as a potential skin sensitizer (GHS H317) in concentrated form."
@@ -192,29 +192,43 @@ export function extractiveBasicDraft(name: string, sector: Sector, facts: Facts)
 }
 
 // ---------------------------------------------------------------------------
-// Sentence selection
+// Automatic research profile (no AI): sentence selection from PubChem + PubMed, plus
+// textbook explanations of each GHS hazard class the compound carries.
 
 interface Sentence {
   text: string;
   source: string;
 }
 
+/** Sentences about the study itself rather than the substance. */
+const META = /^(?:purpose|objectives?|aims?|methods?|design|setting|participants)\s*:|\b(?:this|the present|our|current) (?:study|work|paper|review|research)\b|\bwe (?:investigated|evaluated|examined|aimed|report|studied|propose|developed|assessed)\b|\bthe (?:aim|purpose|objective|goal) of\b/i;
+
+/** Structured-abstract labels whose content is still useful ("Background: X is a…"). */
+const SECTION_LABEL = /^(?:background|introduction|context|significance|results?|conclusions?|findings)\s*:\s*/i;
+
 function sentencesOf(docs: SourceDoc[]): Sentence[] {
   const out: Sentence[] = [];
   for (const d of docs) {
-    const parts = d.text.replace(/\s+\|\s+/g, ". ").match(/[^.!?]+[.!?]+/g) ?? [d.text];
-    for (const p of parts) {
-      const t = p.trim();
-      if (t.length >= 50 && t.length <= 420) out.push({ text: t, source: d.id });
+    const fromPaper = d.source === "pubmed";
+    for (const part of splitSentences(d.text)) {
+      const t = part.replace(SECTION_LABEL, "").trim();
+      if (t.length < 50 || t.length > 420) continue;
+      // Abstract sentences about the study design, or fragments, say nothing about the substance.
+      if (fromPaper && (META.test(t) || /^[a-z]/.test(t))) continue;
+      out.push({ text: t[0].toUpperCase() + t.slice(1), source: d.id });
     }
   }
   return out;
 }
 
+/** Best sentences for a topic: they must match the topic itself; naming the ingredient only helps ranking. */
 function pick(sentences: Sentence[], re: RegExp, n: number, nameRe?: RegExp, exclude = new Set<string>()): Sentence[] {
   return sentences
-    .map((s) => ({ s, score: (s.text.match(new RegExp(re.source, "gi"))?.length ?? 0) + (nameRe?.test(s.text) ? 1.5 : 0) }))
-    .filter((x) => x.score >= 1 && !exclude.has(x.s.text))
+    .map((s) => {
+      const hits = s.text.match(new RegExp(re.source, "gi"))?.length ?? 0;
+      return { s, hits, score: hits + (nameRe?.test(s.text) ? 1.5 : 0) };
+    })
+    .filter((x) => x.hits >= 1 && !exclude.has(x.s.text))
     .sort((a, b) => b.score - a.score)
     .slice(0, n)
     .map((x) => {
@@ -223,20 +237,173 @@ function pick(sentences: Sentence[], re: RegExp, n: number, nameRe?: RegExp, exc
     });
 }
 
+/** Readable headings for automatically extracted mechanisms, keyed on what the sentences describe. */
+const MECHANISM_TOPICS: [RegExp, string][] = [
+  [/sensiti[sz]|allerg|dermatitis|patch test/i, "Skin sensitization"],
+  [/membrane|lipid bilayer|permeab/i, "Membrane disruption"],
+  [/antimicrobial|antibacterial|antifungal|bactericid|preservative efficacy|microb/i, "Antimicrobial action"],
+  [/antioxidant|radical|scaveng|lipid peroxid|oxidative stress/i, "Antioxidant and oxidative chemistry"],
+  [/inflammat|cytokine|\bnf-?[κk]b\b|interleukin|\btnf\b/i, "Effects on inflammation"],
+  [/receptor|agonist|antagonist|ligand/i, "Receptor binding"],
+  [/inhibit\w*\s+(?:the\s+)?(?:enzyme|activity)|enzyme inhibit|inhibitor of/i, "Enzyme inhibition"],
+  [/\bmetaboli[sz]|\bcytochrome|\bhepat|\bliver\b/i, "Metabolism in the body"],
+  [/absorb|permeat|penetrat|bioavailab|transdermal/i, "Absorption and skin penetration"],
+  [/viscos|rheolog|\bgel|hydrogel|thicken|\bswell/i, "How it thickens"],
+  [/emulsi|surfact|micell|interfac/i, "Behavior at oil–water interfaces"],
+  [/barrier|transepidermal|hydrat|moistur|stratum corneum/i, "Effects on the skin barrier"],
+  [/estrogen|endocrine|\bhormon/i, "Hormone-related activity"],
+  [/genotox|mutagen|dna damage|carcinogen/i, "Genotoxicity findings"],
+  [/cytotox|cell viability|apoptosis/i, "Effects on cells"],
+];
+
+function mechanismTopic(text: string, taken: string[]): string | null {
+  for (const [re, title] of MECHANISM_TOPICS) if (re.test(text) && !taken.includes(title)) return title;
+  return null;
+}
+
+/** Paper titles as headings: drop trailing parentheticals and cut at a word boundary. */
+function shortTitle(title: string, max = 90): string {
+  const t = title.replace(/\s*\(.*\)$/, "").replace(/\.$/, "");
+  if (t.length <= max) return t;
+  return `${t.slice(0, t.lastIndexOf(" ", max)).replace(/[,:;]$/, "")}…`;
+}
+
+
 const RE = {
-  reaction: /chelat|neutraliz|oxidi[sz]|reduc(?:e|tion)|hydroly|react|scaveng|esterif|saponif|polymeri|complex(?:es|ation)|decompos|dissociat|protonat/,
-  mechanism: /inhibit|receptor|enzyme|pathway|membrane|express|signal|apoptosis|oxidative stress|barrier|metaboli|absorb|bind|activat|microb/,
+  reaction: /chelat|neutraliz|oxidi[sz]|reduction\b|reducing agent|hydroly|reacts?\b|reaction|scaveng|esterif|saponif|polymeri[sz]|complex(?:es|ation)|decompos|dissociat|protonat|degrad/,
+  molecular: /inhibit|receptor|enzyme|bind|ligand|channel|membrane|oxidat|radical|protein|transporter|activat|block|agonist|antagonist/,
+  biological: /cell|tissue|skin|liver|kidney|brain|blood|inflammat|immune|growth|toxicit|symptom|patients|animals|rats|mice|human|body|organism/,
   dosage: /mg\/kg|µg|ppm|\d\s?%|concentration|acceptable daily intake|ADI|NOAEL|dose|exposure/,
   sensitization: /sensiti[sz]|allerg|dermatitis|irritat|patch test/,
-  toxicity: /toxic|lethal|LD50|carcino|genotox|adverse|harm/,
 };
+
+function evidenceOf(text: string): EvidenceLevel {
+  if (/randomi[sz]ed|clinical trial|patients|volunteers|participants|cohort|meta-analysis|humans\b/i.test(text)) return "human";
+  if (/in vitro|cell line|cultured|rats?\b|mice|mouse|animal|zebrafish/i.test(text)) return "lab";
+  return "emerging";
+}
+
+/** Generic, textbook mechanisms for GHS hazard classes. They describe the pure, concentrated chemical. */
+const GHS_HAZARDS: { codes: RegExp; title: string; summary: string; chemical: string; biological: string }[] = [
+  {
+    codes: /^H314/,
+    title: "Corrosive when concentrated",
+    summary: "The concentrated chemical can burn skin and eyes; the diluted amount in a finished product is far lower.",
+    chemical: "Strongly acidic or alkaline substances shift the local pH far from neutral. Acids hydrolyze and denature proteins; bases additionally saponify (break apart) the fatty lipids that hold cell membranes together.",
+    biological: "Acid burns cause coagulative necrosis, which forms a crust that limits depth. Alkali burns cause liquefactive necrosis, which keeps penetrating, so they are often deeper, especially in the eye.",
+  },
+  {
+    codes: /^H31[59]/,
+    title: "Skin and eye irritant",
+    summary: "Direct contact with the concentrated chemical can redden skin or sting the eyes.",
+    chemical: "Irritants dissolve or disrupt the lipids and proteins of the outer skin barrier (stratum corneum) or the tear film and corneal surface.",
+    biological: "Damaged surface cells release inflammatory signals (cytokines), causing redness, swelling and stinging. Unlike an allergy, irritation does not involve immune memory and stops when exposure ends.",
+  },
+  {
+    codes: /^H318/,
+    title: "Serious eye damage",
+    summary: "Concentrated splashes can injure the cornea, so goggles are recommended when handling the raw chemical.",
+    chemical: "The substance reacts with or denatures proteins in the corneal epithelium and can penetrate deeper layers of the eye.",
+    biological: "Corneal cells die and the clear tissue can scar or cloud, which is why eye-damage classifications call for immediate rinsing for at least 15 minutes.",
+  },
+  {
+    codes: /^H317/,
+    title: "Skin sensitizer (allergic contact dermatitis)",
+    summary: "Repeated contact can teach the immune system to react to this chemical, causing an itchy rash on later exposures.",
+    chemical: "Small, reactive molecules (or their oxidation products) cross the skin barrier and act as haptens: they bond covalently to the skin's own proteins, creating altered proteins the body has never seen.",
+    biological: "Langerhans cells carry the altered proteins to lymph nodes and train T cells to recognize them. On the next exposure those T cells trigger a delayed (Type IV) immune reaction 24–72 hours later: redness, itching and blistering.",
+  },
+  {
+    codes: /^H334/,
+    title: "Respiratory sensitizer",
+    summary: "Breathing in dust or mist of the raw material can cause allergy or asthma in workers handling it.",
+    chemical: "Inhaled particles or proteins are recognized as foreign by the immune system lining the airways.",
+    biological: "The body produces IgE antibodies; later exposures release histamine and other mediators that constrict the airways, producing wheezing and asthma-like symptoms.",
+  },
+  {
+    codes: /^H33[05]|^H332/,
+    title: "Respiratory irritation",
+    summary: "Vapors or dust of the concentrated chemical can irritate the nose, throat and lungs.",
+    chemical: "Reactive vapors and particles dissolve in the moist lining of the airways, changing local pH or reacting with surface proteins.",
+    biological: "Irritated mucous membranes trigger coughing, sneezing and airway narrowing, a protective reflex that stops once you reach fresh air.",
+  },
+  {
+    codes: /^H304/,
+    title: "Aspiration hazard",
+    summary: "Swallowing the concentrated liquid is dangerous mainly because it can slip into the lungs.",
+    chemical: "Low-viscosity, low-surface-tension liquids (often hydrocarbons) spread easily over wet surfaces.",
+    biological: "If swallowed and then choked on or vomited, the liquid can enter the airways and dissolve the lung's surfactant, the film that keeps air sacs open, causing chemical pneumonitis.",
+  },
+  {
+    codes: /^H30[012]|^H31[012]/,
+    title: "Harmful if swallowed or absorbed in large amounts",
+    summary: "Acute toxicity is measured with the dose that would harm a test animal; it applies to the concentrated chemical, not trace amounts.",
+    chemical: "Toxicologists rank acute toxicity by the LD50: the dose per kilogram of body weight that is lethal to half of test animals. A lower LD50 means a more toxic substance.",
+    biological: "Effects depend on how much reaches the bloodstream and which organs process it. The amounts in consumer products are typically a small fraction of a toxic dose.",
+  },
+  {
+    codes: /^H34[01]/,
+    title: "Genetic toxicity flag",
+    summary: "Laboratory tests suggest the pure substance may damage DNA at high doses.",
+    chemical: "Mutagens chemically modify DNA bases (for example by adding alkyl groups or generating reactive oxygen species), causing copying errors.",
+    biological: "If cells cannot repair the damage, mutations can accumulate. Regulators set exposure limits far below the doses that show effects in tests.",
+  },
+  {
+    codes: /^H35[01]/,
+    title: "Carcinogenicity classification",
+    summary: "This is a hazard label: it says the substance can cause cancer under some conditions, not that normal use carries meaningful risk.",
+    chemical: "Carcinogens act either by damaging DNA directly or by promoting cell growth and chronic inflammation over long periods.",
+    biological: "Risk depends on dose, route and duration. Hazard (can it cause harm?) and risk (will it, at this exposure?) are different questions.",
+  },
+  {
+    codes: /^H36[0-2]/,
+    title: "Reproductive toxicity flag",
+    summary: "High-dose animal studies of the pure substance raised concerns about fertility or development.",
+    chemical: "Some substances interfere with hormone signaling or with rapidly dividing cells in developing tissue.",
+    biological: "Effects seen at high doses in animals guide the safety margins regulators set for human exposure.",
+  },
+  {
+    codes: /^H37[0-3]/,
+    title: "Organ toxicity with heavy exposure",
+    summary: "Large or repeated exposures to the concentrated chemical can affect specific organs.",
+    chemical: "The substance or its metabolites accumulate in, or are processed by, particular organs such as the liver or kidneys.",
+    biological: "Sustained high exposure can overwhelm the organ's capacity to detoxify, causing damage that occupational limits are designed to prevent.",
+  },
+  {
+    codes: /^H22[4-6]/,
+    title: "Flammable",
+    summary: "The liquid or its vapor can catch fire, so store it away from heat and flames.",
+    chemical: "A low flash point means enough vapor forms at room temperature to ignite; combustion rapidly oxidizes C–H bonds into carbon dioxide and water, releasing heat.",
+    biological: "The main danger is burns and fire rather than toxicity.",
+  },
+  {
+    codes: /^H4(00|10|11|12)/,
+    title: "Toxic to aquatic life",
+    summary: "Large releases into waterways can harm fish and invertebrates, which is why disposal is regulated.",
+    chemical: "Hydrophobic or surface-active molecules partition out of water and into the fatty membranes of gills and other tissues.",
+    biological: "Accumulating in membranes disrupts their structure and function, impairing breathing and cell integrity in aquatic organisms.",
+  },
+];
+
+export function ghsHazards(h: HazardFacts): Hazard[] {
+  const out: Hazard[] = [];
+  for (const t of GHS_HAZARDS) {
+    const codes = h.hCodes.filter((c) => t.codes.test(c));
+    if (codes.length === 0) continue;
+    out.push({ title: t.title, summary: `${t.summary} (GHS ${codes.join(", ")}, pure substance)`, chemical: t.chemical, biological: t.biological });
+  }
+  return out;
+}
 
 function sectionDoc(docs: SourceDoc[], heading: string): SourceDoc | undefined {
   return docs.find((d) => d.id === `PubChem:${heading}`);
 }
 
+const PENDING = "Not described in the retrieved sources.";
+
 export function extractiveProfile(name: string, docs: SourceDoc[], facts: Facts): Extraction {
   const all = sentencesOf(docs);
+  const papers = all.filter((s) => s.source.startsWith("PMID"));
   const nameRe = new RegExp(name.split(/\s+/)[0].replace(/[^\w]/g, ""), "i");
   const used = new Set<string>();
   const firstOf = (heading: string, n = 2) => {
@@ -244,22 +411,80 @@ export function extractiveProfile(name: string, docs: SourceDoc[], facts: Facts)
     return d ? firstSentences(d.text, n, 520) : "";
   };
 
-  const moa = sectionDoc(docs, "Mechanism of Action");
-  const mechanisms = [
-    ...(moa ? [{ text: firstSentences(moa.text, 2, 480), source: moa.id }] : []),
-    ...pick(all.filter((s) => s.source.startsWith("PMID")), RE.mechanism, moa ? 1 : 2, nameRe, used),
-  ].map((s, i) => ({ title: i === 0 && moa ? "Reported mechanism of action" : "Finding from the literature", description: s.text, equation: null, sources: [s.source] }));
+  // Overview: what it is, physically and chemically.
+  const descriptions = texts(facts, "Record Description");
+  const describe = descriptions.find((t) => t.length > 80 && !/appears as/i.test(t));
+  const appearance = descriptions.find((t) => /appears as/i.test(t));
+  const c = facts.compound;
+  const overview = [
+    describe ? firstSentences(describe, 3, 640) : "",
+    [appearance ? firstSentences(appearance, 2, 360) : "", c?.formula ? `Its molecular formula is ${c.formula}${c.weight ? `, with a molar mass of ${c.weight.toFixed(2)} g/mol` : ""}.` : ""]
+      .filter(Boolean)
+      .join(" "),
+  ].filter(Boolean);
+  // No PubChem description (common for polymers and mixtures): use descriptive sentences from the abstracts,
+  // skipping study boilerplate ("The aim of this study…", "We evaluated…").
+  let defining = "";
+  if (!describe) {
+    const stem = name.split(/\s+/)[0].replace(/[^\w]/g, "");
+    const defines = new RegExp(`\\b${stem}\\w*\\s+(?:\\([^)]*\\)\\s+)?(?:is|are)\\s+(?:a|an|the|widely|commonly|frequently|used|one)\\b`, "i");
+    const descriptive = papers.filter((x) => !META.test(x.text) && x.text.length < 420);
+    const definitional = descriptive.filter((x) => defines.test(x.text)).slice(0, 2);
+    for (const d of definitional) used.add(d.text);
+    if (definitional.length) {
+      defining = definitional[0].text;
+      overview.unshift(definitional.map((d) => d.text).join(" "));
+    }
+  }
 
-  const reactions = pick(all, RE.reaction, 2, nameRe, used).map((s) => ({
+  // Mechanisms: pair a molecular-scale sentence with a biological-scale sentence from the same source.
+  const mechanisms: Extraction["mechanisms"] = [];
+  const moa = sectionDoc(docs, "Mechanism of Action");
+  const bySource = new Map<string, Sentence[]>();
+  for (const s of [...(moa ? sentencesOf([moa]) : []), ...papers]) bySource.set(s.source, [...(bySource.get(s.source) ?? []), s]);
+  for (const [source, sentences] of bySource) {
+    if (mechanisms.length >= 3) break;
+    const chem = pick(sentences, RE.molecular, 1, nameRe, used)[0];
+    const bio = pick(sentences, RE.biological, 1, nameRe, used)[0];
+    // A finding only counts if it is actually about this ingredient: named in the sentences (or by the
+    // abbreviation the abstract defines for it) or in the paper's title.
+    if (!chem && !bio) continue;
+    const docMeta = docs.find((d) => d.id === source);
+    const abbr = docMeta?.text.match(new RegExp(`${nameRe.source}\\w*\\s*\\(([A-Z][A-Za-z0-9-]{1,7})\\)`, "i"))?.[1];
+    const about = (t: string) => nameRe.test(t) || (!!abbr && new RegExp(`\\b${abbr}\\b`).test(t));
+    if (!about(`${chem?.text ?? ""} ${bio?.text ?? ""}`) && !nameRe.test(docMeta?.title ?? "")) {
+      if (chem) used.delete(chem.text);
+      if (bio) used.delete(bio.text);
+      continue;
+    }
+    const doc = docs.find((d) => d.id === source);
+    const topic = mechanismTopic(`${chem?.text ?? ""} ${bio?.text ?? ""} ${doc?.title ?? ""}`, mechanisms.map((m) => m.title));
+    mechanisms.push({
+      title: topic ?? (source.startsWith("PubChem") ? "Reported mechanism of action" : `Finding: ${shortTitle(doc?.title ?? "published study")}`),
+      chemical: chem?.text ?? PENDING,
+      biological: bio?.text ?? PENDING,
+      evidence: evidenceOf([chem?.text, bio?.text].join(" ")),
+      sources: [source],
+    });
+  }
+
+  // Reactions: only sentences that name the ingredient and describe chemistry, not biological outcomes.
+  const chemistrySentences = all.filter((x) => nameRe.test(x.text) && !x.text.includes("->") && !/viabilit|patients|inflammat|wound|bacteria\b/i.test(x.text));
+  const reactions: Extraction["reactions"] = pick(chemistrySentences, RE.reaction, 2, nameRe, used).map((s) => ({
     title: "Reported chemistry",
-    description: s.text,
+    summary: s.text,
+    steps: [],
     equation: null,
+    result: "See the cited source for the full reaction conditions.",
     sources: [s.source],
   }));
 
-  const dosage = pick(all, RE.dosage, 2, nameRe, used);
-  const tox = firstOf("Toxicity Summary") || firstOf("Human Toxicity Excerpts") || pick(all, RE.toxicity, 1, nameRe, used)[0]?.text || "";
-  const sens = pick(all, RE.sensitization, 1, nameRe, used)[0]?.text;
+  // Hazards: textbook GHS mechanisms + any sensitization finding from the literature.
+  const hazards = ghsHazards(facts.ghs);
+  const sens = pick(papers, RE.sensitization, 1, nameRe, used)[0];
+  if (sens && !hazards.some((h) => /sensitizer/i.test(h.title))) {
+    hazards.push({ title: "Allergy and irritation reports", summary: "A published study describes skin or allergic reactions.", chemical: PENDING, biological: sens.text });
+  }
 
   const regulatory: Extraction["regulatory"] = [];
   const toxEntries = facts.sections["Toxicity Summary"] ?? [];
@@ -279,7 +504,7 @@ export function extractiveProfile(name: string, docs: SourceDoc[], facts: Facts)
   if (jecfa) regulatory.push({ body: "JECFA (FAO/WHO)", status: `Functional class: ${jecfa.replace(/^Food Additives\s*->\s*/i, "").toLowerCase()}.`, limit: null });
   if (facts.ghs.hCodes.length) {
     regulatory.push({
-      body: "GHS classification (ECHA C&L notifications)",
+      body: "GHS classification (ECHA notifications)",
       status: `${facts.ghs.signal ?? "Classified"} for the pure substance: ${facts.ghs.statements.slice(0, 3).join("; ")}.`,
       limit: null,
     });
@@ -288,44 +513,46 @@ export function extractiveProfile(name: string, docs: SourceDoc[], facts: Facts)
   if (safer) regulatory.push({ body: "U.S. EPA Safer Choice", status: safer.replace(/^Safer Chemical Classes\s*->\s*/i, "").trim(), limit: null });
 
   const manufacturing = facts.sections["Methods of Manufacturing"] ?? [];
+  const synthesis: Extraction["synthesis"] = manufacturing.length
+    ? [
+        {
+          title: "Industrial manufacturing",
+          summary: firstSentences(manufacturing[0].text, 1, 300),
+          mechanism: firstSentences(manufacturing[0].text, 3, 700),
+          steps: manufacturing.slice(1, 4).map((e) => firstSentences(e.text, 1, 300)),
+          equation: null,
+          significance: "Summarized automatically from PubChem's manufacturing records.",
+        },
+      ]
+    : [];
+
   const usesList = [...texts(facts, "Consumer Uses"), ...texts(facts, "Industry Uses"), ...texts(facts, "Uses")]
     .flatMap((t) => t.split("|"))
     .map((t) => t.trim())
     .filter((t) => t.length > 3 && t.length < 140 && !/not otherwise specified|^information on/i.test(t));
 
+  const dosage = pick(all, RE.dosage, 2, nameRe, used);
   const fate = firstOf("Environmental Fate", 2);
   const biodeg = firstOf("Environmental Biodegradation", 2);
   const ecotox = firstOf("Ecotoxicity Values", 1) || firstOf("Ecotoxicity Excerpts", 1);
   const firstShort = (heading: string) => texts(facts, heading).find((t) => t.length < 160) ?? "";
 
-  const pending = "Not described in the retrieved sources.";
   return {
-    summary: firstOf("Record Description", 2) || `${name} is being researched.`,
-    function: firstSentences(usesList.slice(0, 3).join(". ") || firstOf("Record Description", 1) || pending, 2),
-    reactions,
+    summary: describe ? firstSentences(describe, 2) : defining,
+    overview,
+    function: firstSentences(usesList.slice(0, 3).join(". ") || firstOf("Record Description", 1) || PENDING, 2),
     mechanisms,
+    reactions,
     regulatory,
-    toxicology: {
-      mechanism: tox || pending,
-      dosage: dosage.length ? dosage.map((s) => s.text).join(" ") : pending,
-    },
-    sensitization: sens ?? (facts.ghs.hCodes.includes("H317") ? "Classified as a potential skin sensitizer (GHS H317) in concentrated form." : pending),
+    hazards,
+    dosage: dosage.length ? dosage.map((s) => s.text).join(" ") : firstOf("Toxicity Summary") || PENDING,
     myths: [],
-    synthesis: {
-      method: manufacturing[0] ? firstSentences(manufacturing[0].text, 2, 520) : pending,
-      steps: manufacturing.slice(1, 4).map((e) => firstSentences(e.text, 1, 300)),
-      equations: [],
-    },
     environment: {
-      persistence: fate || pending,
-      biodegradability: biodeg || pending,
-      aquaticToxicity: ecotox || (facts.ghs.hCodes.some((c) => /^H4/.test(c)) ? "Classified as hazardous to the aquatic environment in pure form." : pending),
+      persistence: fate || PENDING,
+      biodegradability: biodeg || PENDING,
+      aquaticToxicity: ecotox || (facts.ghs.hCodes.some((c) => /^H4/.test(c)) ? "Classified as hazardous to the aquatic environment in pure form." : PENDING),
     },
-    fun: {
-      history: pending,
-      uses: [...new Set(usesList)].slice(0, 4),
-      occurrence: firstOf("Natural Pollution Sources", 2) || pending,
-    },
+    synthesis,
     physical: {
       state: firstShort("Physical Description") || "",
       solubility: firstShort("Solubility"),

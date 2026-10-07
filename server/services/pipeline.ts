@@ -1,10 +1,10 @@
-// The generation pipeline from the plan:
-//   1. Initial scan & instant draft: parse OCR text, check the central database, create a
-//      "Basic AI Draft" (PubChem + AI) for unknown ingredients, flag status: needs_verification.
-//   2. Automated scientific retrieval: a background worker pulls PubMed abstracts and PubChem
-//      sections and runs context-grounded extraction.
-//   3. Admin review happens in the dashboard (routes/admin.ts).
-//   4. Approval flips status to verified and broadcasts it to every client.
+// The automatic research pipeline. No step waits for a person:
+//   1. Instant profile: parse the label, match the curated library, and draft a preliminary profile for
+//      unknown ingredients from PubChem facts (plus AI when a key is configured).
+//   2. Background research: a durable worker pulls PubMed abstracts and PubChem sections, builds the full
+//      profile (mechanisms at two scales, hazards from GHS classes, synthesis), and publishes it to every
+//      client as soon as it is backed by a PubChem record or published papers.
+//   3. Self-correction: user reports and missing evidence automatically re-queue research.
 
 import { randomBytes } from "node:crypto";
 import { parseIngredients, type ParsedIngredient } from "../../shared/parse";
@@ -15,6 +15,7 @@ import { AI_MODEL, aiEnabled, basicDraft, groundedExtraction, type BasicDraft, t
 import { broadcast } from "./events";
 import { extractiveBasicDraft, extractiveProfile, type Facts } from "./extractive";
 import { isPlausibleIngredient, matchIngredient } from "./matcher";
+import { roleOverview } from "./roles";
 import * as pubchem from "./pubchem";
 import * as pubmed from "./pubmed";
 import { brandedFoodCount } from "./usda";
@@ -128,19 +129,17 @@ function identityFromFacts(facts: Facts, existing: Ingredient["identity"] = {}):
 }
 
 function extractionToProfile(x: Extraction): Profile {
-  const clean = <T extends { equation?: string | null }>(items: T[]) =>
-    items.map((i) => ({ ...i, equation: i.equation ?? undefined }));
   return {
+    overview: x.overview.filter(Boolean),
     function: x.function,
-    reactions: clean(x.reactions),
-    mechanisms: clean(x.mechanisms),
+    mechanisms: x.mechanisms,
+    reactions: x.reactions.map((r) => ({ ...r, equation: r.equation ?? undefined })),
     regulatory: x.regulatory.map((r) => ({ body: r.body, status: r.status, limit: r.limit ?? undefined })),
-    toxicology: x.toxicology,
-    sensitization: x.sensitization,
+    hazards: x.hazards,
+    dosage: x.dosage,
     myths: x.myths,
-    synthesis: x.synthesis,
     environment: x.environment,
-    fun: x.fun,
+    synthesis: x.synthesis.map((r) => ({ ...r, equation: r.equation ?? undefined })),
   };
 }
 
@@ -182,7 +181,7 @@ async function createDraft(id: string, parsed: ParsedIngredient, sector: Sector,
   }
 
   let draft: BasicDraft;
-  let model = "extractive";
+  let model = "automatic";
   if (aiEnabled()) {
     try {
       draft = await basicDraft({ name: parsed.name, sector, facts: factsToPrompt(facts), ingredientId: null });
@@ -201,7 +200,6 @@ async function createDraft(id: string, parsed: ParsedIngredient, sector: Sector,
   const docs = factsToDocs(facts);
   const profile = extractionToProfile(extractiveProfile(parsed.name, docs, facts));
   profile.function = draft.productFunction;
-  profile.sensitization = draft.sensitization;
 
   const name = draft.commonName?.trim() || parsed.name;
   const created = repo.upsertIngredient({
@@ -223,13 +221,12 @@ async function createDraft(id: string, parsed: ParsedIngredient, sector: Sector,
     profile,
     citations: [],
     sources: docs,
-    status: "needs_verification",
+    status: "preliminary",
     draft: { stage: "basic", model, generatedAt: new Date().toISOString() },
     createdBy: deviceId,
   });
   repo.enqueueJob(created.id);
-  repo.logAudit(created.id, "draft_created", `Basic draft (${model}) from a ${sector} scan`);
-  broadcast({ type: "queue.updated", pending: repo.countByStatus().needs_verification });
+  repo.logAudit(created.id, "draft_created", `Preliminary profile (${model}) from a ${sector} scan`);
   return created;
 }
 
@@ -260,15 +257,15 @@ export async function runResearch(ingredientId: string): Promise<void> {
     })),
   ];
 
-  // Cache the 3D structure now so the reviewer sees it and users never re-fetch it.
+  // Cache the 3D structure now so users never re-fetch it.
   const cid = facts.compound?.cid ?? ing.pubchemCid;
   if (cid && !repo.getSdf(ing.id)) {
     const sdf = await pubchem.fetchSdf(cid).catch(() => null);
     if (sdf) repo.setSdf(ing.id, sdf.sdf, sdf.source);
   }
 
-  if (ing.status === "verified") {
-    // Never overwrite a reviewed profile; refresh the evidence around it.
+  if (ing.status === "curated") {
+    // Never overwrite a curated profile; refresh the evidence around it.
     repo.patchIngredient(ing.id, {
       sources: docs,
       citations: papers.length ? papers : ing.citations,
@@ -281,7 +278,7 @@ export async function runResearch(ingredientId: string): Promise<void> {
   }
 
   let extraction: Extraction;
-  let model = "extractive";
+  let model = "automatic";
   const identityText = JSON.stringify({ formula: facts.compound?.formula, iupac: facts.compound?.iupac, cid });
   if (aiEnabled() && docs.length > 0) {
     try {
@@ -296,12 +293,16 @@ export async function runResearch(ingredientId: string): Promise<void> {
   }
 
   const profile = extractionToProfile(extraction);
-  // Keep the basic draft's answers where extraction found nothing.
-  const pending = "Not described in the retrieved sources.";
-  if (ing.profile) {
-    if (!profile.function || profile.function === pending) profile.function = ing.profile.function;
-    if (!profile.sensitization || profile.sensitization === pending) profile.sensitization = ing.profile.sensitization;
+  // Thinly described ingredients still get a real explanation: what their role means chemically.
+  const described = (facts.sections["Record Description"] ?? []).some((e) => e.text.length > 80 && !/appears as/i.test(e.text));
+  if (!described && model === "automatic") {
+    // Lead with the literature's own definition when there is one, then explain the role's chemistry.
+    const [definition, ...rest] = extraction.summary ? profile.overview : [undefined, ...profile.overview];
+    profile.overview = [definition, ...roleOverview(ing, researchCount ?? null, !!definition), ...rest].filter((p): p is string => !!p);
   }
+  // Keep the first draft's answer where research found nothing new.
+  const pending = "Not described in the retrieved sources.";
+  if (ing.profile && (!profile.function || profile.function === pending)) profile.function = ing.profile.function;
   const identity = identityFromFacts(facts, ing.identity);
   identity.physical = {
     state: extraction.physical.state || identity.physical?.state,
@@ -313,9 +314,12 @@ export async function runResearch(ingredientId: string): Promise<void> {
 
   const cited = new Set([...extraction.reactions, ...extraction.mechanisms].flatMap((i) => i.sources));
   const citations = [...papers].sort((a, b) => Number(cited.has(`PMID:${b.pmid}`)) - Number(cited.has(`PMID:${a.pmid}`)));
+  // Published automatically once there is real evidence behind it: a PubChem record or published papers.
+  const status = facts.compound || papers.length >= 2 ? "researched" : "preliminary";
 
   repo.patchIngredient(ing.id, {
-    summary: model === "extractive" ? ing.summary : extraction.summary || ing.summary,
+    status,
+    summary: extraction.summary || researchedSummary(ing),
     profile,
     identity,
     citations,
@@ -328,12 +332,19 @@ export async function runResearch(ingredientId: string): Promise<void> {
     draft: { stage: "research", model, generatedAt: new Date().toISOString(), unsupportedFields: extraction.unsupportedFields },
   });
   repo.logAudit(ing.id, "research_complete", `${papers.length} PubMed abstracts, ${docs.length - papers.length} PubChem sections, extraction by ${model}`);
-  broadcast({ type: "ingredient.updated", id: ing.id, name: ing.name });
-  broadcast({ type: "queue.updated", pending: repo.countByStatus().needs_verification });
+  // Keep stored scores (shown in History) in step with the new profile.
+  for (const scanId of repo.scansContaining(ing.id)) buildScanResult(scanId);
+  broadcast({ type: status === "researched" ? "ingredient.researched" : "ingredient.updated", id: ing.id, name: ing.name });
+}
+
+/** Fallback summary once research has finished but found no descriptive text. */
+function researchedSummary(ing: Ingredient): string {
+  const opening = roleOverview(ing, null)[0].split(/(?<=\.)\s/)[0].replace(", a long chain of repeating units,", "");
+  return `${opening} Assay built this profile automatically from published research.`;
 }
 
 /**
- * Lighter job for verified profiles: refresh the PubMed publication count, citations and USDA prevalence.
+ * Lighter job for curated profiles: refresh the PubMed publication count, citations and USDA prevalence.
  * Scheduled automatically for profiles missing evidence (e.g. after a PubMed outage during seeding).
  */
 export async function refreshEvidence(ingredientId: string): Promise<void> {
@@ -427,6 +438,8 @@ export function buildScanResult(scanId: string): ScanResult | null {
     sector: row.sector,
     createdAt: row.createdAt,
     rawText: row.rawText,
+    barcode: row.barcode,
+    imageUrl: row.imageUrl,
     items,
     ...scored,
     stats: {
@@ -434,8 +447,9 @@ export function buildScanResult(scanId: string): ScanResult | null {
       organic: items.filter((i) => i.group === "organic").length,
       artificial: items.filter((i) => i.group === "artificial").length,
       unknown: items.filter((i) => i.group === "unknown").length,
-      verified: known.filter((i) => i.ingredient!.status === "verified").length,
-      drafts: known.filter((i) => i.ingredient!.status !== "verified").length,
+      curated: known.filter((i) => i.ingredient!.status === "curated").length,
+      researched: known.filter((i) => i.ingredient!.status === "researched").length,
+      preliminary: known.filter((i) => i.ingredient!.status === "preliminary").length,
     },
   };
 }
@@ -455,7 +469,7 @@ async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) => Promis
 }
 
 export async function processScan(
-  input: { deviceId: string; sector: Sector; text: string; name?: string },
+  input: { deviceId: string; sector: Sector; text: string; name?: string; barcode?: string; imageUrl?: string },
   onProgress: (p: ScanProgress) => void,
 ): Promise<ScanResult> {
   const parsed = parseIngredients(input.text).slice(0, 80);
@@ -497,7 +511,16 @@ export async function processScan(
     input.name?.trim().slice(0, 80) ||
     `${sectorLabel} scan · ${new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
   repo.createScan(
-    { id, deviceId: input.deviceId, name, sector: input.sector, rawText: input.text.slice(0, 8000), score: 0 },
+    {
+      id,
+      deviceId: input.deviceId,
+      name,
+      sector: input.sector,
+      rawText: input.text.slice(0, 8000),
+      score: 0,
+      barcode: input.barcode ?? null,
+      imageUrl: input.imageUrl ?? null,
+    },
     matched.map((m) => ({ position: m.p.position, raw: m.p.raw, name: m.p.name, labeledOrganic: m.p.labeledOrganic, match: m.match, ingredientId: m.ingredientId })),
   );
   return buildScanResult(id)!;

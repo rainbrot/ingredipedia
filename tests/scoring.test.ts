@@ -13,7 +13,7 @@ function item(position: number, score: number, opts: Partial<IngredientSummary> 
     healthScore: score,
     concerns: opts.concerns ?? [],
     researchCount: opts.researchCount ?? 100,
-    status: opts.status ?? "verified",
+    status: opts.status ?? "curated",
     researchState: "complete",
     sectors: ["food"],
     pubchemCid: null,
@@ -47,9 +47,9 @@ describe("scoreProduct", () => {
     expect(organic.highlights.some((h) => h.tone === "good" && h.text.includes("certified-organic"))).toBe(true);
   });
 
-  it("reports confidence from the share of verified profiles", () => {
+  it("reports confidence from the share of complete profiles", () => {
     expect(scoreProduct([item(1, 80), item(2, 80)], "food").confidence).toBe("high");
-    expect(scoreProduct([item(1, 80, { status: "needs_verification" }), item(2, 80, { status: "needs_verification" })], "food").confidence).toBe("low");
+    expect(scoreProduct([item(1, 80, { status: "preliminary" }), item(2, 80, { status: "preliminary" })], "food").confidence).toBe("low");
   });
 
   it("names the best- and least-researched ingredients", () => {

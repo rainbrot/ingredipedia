@@ -1,13 +1,12 @@
-# Assay — ingredient scanner
+# Assay: every label is a chemistry lesson
 
-**Scan any food, beauty or cleaning label. Get a 0–100 health rating and the peer-reviewed science behind every ingredient.**
+**Scan the food, skincare and cleaning products you already own. Assay identifies every ingredient, shows you the
+molecule, explains what it does in the product and in your body, scores the product out of 100, and turns it all
+into lessons, quizzes and a molecule collection.**
 
-Assay reads an ingredient list with OCR, isolates organic and natural ingredients, sorts the artificial ones by
-health or by how well-researched they are, writes a plain-language summary with a rating out of 100, and opens a
-five-section scientific profile for every ingredient, including an interactive 3D molecule. New ingredients go
-through the draft → research → human review → global publication pipeline described in the app plan.
-
-It is an installable web app (PWA) that works on phones, tablets and desktops from one codebase.
+Built for students and classrooms. It's an installable web app (PWA) that runs on phones, tablets and desktops from
+one codebase. It works without accounts, API keys or human moderators: profiles that aren't in the curated library
+are researched and published automatically from PubChem and PubMed, with citations.
 
 ---
 
@@ -17,14 +16,14 @@ Requires **Node.js 22.13+** (for the built-in `node:sqlite`).
 
 ```bash
 npm install
-npm run setup     # creates .env with a random admin passcode
+npm run setup     # copies .env.example to .env (every key in it is optional)
 npm run dev       # API on :8787, web app on http://localhost:5173
 ```
 
-- Open **http://localhost:5173** and tap **Scan a label**. No product handy? Pick one of the sample labels; they run
-  through the same OCR pipeline as a real photo.
-- The reviewer dashboard is at **/admin**. Sign in with `ADMIN_PASSCODE` from `.env`.
-- The database is seeded on first run with **65 scientist-written, verified ingredient profiles** (`data/seed.json`).
+- Open **http://localhost:5173**. Scan a barcode, photograph a label, or try a sample label. Samples run through the
+  same OCR pipeline as a real photo.
+- **Learn** has ten interactive lessons, Myth or Fact, the glossary and your molecule collection.
+- The database seeds itself on first run with **65 curated ingredient profiles** (`data/seed.json`).
 
 Production:
 
@@ -35,63 +34,111 @@ npm start         # one server on PORT (default 8787) serves the API and the bui
 
 ### Optional keys (`.env`)
 
-| Variable | What it enables |
+| Variable | What it adds |
 | --- | --- |
-| `ANTHROPIC_API_KEY` | The AI pipeline: “Basic AI Draft”, grounded extraction from PubMed/PubChem text, and enhanced AI label reading. Uses `claude-haiku-4-5`, the plan's “small, low-cost AI model” (override with `AI_MODEL`). Without a key, Assay uses an on-device extractive summarizer and name heuristics, so every feature still works. |
+| `ANTHROPIC_API_KEY` | AI extraction from PubMed/PubChem text for new ingredients, and enhanced label reading. Uses `claude-haiku-4-5` (override with `AI_MODEL`). Without it, automatic research summarizes the source text directly. |
 | `NCBI_API_KEY`, `NCBI_EMAIL` | Raise PubMed E-utilities limits from 3 to 10 requests per second. |
-| `USDA_API_KEY` | “Found in N branded U.S. foods” counts from USDA FoodData Central. The public `DEMO_KEY` is used otherwise, which is heavily rate-limited. |
+| `USDA_API_KEY` | “Found in N branded U.S. foods” counts. The rate-limited public `DEMO_KEY` is used otherwise. |
 
 ---
 
-## How the app plan maps to features
+## What's in it
 
-| Plan | Where it lives |
+### Scan
+- **Barcode:** live camera detection (native `BarcodeDetector`, ZXing fallback), photo, or typed digits. Looks up the
+  full ingredient list and product photo in Open Food Facts, Open Beauty Facts and Open Products Facts.
+- **Label OCR, on-device (Tesseract.js):** picks the sharpest of six camera frames, auto-inverts light-on-dark labels,
+  applies adaptive (Bradley–Roth) thresholding, runs a second recognition pass when confidence is low, scores both
+  readings against ingredient vocabulary, and corrects likely misreads (“Sodlum” → “Sodium”) with an OCR-aware edit
+  distance. The review screen lists every correction (with undo), highlights faint words, and marks which
+  ingredients are already in the library.
+
+### Understand
+- **Product page:** 0–100 rating, plain-language summary, organic and natural ingredients isolated, artificial
+  ingredients sortable by most or least healthy and most or least researched (real PubMed counts). Also suggests
+  lessons and builds a short quiz from the product's own label.
+- **Ingredient profiles, in tabs:**
+  - **Overview:** what the molecule is, why it's in the product, its 2D structure and rotatable 3D model, and its identity and physical properties.
+  - **Mechanisms:** each one explained at the chemical scale and the biological scale, with an evidence meter.
+  - **Reactions:** step-by-step mechanisms with equations and the result.
+  - **Safety:** regulatory status, hazards (each with a chemical and a biological mechanism), dose and exposure, myths vs. evidence, and environmental profile.
+  - **Synthesis:** biological, chemical and industrial routes.
+  - **Sources:** PubMed citations, the source documents, and a report button that triggers fresh research.
+- **Glossary everywhere:** about 60 terms are tappable in profiles and lessons, each with a definition and a link to its lesson.
+
+### Learn
+- **Ten lessons with interactive models:**
+
+  | Lesson | Interactive model |
+  | --- | --- |
+  | Reading labels | Label decoder |
+  | The dose makes the poison | Caffeine dose calculator |
+  | Natural vs. synthetic | Vanillin from two sources |
+  | Acids, bases and pH | pH scale explorer |
+  | Surfactants | Micelle simulator |
+  | Preservatives | Henderson–Hasselbalch “pH trap” slider |
+  | Free radicals | Lipid peroxidation stepper |
+  | Allergies and haptens | Sensitization diagram |
+  | Chirality | (R)- and (S)-limonene side by side in 3D |
+  | Judging evidence | Study-ranking exercise |
+
+  Each lesson ends with a quiz.
+- **Myth or Fact:** claims drawn from profiles plus verified facts, with streaks and explanations.
+- **Molecule collection:** every profile you open is “discovered”; undiscovered molecules show as silhouettes.
+- **For teachers:** copy a lesson link or print a worksheet (all steps plus the quiz). Progress stays on each device,
+  so there's no student data to manage.
+
+---
+
+## Automatic research pipeline (no human in the loop)
+
+| Step | What happens |
 | --- | --- |
-| OCR text scanner for Food / Beauty & Care / Cleaning | `src/pages/Scan.tsx`: live camera, photo upload, paste, or sample label → crop → on-device **Tesseract.js** OCR (or Claude vision when enabled) → editable review with live parsing |
-| Isolate organic ingredients | Product page “Organic & natural” group: certified-organic by label (prefix or `*` footnote) plus natural/mineral origin |
-| Sort artificial ingredients: most unhealthy, most healthy, most researched, least researched | Product page segmented control. “Researched” is the real PubMed publication count. |
-| Product summary + rating out of 100 | `shared/scoring.ts`: position-weighted score, concern penalties, organic bonus, confidence, generated summary and highlights |
-| Complete Ingredient Profile Blueprint, sections 1–5 | `src/pages/Ingredient.tsx`: identity table (IUPAC, INCI, CAS, E-number, formula, molar mass), physical properties, functional groups, **2D skeletal diagram** and **rotatable 3D WebGL model** (3Dmol.js from PubChem conformers), reactions with rendered equations, biological mechanisms, regulatory table, toxicology + dosage context, sensitization, myth vs. science, synthesis steps + equations, environmental profile, history, surprising uses, natural occurrence, and PubMed/DOI citations |
-| 1. Initial scan & instant draft | `server/services/pipeline.ts` `processScan` → database match (exact / alias / E-number / OCR-tolerant fuzzy) → PubChem facts (GHS hazards, FDA, CIR, JECFA, EPA Safer Choice) → “Basic AI Draft” visible **only to users who scanned it** → `status: needs_verification` |
-| 2. Automated scientific retrieval | Durable background job queue: PubMed E-utilities abstracts + PubChem sections → context-grounded extraction that cites source IDs and flags any field written from general knowledge |
-| 3. Admin review (1–2 min per item) | `/admin`: flagged queue, fact-check view (draft side-by-side with the attached abstracts, cited sources highlighted), **3D model confirmation** (PubChem search / CID / `.SDF` upload), edit form + JSON editor, **Approve & Verify**, merge duplicates, reject |
-| 4. Global publication & permanent caching | Approval flips `status: verified` and is **pushed instantly to every open client** over Server-Sent Events (live toast + rescored products). Profiles, 2D images and 3D structures are cached permanently; AI never re-runs for a verified ingredient. |
-| Cost table | `/admin` → Pipeline & costs: the plan's estimates next to live, metered AI spend (tokens and cost per ingredient) |
+| Match | Exact, alias, E-number, INCI and OCR-tolerant fuzzy matching against the library. |
+| Instant profile | Unknown ingredients get a **preliminary** profile at once from chemistry rules and PubChem (GHS hazards, FDA, CIR, JECFA, EPA Safer Choice). |
+| Research | A durable background job pulls PubMed abstracts and PubChem sections, then publishes an **auto-researched** profile: an overview, two-scale mechanisms, GHS-based hazard mechanisms, manufacturing and citations. Thinly described ingredients still get a real explanation of what their role means chemically. |
+| Sync | Server-Sent Events push “research finished” to every open client; product scores update live. |
+| Correction | “Report a problem” on any profile re-runs research automatically (rate-limited to once a day per profile). |
+
+**Curated** profiles (the 65 in the seed) are written with sources and refreshed automatically for new evidence.
 
 ---
 
 ## Architecture
 
 ```
-Browser (React + Vite PWA)                       Node API (Express, TypeScript)
-┌──────────────────────────────┐   /api/*       ┌──────────────────────────────────────────┐
-│ Scan: camera/upload → crop → │ ─────────────▶ │ parse → match → draft (PubChem + AI)     │
-│   Tesseract.js OCR (on-device)│  NDJSON stream │   └─ scan scored & saved (SQLite)        │
-│ Product · Ingredient · Library│ ◀───────────── │ background worker: PubMed + PubChem →    │
-│ 3Dmol.js WebGL viewer         │                │   grounded extraction → review queue     │
-│ Service worker (offline)      │ ◀── SSE ────── │ admin: approve → broadcast “verified”    │
-└──────────────────────────────┘                └──────────────────────────────────────────┘
-                                                   PubChem · PubMed E-utilities · USDA FDC · Claude (optional)
+Browser (React 19 + Vite PWA)                    Node API (Express 5, TypeScript)
+┌───────────────────────────────┐  /api/*       ┌───────────────────────────────────────────┐
+│ Scan: barcode · camera · OCR  │ ────────────▶ │ barcode lookup (Open *Facts, cached)      │
+│   Tesseract.js + correction   │ NDJSON stream │ parse → match → instant profile → score   │
+│ Product · Ingredient (tabs)   │ ◀──────────── │ background worker: PubChem + PubMed →     │
+│ Learn: lessons, quiz, myths   │               │   automatic profile → publish             │
+│ 3Dmol.js · service worker     │ ◀── SSE ───── │ broadcast “researched” to every client    │
+└───────────────────────────────┘               └───────────────────────────────────────────┘
+          PubChem · PubMed E-utilities · USDA FDC · Open Food/Beauty/Products Facts · Claude (optional)
 ```
 
-- **Storage:** Node's built-in SQLite (`data/assay.db`). The schema is plain SQL and ports directly to PostgreSQL/Supabase.
-- **Resilience:** per-host rate limiters (PubChem 5/s, NCBI 3/s), retries, a PubMed circuit breaker, durable jobs that
-  resume after a restart, and automatic evidence backfill for profiles missing publication counts or citations.
-- **Privacy:** no accounts; history is keyed to a random device ID; photos are read on-device unless enhanced AI
-  reading is switched on; “Delete my data” in About erases scans.
-- **Accessibility:** semantic landmarks, labeled controls, visible focus, keyboard-operable crop box, reduced-motion
-  support, color never the only signal, WCAG-contrast tokens in light and dark themes.
-
 ```
-shared/        types, label parser, formula renderer, scoring + summary (used by client and server)
-server/        index.ts, db.ts, repo.ts, routes/{public,admin}.ts, services/{pipeline,pubchem,pubmed,usda,ai,extractive,matcher,events}.ts
-server/seed/   curated profiles (content/*.ts) and the enrichment script that builds data/seed.json
-src/           React app: pages/, components/, lib/ (api, ocr, events, sample labels), styles/
-tests/         Vitest unit tests (parser, matcher, formulas, scoring)
+shared/        types, label parser, OCR-aware edit distance, formula renderer, scoring + summary
+server/        index.ts, db.ts, repo.ts, routes/public.ts,
+               services/{pipeline,pubchem,pubmed,usda,barcode,ai,extractive,roles,matcher,events}.ts
+server/seed/   base content (content/*.ts), deep educational profiles (deep/*.ts), enrichment script
+src/           pages/, components/ (Tabs, GlossaryText, Quiz, MoleculeViewer…), learn/ (lessons, widgets,
+               glossary, facts), lib/ (api, ocr, correct, barcode, progress), styles/
+tests/         Vitest unit tests
 ```
 
 Scripts: `npm run dev`, `npm run build`, `npm start`, `npm test`, `npm run typecheck`,
-`npm run seed` (rebuild `data/seed.json` from PubChem/PubMed; `-- --load` only reloads it).
+`npm run seed` (rebuild `data/seed.json` from PubChem/PubMed), `npm run seed -- --content` (rebuild from the content
+files offline), `npm run seed -- --load` (reload the database from `data/seed.json`).
+
+- **Storage:** Node's built-in SQLite (`data/assay.db`), plain SQL that ports directly to PostgreSQL.
+- **Resilience:** per-host rate limiters, retries, a PubMed circuit breaker, durable jobs that resume after restart,
+  and automatic evidence backfill.
+- **Privacy:** no accounts; history is keyed to a random device ID; photos are read on-device; barcode lookups send
+  only the number; learning progress never leaves the device; “Delete my data” erases scans.
+- **Accessibility:** WAI-ARIA tabs with arrow-key navigation, labeled controls, keyboard-operable crop box and
+  models, visible focus, reduced-motion support, color never the only signal, WCAG-contrast tokens in light and dark.
 
 ---
 
@@ -100,17 +147,17 @@ Scripts: `npm run dev`, `npm run build`, `npm start`, `npm test`, `npm run typec
 Each ingredient has a 0–100 score for typical consumer exposure (90+ essentially benign; below 35 notable hazards).
 The product score is a label-position–weighted average (weight `1 / (1 + 0.25·(position − 1))`), minus a penalty
 for any ingredient under 45 that doesn't fade with position, plus up to +6 for certified-organic share and minus up
-to 6 for long lists of synthetic additives. Confidence reflects the share of verified profiles, and scores update
-automatically when drafts are verified.
+to 6 for long lists of synthetic additives. Confidence reflects the share of fully researched profiles; scores
+update automatically when research on a new ingredient finishes.
 
 ## Data sources and open-source libraries
 
-Data: PubChem (NIH/NCBI), PubMed via NCBI E-utilities, USDA FoodData Central, and FDA/CIR/JECFA/EPA regulatory data
-as republished by PubChem. Curated profiles are written for consumers and link to their primary sources.
+Data: PubChem (NIH/NCBI), PubMed via NCBI E-utilities, USDA FoodData Central, Open Food Facts / Open Beauty Facts /
+Open Products Facts (ODbL), and FDA/CIR/JECFA/EPA regulatory data as republished by PubChem.
 
-Libraries: React, React Router, Vite, Express, Tesseract.js (Apache-2.0), 3Dmol.js (BSD-3-Clause), Zod, Anthropic
-TypeScript SDK, Lucide icons (ISC), Fontsource (Newsreader, IBM Plex; OFL-1.1). The full list with licenses is in
-the in-app About page.
+Libraries: React, React Router, Vite, Express, Tesseract.js (Apache-2.0), ZXing (Apache-2.0), 3Dmol.js
+(BSD-3-Clause), Zod, Anthropic TypeScript SDK, Lucide icons (ISC), Fontsource (Newsreader, IBM Plex; OFL-1.1). The
+full list with licenses is in the in-app About page.
 
 Development note: this project was built with AI assistance (Claude Code).
 

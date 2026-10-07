@@ -1,14 +1,15 @@
-// Loads the curated, verified ingredient database (data/seed.json, built by `npm run seed`)
+// Loads the curated ingredient database (data/seed.json, built by `npm run seed`)
 // into SQLite on first boot, so the app works immediately and offline for these profiles.
 
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import * as repo from "../repo";
-import type { Citation, Identity, SourceDoc } from "../../shared/types";
+import type { Citation, Identity, Profile, SourceDoc } from "../../shared/types";
 import type { SeedIngredient } from "./types";
 
-export interface SeedRecord extends Omit<SeedIngredient, "identity"> {
+export interface SeedRecord extends Omit<SeedIngredient, "identity" | "profile"> {
   identity: Identity;
+  profile: Profile;
   pubchemCid: number | null;
   researchCount: number | null;
   usdaCount: number | null;
@@ -19,7 +20,6 @@ export interface SeedRecord extends Omit<SeedIngredient, "identity"> {
 export const SEED_PATH = path.resolve("data", "seed.json");
 
 export function loadSeed(records: SeedRecord[]): number {
-  const verifiedAt = new Date().toISOString();
   for (const r of records) {
     const sources: SourceDoc[] = r.citations.map((c) => ({
       id: `PMID:${c.pmid}`,
@@ -49,10 +49,9 @@ export function loadSeed(records: SeedRecord[]): number {
       profile: r.profile,
       citations: r.citations,
       sources,
-      status: "verified",
+      status: "curated",
       researchState: "complete",
       draft: null,
-      verifiedAt,
     });
     if (r.sdf) repo.setSdf(r.id, r.sdf.sdf, r.sdf.source);
   }
@@ -60,13 +59,14 @@ export function loadSeed(records: SeedRecord[]): number {
 }
 
 export function loadSeedIfEmpty(): number {
-  if (repo.countByStatus().verified + repo.countByStatus().needs_verification > 0) return 0;
+  const counts = repo.countByStatus();
+  if (counts.curated + counts.researched + counts.preliminary > 0) return 0;
   if (!existsSync(SEED_PATH)) {
     console.warn("No data/seed.json found. Run `npm run seed` to build the verified ingredient database.");
     return 0;
   }
   const records = JSON.parse(readFileSync(SEED_PATH, "utf8")) as SeedRecord[];
   const n = loadSeed(records);
-  repo.logAudit(null, "seed_loaded", `${n} verified profiles`);
+  repo.logAudit(null, "seed_loaded", `${n} curated profiles`);
   return n;
 }

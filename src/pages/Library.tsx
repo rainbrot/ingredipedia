@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { BookOpen, Search } from "lucide-react";
-import { SECTORS, type IngredientSummary, type Sector } from "../../shared/types";
+import { SECTORS, STATUS_LABEL, type IngredientSummary, type Sector, type Status } from "../../shared/types";
 import { api } from "../lib/api";
 import { IngredientRow } from "../components/IngredientRow";
 import { EmptyState, ErrorState, RowSkeleton } from "../components/ui";
@@ -12,7 +12,7 @@ const SORT_OPTIONS = [
   { value: "research_asc", label: "Least researched" },
   { value: "score_desc", label: "Healthiest" },
   { value: "score_asc", label: "Most concerning" },
-  { value: "recent", label: "Recently verified" },
+  { value: "recent", label: "Recently updated" },
 ];
 
 const PAGE = 30;
@@ -22,6 +22,8 @@ export function LibraryPage() {
   const q = params.get("q") ?? "";
   const sector = (params.get("sector") as Sector | null) ?? undefined;
   const sort = params.get("sort") ?? "name";
+  const statusParam = params.get("status");
+  const status = statusParam && statusParam in STATUS_LABEL ? (statusParam as Status) : undefined;
   const [query, setQuery] = useState(q);
   const [items, setItems] = useState<IngredientSummary[]>([]);
   const [total, setTotal] = useState(0);
@@ -48,7 +50,7 @@ export function LibraryPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.ingredients({ q: q || undefined, sector, sort, limit: PAGE, offset });
+      const res = await api.ingredients({ q: q || undefined, sector, sort, status, limit: PAGE, offset });
       setItems((prev) => (offset === 0 ? res.items : [...prev, ...res.items]));
       setTotal(res.total);
     } catch (err) {
@@ -61,13 +63,13 @@ export function LibraryPage() {
   useEffect(() => {
     void load(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, sector, sort]);
+  }, [q, sector, sort, status]);
 
   return (
     <div className="fade-up">
       <div className="page-head">
         <h1 className="page-title">Ingredient library</h1>
-        <p className="lede">Every scientist-verified profile in Assay. Search by common name, INCI or chemical name, or E-number.</p>
+        <p className="lede">Every ingredient profile in Assay, curated or researched automatically. Search by common name, INCI or chemical name, or E-number.</p>
       </div>
 
       <div className="stack" style={{ gap: 12, marginBottom: 20 }}>
@@ -97,8 +99,19 @@ export function LibraryPage() {
               </button>
             ))}
           </div>
-          <div className="row" style={{ gap: 8 }}>
-            <label htmlFor="lib-sort" className="subtle" style={{ fontSize: "var(--text-sm)" }}>
+          <div className="row-wrap" style={{ gap: 8 }}>
+            <label htmlFor="lib-status" className="sr-only">
+              Profile type
+            </label>
+            <select id="lib-status" className="select" style={{ width: "auto", minHeight: 40 }} value={status ?? ""} onChange={(e) => update({ status: e.target.value || undefined })}>
+              <option value="">All profiles</option>
+              {(Object.keys(STATUS_LABEL) as Status[]).map((s) => (
+                <option key={s} value={s}>
+                  {STATUS_LABEL[s]}
+                </option>
+              ))}
+            </select>
+            <label htmlFor="lib-sort" className="subtle small">
               Sort
             </label>
             <select id="lib-sort" className="select" style={{ width: "auto", minHeight: 40 }} value={sort} onChange={(e) => update({ sort: e.target.value })}>

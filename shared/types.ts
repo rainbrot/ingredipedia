@@ -24,7 +24,19 @@ export const NATURAL_ORIGINS: Origin[] = ["natural", "mineral"];
 
 export type Kind = "compound" | "mixture" | "polymer";
 
-export type Status = "verified" | "needs_verification";
+/**
+ * How a profile was produced. No human sign-off is required anywhere in the pipeline:
+ * - curated: written by the Assay content team and shipped with the app;
+ * - researched: built automatically from PubChem + PubMed (and AI when configured);
+ * - preliminary: an instant first draft while (or if) automatic research can't complete.
+ */
+export type Status = "curated" | "researched" | "preliminary";
+
+export const STATUS_LABEL: Record<Status, string> = {
+  curated: "Curated profile",
+  researched: "Auto-researched",
+  preliminary: "Preliminary",
+};
 export type ResearchState = "queued" | "running" | "complete" | "failed";
 
 export type ArtificialSort = "label" | "unhealthy" | "healthy" | "most_researched" | "least_researched";
@@ -68,40 +80,74 @@ export interface Identity {
   composition?: string;
 }
 
-export interface SourcedItem {
+/** How strong the evidence behind a claim is. Teaching evidence quality is part of the product. */
+export type EvidenceLevel = "established" | "human" | "lab" | "emerging";
+
+export const EVIDENCE_LABEL: Record<EvidenceLevel, string> = {
+  established: "Well established",
+  human: "Human studies",
+  lab: "Lab & animal studies",
+  emerging: "Emerging or debated",
+};
+
+/** A biological function explained at two scales: what the molecule does, and what the body experiences. */
+export interface Mechanism {
   title: string;
-  description: string;
-  equation?: string;
-  /** Source ids from SourceDoc.id / PMIDs backing the item. */
+  chemical: string;
+  biological: string;
+  evidence: EvidenceLevel;
+  /** SourceDoc ids / PMIDs backing the item. */
   sources?: string[];
 }
 
+export interface Reaction {
+  title: string;
+  summary: string;
+  steps: { name: string; text: string }[];
+  equation?: string;
+  result: string;
+  sources?: string[];
+}
+
+/** A safety concern explained by its chemical cause and biological effect. */
+export interface Hazard {
+  title: string;
+  summary: string;
+  chemical: string;
+  biological: string;
+}
+
+export interface SynthesisRoute {
+  title: string;
+  summary: string;
+  mechanism: string;
+  steps?: string[];
+  equation?: string;
+  significance?: string;
+}
+
 export interface Profile {
+  /** Educational introduction: what the molecule is and why it behaves the way it does. */
+  overview: string[];
+  /** Why formulators include it. */
   function: string;
-  reactions: SourcedItem[];
-  mechanisms: SourcedItem[];
+  mechanisms: Mechanism[];
+  reactions: Reaction[];
   regulatory: { body: string; status: string; limit?: string }[];
-  toxicology: { mechanism: string; dosage: string };
-  sensitization: string;
+  hazards: Hazard[];
+  /** Safe consumer-use amounts versus high-dose or occupational exposure. */
+  dosage: string;
   myths: { claim: string; consensus: string }[];
-  synthesis: { method: string; steps: string[]; equations?: string[] };
   environment: { persistence: string; biodegradability: string; aquaticToxicity: string; notes?: string };
-  fun: { history: string; uses: string[]; occurrence: string };
+  synthesis: SynthesisRoute[];
 }
 
 export interface DraftMeta {
   stage: "basic" | "research";
-  model: string; // "claude-haiku-4-5" or "extractive"
+  model: string; // "claude-haiku-4-5" or "automatic"
   generatedAt: string;
   /** Profile fields the model filled from general knowledge rather than retrieved text. */
   unsupportedFields?: string[];
-}
-
-export interface AiUsage {
-  inputTokens: number;
-  outputTokens: number;
-  costUsd: number;
-  calls: number;
 }
 
 export interface IngredientSummary {
@@ -131,19 +177,11 @@ export interface Ingredient extends IngredientSummary {
   identity: Identity;
   profile: Profile | null;
   citations: Citation[];
-  hasCustomSdf: boolean;
+  /** The PubChem sections and abstracts the profile was built from (shown for transparency). */
+  sources: SourceDoc[];
   draft: DraftMeta | null;
   createdAt: string;
   updatedAt: string;
-  verifiedAt: string | null;
-}
-
-/** Admin-only view: includes retrieved sources and AI accounting. */
-export interface AdminIngredient extends Ingredient {
-  sources: SourceDoc[];
-  aiUsage: AiUsage | null;
-  researchError: string | null;
-  scanCount: number;
 }
 
 export type MatchKind = "exact" | "alias" | "fuzzy" | "new" | "unrecognized";
@@ -178,8 +216,10 @@ export interface ScanResult {
   summary: string;
   highlights: Highlight[];
   items: ScanItem[];
-  stats: { total: number; organic: number; artificial: number; unknown: number; verified: number; drafts: number };
+  stats: { total: number; organic: number; artificial: number; unknown: number; curated: number; researched: number; preliminary: number };
   rawText: string;
+  barcode: string | null;
+  imageUrl: string | null;
 }
 
 export interface ScanListItem {
@@ -188,8 +228,20 @@ export interface ScanListItem {
   sector: Sector;
   createdAt: string;
   score: number;
-  grade: Grade;
   itemCount: number;
+  imageUrl: string | null;
+}
+
+/** Product found by barcode in Open Food / Beauty / Products Facts. */
+export interface BarcodeProduct {
+  barcode: string;
+  name: string;
+  brand: string | null;
+  ingredientsText: string;
+  imageUrl: string | null;
+  sector: Sector;
+  source: string;
+  sourceUrl: string;
 }
 
 export type ScanProgress =
@@ -204,9 +256,8 @@ export interface AppConfig {
 }
 
 export type ServerEvent =
-  | { type: "ingredient.verified"; id: string; name: string }
-  | { type: "ingredient.updated"; id: string; name: string }
-  | { type: "queue.updated"; pending: number };
+  | { type: "ingredient.researched"; id: string; name: string }
+  | { type: "ingredient.updated"; id: string; name: string };
 
 export const CONCERN_LABEL: Record<string, string> = {
   allergen: "Allergen",

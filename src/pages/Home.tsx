@@ -1,104 +1,132 @@
 import { Link } from "react-router-dom";
-import { Apple, ArrowRight, ClipboardPaste, ScanLine, Sparkles, SprayCan } from "lucide-react";
-import { SECTORS, type Sector } from "../../shared/types";
+import { ArrowRight, GraduationCap, Scale, ScanLine } from "lucide-react";
 import { api } from "../lib/api";
-import { compactNumber, relativeDate } from "../lib/format";
+import { relativeDate } from "../lib/format";
+import { useProgress } from "../lib/progress";
 import { useAsync } from "../lib/useAsync";
-import { IngredientRow } from "../components/IngredientRow";
-import { RowSkeleton, ScorePill } from "../components/ui";
+import { LESSONS } from "../learn/lessons";
+import { Formula, ScorePill, Skeleton } from "../components/ui";
+import { SECTOR_ICON } from "../components/sectorIcon";
 
-export const SECTOR_ICON: Record<Sector, typeof Apple> = { food: Apple, beauty: Sparkles, cleaning: SprayCan };
-const SECTOR_DESC: Record<Sector, string> = {
-  food: "Snacks, drinks, sauces",
-  beauty: "Skincare, hair, makeup",
-  cleaning: "Sprays, detergents, soaps",
-};
+/** Same molecule for everyone on a given day. */
+function dayIndex(n: number) {
+  const now = new Date();
+  const start = Date.UTC(now.getFullYear(), 0, 0);
+  const day = Math.floor((Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - start) / 86_400_000);
+  return (day * 7 + now.getFullYear()) % n;
+}
 
 export function HomePage() {
-  const stats = useAsync(() => api.stats(), []);
+  const progress = useProgress();
   const scans = useAsync(() => api.scans(), []);
-  const featured = useAsync(() => api.ingredients({ sort: "research_desc", limit: 5 }), []);
+  const molecule = useAsync(async () => {
+    const list = await api.ingredients({ status: "curated", sort: "name", limit: 100 });
+    const withStructure = list.items.filter((i) => i.pubchemCid);
+    if (!withStructure.length) return null;
+    return api.ingredient(withStructure[dayIndex(withStructure.length)].id);
+  }, []);
   const recent = scans.data?.items.slice(0, 4) ?? [];
+  const done = LESSONS.filter((l) => progress.lessons[l.id]?.completed).length;
+  const next = LESSONS.find((l) => !progress.lessons[l.id]?.completed) ?? LESSONS[0];
+  const mol = molecule.data;
 
   return (
-    <div className="stack-lg fade-up">
+    <div className="home fade-up">
       <section className="hero" aria-labelledby="hero-title">
         <div>
-          <p className="eyebrow">Ingredient intelligence</p>
-          <h1 id="hero-title" style={{ marginTop: 12 }}>
-            What’s <em>really</em> in it?
+          <h1 id="hero-title">
+            Every label is a <em>chemistry lesson.</em>
           </h1>
           <p className="lede">
-            Scan any food, beauty or cleaning label. Assay rates the product out of 100, separates organic ingredients from artificial ones, and explains the
-            peer-reviewed science behind every molecule.
+            Scan the food, skincare and cleaning products you already own. Assay identifies every ingredient, shows you the molecule, explains what it does in the
+            product and in your body, and backs it all with published research.
           </p>
           <div className="hero-actions">
             <Link to="/scan" className="btn btn-primary btn-lg">
-              <ScanLine aria-hidden="true" /> Scan a label
+              <ScanLine aria-hidden="true" /> Scan a product
             </Link>
-            <Link to="/scan?mode=text" className="btn btn-lg">
-              <ClipboardPaste aria-hidden="true" /> Paste ingredients
+            <Link to="/learn" className="btn btn-lg">
+              <GraduationCap aria-hidden="true" /> Start learning
             </Link>
-          </div>
-          <div className="stat-strip" aria-live="polite">
-            <div className="stat">
-              <div className="n">{stats.data ? compactNumber(stats.data.verified) : "—"}</div>
-              <div className="l">verified ingredient profiles</div>
-            </div>
-            <div className="stat">
-              <div className="n">{stats.data ? compactNumber(stats.data.pending) : "—"}</div>
-              <div className="l">new profiles under review</div>
-            </div>
           </div>
         </div>
         <div className="hero-art" aria-hidden="true">
           <div className="label-specimen">
             <span className="scanline" />
-            <p className="eyebrow" style={{ marginBottom: 8 }}>
-              Ingredients
-            </p>
             <p>
-              <mark className="tone-excellent">Water</mark>, <mark className="tone-excellent">Glycerin</mark>, <mark className="tone-good">Cetearyl Alcohol</mark>,{" "}
-              <mark className="tone-excellent">Niacinamide</mark>, <mark className="tone-excellent">Shea Butter*</mark>, <mark className="tone-good">Phenoxyethanol</mark>,{" "}
-              <mark className="tone-poor">Fragrance</mark>, <mark className="tone-bad">Methylisothiazolinone</mark>.
+              <strong>Ingredients:</strong> <mark className="tone-excellent">Water</mark>, <mark className="tone-excellent">Glycerin</mark>,{" "}
+              <mark className="tone-good">Cetearyl Alcohol</mark>, <mark className="tone-excellent">Niacinamide</mark>, <mark className="tone-excellent">Shea Butter*</mark>,{" "}
+              <mark className="tone-good">Phenoxyethanol</mark>, <mark className="tone-poor">Fragrance</mark>, <mark className="tone-bad">Methylisothiazolinone</mark>.
             </p>
-            <div className="row" style={{ marginTop: 20, gap: 14 }}>
+            <div className="specimen-callout">
+              <span className="sc-name">Methylisothiazolinone</span>
+              <span className="sc-text">Reacts with sulfur atoms in skin proteins, which is how it triggers allergies.</span>
+            </div>
+            <div className="row" style={{ marginTop: 18, gap: 14 }}>
               <ScorePill score={71} />
               <div>
                 <div style={{ fontWeight: 600, color: "var(--ink)" }}>Good · 71/100</div>
-                <div className="subtle" style={{ fontSize: "var(--text-sm)" }}>
-                  2 watch-outs · 1 certified organic
-                </div>
+                <div className="subtle small">2 watch-outs · 1 certified organic</div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section aria-labelledby="sectors-title">
-        <div className="section-head">
-          <h2 id="sectors-title" className="section-title">
-            What are you scanning?
+      <div className="home-duo">
+        <section className="continue" aria-labelledby="continue-title">
+          <h2 id="continue-title" className="section-title">
+            {done === 0 ? "Start learning" : done === LESSONS.length ? "All lessons complete" : "Continue learning"}
           </h2>
-        </div>
-        <div className="sector-grid">
-          {SECTORS.map((s) => {
-            const Icon = SECTOR_ICON[s.id];
-            return (
-              <Link key={s.id} to={`/scan?sector=${s.id}`} className="sector-card">
-                <span className="sector-icon" aria-hidden="true">
-                  <Icon />
+          <div className="lp-bar" role="img" aria-label={`${done} of ${LESSONS.length} lessons complete`}>
+            {LESSONS.map((l) => (
+              <span key={l.id} data-on={!!progress.lessons[l.id]?.completed} />
+            ))}
+          </div>
+          <Link to={`/learn/${next.id}`} className="continue-card">
+            <span className="grow">
+              <strong>{next.title}</strong>
+              <span>{next.summary}</span>
+              <span className="lesson-meta">
+                <span>{next.level}</span>
+                <span className="sep" aria-hidden="true" />
+                <span className="tabular">{next.minutes} min</span>
+              </span>
+            </span>
+            <ArrowRight aria-hidden="true" />
+          </Link>
+          <Link to="/learn/myths" className="inline-link">
+            <Scale aria-hidden="true" /> Play Myth or Fact
+          </Link>
+        </section>
+
+        <section className="motd" aria-labelledby="motd-title">
+          <h2 id="motd-title" className="section-title">
+            Molecule of the day
+          </h2>
+          {molecule.loading && !mol ? (
+            <Skeleton h={220} r={18} />
+          ) : mol ? (
+            <Link to={`/ingredient/${mol.id}`} className="motd-card">
+              <span className="motd-art">
+                <img src={`/api/ingredients/${mol.id}/structure.png`} alt={`Skeletal structure of ${mol.name}`} />
+              </span>
+              <span className="motd-body">
+                <strong>{mol.name}</strong>
+                {mol.identity.formula && (
+                  <span className="motd-formula">
+                    <Formula value={mol.identity.formula} /> · {mol.primaryRole}
+                  </span>
+                )}
+                <span className="motd-text">{mol.profile?.overview?.[0] ?? mol.summary}</span>
+                <span className="inline-link">
+                  {progress.discovered.includes(mol.id) ? "Revisit" : "Discover"} {mol.name} <ArrowRight aria-hidden="true" />
                 </span>
-                <span>
-                  <span className="title">{s.label}</span>
-                  <br />
-                  <span className="desc">{SECTOR_DESC[s.id]}</span>
-                </span>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
+              </span>
+            </Link>
+          ) : null}
+        </section>
+      </div>
 
       {recent.length > 0 && (
         <section aria-labelledby="recent-title">
@@ -115,13 +143,14 @@ export function HomePage() {
               const Icon = SECTOR_ICON[s.sector];
               return (
                 <Link key={s.id} to={`/product/${s.id}`} className="scan-card">
-                  <ScorePill score={s.score} />
+                  {s.imageUrl ? <img className="scan-thumb" src={s.imageUrl} alt="" loading="lazy" /> : <ScorePill score={s.score} />}
                   <div className="grow">
                     <div className="title">{s.name}</div>
-                    <div className="subtle row" style={{ fontSize: "var(--text-sm)", gap: 6 }}>
+                    <div className="subtle row small" style={{ gap: 6 }}>
                       <Icon width={14} height={14} aria-hidden="true" /> {s.itemCount} ingredients · {relativeDate(s.createdAt)}
                     </div>
                   </div>
+                  {s.imageUrl && <ScorePill score={s.score} size="sm" />}
                 </Link>
               );
             })}
@@ -138,45 +167,21 @@ export function HomePage() {
         <ol className="steps">
           <li>
             <h3>Scan</h3>
-            <p>On-device text recognition reads the ingredient list from your photo. Nothing is uploaded unless you turn on enhanced AI reading.</p>
+            <p>Scan a barcode or photograph the label. Text recognition runs on your device and corrects misreads against a vocabulary of known ingredients.</p>
           </li>
           <li>
-            <h3>Match</h3>
-            <p>Every ingredient is matched against our verified database, even through typos, synonyms, E-numbers and INCI names.</p>
+            <h3>Identify</h3>
+            <p>Each ingredient is matched to the library through typos, synonyms, E-numbers and INCI names, then sorted into natural and artificial groups.</p>
           </li>
           <li>
             <h3>Research</h3>
-            <p>New ingredients get an instant draft from PubChem, then a background search of PubMed abstracts for mechanisms and safety data.</p>
+            <p>New ingredients get an instant profile, then Assay automatically searches PubChem and PubMed and publishes what it finds, with citations.</p>
           </li>
           <li>
-            <h3>Verify</h3>
-            <p>A reviewer fact-checks each draft against its sources and approves it, and the verified profile reaches every user instantly.</p>
+            <h3>Learn</h3>
+            <p>Every profile explains mechanisms at the chemical and biological scale, links to lessons, and adds the molecule to your collection.</p>
           </li>
         </ol>
-      </section>
-
-      <section aria-labelledby="library-title">
-        <div className="section-head">
-          <h2 id="library-title" className="section-title">
-            Most-researched ingredients
-          </h2>
-          <Link to="/library" className="btn btn-ghost btn-sm">
-            Browse library <ArrowRight aria-hidden="true" />
-          </Link>
-        </div>
-        <div className="card">
-          {featured.loading && !featured.data ? (
-            <RowSkeleton rows={5} />
-          ) : (
-            <ul className="ing-list">
-              {featured.data?.items.map((ing) => (
-                <li key={ing.id}>
-                  <IngredientRow ing={ing} />
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
       </section>
     </div>
   );

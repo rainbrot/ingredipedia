@@ -1,15 +1,17 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, BadgeCheck, Check, CircleAlert, CircleCheck, FlaskConical, Info, Leaf, Pencil, ScanLine, Share2, Trash2, TriangleAlert, X } from "lucide-react";
-import { SECTORS, type ArtificialSort, type Highlight, type ScanItem } from "../../shared/types";
+import { ArrowLeft, ArrowRight, BadgeCheck, Check, CircleAlert, CircleCheck, FlaskConical, GraduationCap, Info, Leaf, Pencil, ScanLine, Share2, Trash2, TriangleAlert, X } from "lucide-react";
+import { SECTORS, type ArtificialSort, type Highlight, type ScanItem, type ScanResult } from "../../shared/types";
 import { api } from "../lib/api";
 import { useServerEvents } from "../lib/events";
 import { relativeDate } from "../lib/format";
 import { useAsync } from "../lib/useAsync";
+import { LESSONS, type QuizQuestion } from "../learn/lessons";
+import { Quiz } from "../components/Quiz";
 import { IngredientRow } from "../components/IngredientRow";
 import { useToast } from "../components/Toast";
 import { ConfirmDialog, Disclosure, EmptyState, ErrorState, GradeLabel, ScoreRing, Segmented, Skeleton } from "../components/ui";
-import { SECTOR_ICON } from "./Home";
+import { SECTOR_ICON } from "../components/sectorIcon";
 
 const SORTS: { value: ArtificialSort; label: string }[] = [
   { value: "unhealthy", label: "Most unhealthy" },
@@ -65,17 +67,16 @@ export function ProductPage() {
   const [draftName, setDraftName] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  // Global sync: when a reviewer verifies an ingredient in this product, refresh the score live.
+  // When background research finishes for an ingredient in this product, refresh the score live.
   useServerEvents((e) => {
-    if (!scan || (e.type !== "ingredient.verified" && e.type !== "ingredient.updated")) return;
-    if (!scan.items.some((i) => i.ingredient?.id === e.id)) return;
+    if (!scan || !scan.items.some((i) => i.ingredient?.id === e.id)) return;
     const before = scan.score;
     void api.scan(id).then((next) => {
       setData(next);
-      if (e.type === "ingredient.verified") {
+      if (e.type === "ingredient.researched") {
         toast(
           <>
-            <strong>{e.name}</strong> was just verified by our scientists.{next.score !== before ? ` Score updated to ${next.score}.` : ""}
+            Research finished for <strong>{e.name}</strong>.{next.score !== before ? ` Score updated to ${next.score}.` : ""}
           </>,
           "success",
         );
@@ -163,10 +164,9 @@ export function ProductPage() {
           )}
         </div>
 
-        <div className="page-head" style={{ marginBottom: 0 }}>
-          <span className="eyebrow row" style={{ gap: 6 }}>
-            <SectorIcon width={14} height={14} aria-hidden="true" /> {sector.label} · scanned {relativeDate(scan.createdAt)}
-          </span>
+        <div className="page-head product-title" style={{ marginBottom: 0 }}>
+          {scan.imageUrl && <img className="product-photo" src={scan.imageUrl} alt="" />}
+          <div className="grow">
           {editing ? (
             <form
               className="inline-edit"
@@ -203,6 +203,18 @@ export function ProductPage() {
               )}
             </div>
           )}
+          <p className="product-meta">
+            <SectorIcon aria-hidden="true" /> {sector.label}
+            <span className="sep" aria-hidden="true" />
+            Scanned {relativeDate(scan.createdAt)}
+            {scan.barcode && (
+              <>
+                <span className="sep" aria-hidden="true" />
+                <span className="mono">{scan.barcode}</span>
+              </>
+            )}
+          </p>
+          </div>
         </div>
       </div>
 
@@ -216,8 +228,9 @@ export function ProductPage() {
               Health rating
             </h2>
             <GradeLabel score={scan.score} />
-            <span className={`chip ${scan.confidence === "high" ? "verified" : scan.confidence === "medium" ? "" : "draft"}`}>
-              <BadgeCheck aria-hidden="true" /> {scan.confidence === "high" ? "High" : scan.confidence === "medium" ? "Medium" : "Provisional"} confidence · {scan.stats.verified}/{scan.stats.total} verified
+            <span className={`chip ${scan.confidence === "high" ? "status-curated" : scan.confidence === "medium" ? "" : "status-preliminary"}`}>
+              <BadgeCheck aria-hidden="true" /> {scan.confidence === "high" ? "High" : scan.confidence === "medium" ? "Medium" : "Provisional"} confidence ·{" "}
+              {scan.stats.curated + scan.stats.researched}/{scan.stats.total} fully researched
             </span>
           </div>
           <p className="summary-text">{scan.summary}</p>
@@ -234,7 +247,7 @@ export function ProductPage() {
       </section>
 
       <section className="stack" style={{ gap: 10 }} aria-labelledby="composition-title">
-        <h2 id="composition-title" className="eyebrow">
+        <h2 id="composition-title" className="mini-h">
           Composition
         </h2>
         <div className="composition" role="img" aria-label={`${scan.stats.organic} organic or natural, ${scan.stats.artificial} artificial or processed, ${scan.stats.unknown} unidentified`}>
@@ -309,6 +322,8 @@ export function ProductPage() {
         )}
       </section>
 
+      <LearnFromProduct scan={scan} />
+
       <section className="card" aria-label="Label details">
         {groups.unknown.length > 0 && (
           <Disclosure summary={`${groups.unknown.length} item${groups.unknown.length === 1 ? "" : "s"} we couldn't identify`}>
@@ -337,7 +352,10 @@ export function ProductPage() {
               Ingredients of notable concern lower the score even when they appear late in the list. Certified-organic ingredients add a small bonus, and long lists
               of synthetic additives subtract a little.
             </p>
-            <p>Confidence reflects how many ingredients have scientist-verified profiles. Scores update automatically as new profiles are verified.</p>
+            <p>
+              Confidence reflects how many ingredients have fully researched profiles. New ingredients start with a preliminary profile, and the score updates by
+              itself when automatic research finishes.
+            </p>
           </div>
         </Disclosure>
       </section>
@@ -357,6 +375,88 @@ export function ProductPage() {
       />
     </div>
   );
+}
+
+/** Turns a scanned product into a short lesson: related lessons plus a quiz built from its own label. */
+function LearnFromProduct({ scan }: { scan: ScanResult }) {
+  const ids = new Set(scan.items.map((i) => i.ingredient?.id).filter(Boolean) as string[]);
+  const lessons = LESSONS.map((l) => ({ l, hits: l.ingredients.filter((i) => ids.has(i)).length }))
+    .filter((x) => x.hits > 0)
+    .sort((a, b) => b.hits - a.hits)
+    .slice(0, 3);
+  const quiz = useMemo(() => productQuiz(scan), [scan]);
+  if (!lessons.length && quiz.length < 2) return null;
+  return (
+    <section className="learn-product" aria-labelledby="learn-product-title">
+      <h2 id="learn-product-title" className="section-title">
+        Learn from this product
+      </h2>
+      {lessons.length > 0 && (
+        <ul className="lesson-links">
+          {lessons.map(({ l }) => (
+            <li key={l.id}>
+              <Link to={`/learn/${l.id}`}>
+                <GraduationCap aria-hidden="true" />
+                <span className="grow">
+                  <strong>{l.title}</strong>
+                  <span>{l.summary}</span>
+                </span>
+                <ArrowRight aria-hidden="true" className="chev" />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+      {quiz.length >= 2 && <Quiz questions={quiz} title="Quiz yourself on this label" seed={scan.id} />}
+    </section>
+  );
+}
+
+function productQuiz(scan: ScanResult): QuizQuestion[] {
+  const known = scan.items.filter((i) => i.ingredient).sort((a, b) => a.position - b.position);
+  const out: QuizQuestion[] = [];
+  const name = (i: ScanItem) => i.ingredient!.name;
+  const unique = (list: string[]) => [...new Set(list)];
+
+  if (known.length >= 4) {
+    const later = known.slice(2);
+    const options = unique([name(known[0]), ...later.slice(-3).map(name)]);
+    if (options.length === 4) {
+      out.push({
+        q: `Which ingredient makes up the largest share of ${scan.name}?`,
+        options,
+        explain: `${name(known[0])} is listed first, and ingredients are listed in descending order by amount.`,
+      });
+    }
+  }
+
+  const byRole = new Map<string, ScanItem>();
+  for (const i of known) if (!byRole.has(i.ingredient!.primaryRole)) byRole.set(i.ingredient!.primaryRole, i);
+  if (byRole.size >= 4) {
+    const roles = [...byRole.entries()];
+    const target = roles.find(([, i]) => i.group === "artificial") ?? roles[0];
+    const others = roles.filter(([r]) => r !== target[0]).slice(0, 3).map(([r]) => r);
+    out.push({
+      q: `What job does ${name(target[1])} do in this product?`,
+      options: [target[0], ...others],
+      explain: `${name(target[1])} is used as a ${target[0].toLowerCase()}. Open its profile to see the mechanism behind that role.`,
+    });
+  }
+
+  const researched = known.filter((i) => i.ingredient!.researchCount != null);
+  if (researched.length >= 4) {
+    const sorted = [...researched].sort((a, b) => b.ingredient!.researchCount! - a.ingredient!.researchCount!);
+    const top = sorted[0];
+    const rest = sorted.slice(-3);
+    if (top.ingredient!.researchCount! > rest[rest.length - 1].ingredient!.researchCount! * 2) {
+      out.push({
+        q: "Which of these ingredients has been studied the most by scientists?",
+        options: unique([name(top), ...rest.map(name)]),
+        explain: `${name(top)} appears in about ${top.ingredient!.researchCount!.toLocaleString()} PubMed publications, far more than the others.`,
+      });
+    }
+  }
+  return out.filter((q) => q.options.length === 4).slice(0, 3);
 }
 
 function ProductSkeleton() {

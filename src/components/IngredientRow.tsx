@@ -43,7 +43,7 @@ export function IngredientRow({
         <div className="chip-row row-chips">
           {showOrigin && <OriginChip origin={ing.origin} organic={labeledOrganic} />}
           <StatusChip ing={ing} />
-          <ResearchChip state={ing.status === "verified" ? null : ing.researchState} />
+          <ResearchChip state={ing.status === "curated" ? null : ing.researchState} />
         </div>
       </div>
       <ChevronRight className="chev" aria-hidden="true" />

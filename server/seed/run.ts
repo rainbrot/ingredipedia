@@ -12,7 +12,8 @@ import { BEAUTY } from "./content/beauty";
 import { CLEANING } from "./content/cleaning";
 import { FOOD } from "./content/food";
 import { SEED_PATH, loadSeed, type SeedRecord } from "./load";
-import type { SeedIngredient } from "./types";
+import { DEEP } from "./deep";
+import { buildProfile, type SeedIngredient } from "./types";
 
 const ALL: SeedIngredient[] = [...FOOD, ...BEAUTY, ...CLEANING];
 
@@ -42,8 +43,11 @@ async function enrich(s: SeedIngredient, previous?: SeedRecord): Promise<SeedRec
   const usdaCount = s.sectors.includes("food") ? (previous?.usdaCount ?? (await brandedFoodCount(s.name))) : null;
   const sdf = previous?.sdf ?? (compound ? await pubchem.fetchSdf(compound.cid).catch(() => null) : null);
 
+  const deep = DEEP[s.id];
+  if (!deep) throw new Error(`Missing deep profile for ${s.id}`);
   return {
     ...s,
+    profile: buildProfile(s.profile, deep),
     identity: {
       ...s.identity,
       ...(compound
@@ -70,6 +74,26 @@ async function main() {
 
   if (loadOnly && existsSync(SEED_PATH)) {
     records = JSON.parse(readFileSync(SEED_PATH, "utf8"));
+  } else if (process.argv.includes("--content")) {
+    // Rebuild profiles from the content files but reuse previously fetched PubChem/PubMed data (offline).
+    const previous = new Map((JSON.parse(readFileSync(SEED_PATH, "utf8")) as SeedRecord[]).map((r) => [r.id, r]));
+    records = ALL.map((s) => {
+      const prev = previous.get(s.id);
+      const deep = DEEP[s.id];
+      if (!deep) throw new Error(`Missing deep profile for ${s.id}`);
+      return {
+        ...s,
+        profile: buildProfile(s.profile, deep),
+        identity: { ...s.identity, ...(prev ? { iupac: prev.identity.iupac, weight: prev.identity.weight, smiles: prev.identity.smiles, cas: prev.identity.cas, formula: s.identity.formula ?? prev.identity.formula } : {}) },
+        pubchemCid: prev?.pubchemCid ?? null,
+        researchCount: prev?.researchCount ?? null,
+        usdaCount: prev?.usdaCount ?? null,
+        citations: prev?.citations ?? [],
+        sdf: prev?.sdf ?? null,
+      };
+    });
+    writeFileSync(SEED_PATH, JSON.stringify(records, null, 1));
+    console.log(`Rebuilt ${records.length} profiles from content (offline)`);
   } else {
     checkUnique();
     const previous = existsSync(SEED_PATH) ? new Map((JSON.parse(readFileSync(SEED_PATH, "utf8")) as SeedRecord[]).map((r) => [r.id, r])) : new Map();
@@ -87,9 +111,9 @@ async function main() {
 
   // Replace verified seed rows (drafts and scans are left intact).
   const ids = records.map((r) => r.id);
-  db.prepare(`DELETE FROM ingredients WHERE status = 'verified' AND id NOT IN (${ids.map(() => "?").join(",")}) AND created_by IS NULL`).run(...ids);
+  db.prepare(`DELETE FROM ingredients WHERE status = 'curated' AND id NOT IN (${ids.map(() => "?").join(",")}) AND created_by IS NULL`).run(...ids);
   const n = loadSeed(records);
-  console.log(`Loaded ${n} verified profiles into the database.`);
+  console.log(`Loaded ${n} curated profiles into the database.`);
 }
 
 main().catch((err) => {

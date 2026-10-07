@@ -1,4 +1,4 @@
-// Live updates from the server (Server-Sent Events): verified profiles reach every open client instantly.
+// Live updates from the server (Server-Sent Events): finished research reaches every open client instantly.
 
 import { useEffect, useRef } from "react";
 import type { ServerEvent } from "../../shared/types";
@@ -10,7 +10,7 @@ let source: EventSource | null = null;
 function connect() {
   if (source || typeof EventSource === "undefined") return;
   source = new EventSource("/api/events");
-  for (const type of ["ingredient.verified", "ingredient.updated", "queue.updated"] as const) {
+  for (const type of ["ingredient.researched", "ingredient.updated"] as const) {
     source.addEventListener(type, (msg) => {
       try {
         const data = JSON.parse((msg as MessageEvent).data) as ServerEvent;

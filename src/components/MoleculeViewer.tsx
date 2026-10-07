@@ -12,7 +12,7 @@ const STYLE_SPECS: Record<Style, Record<string, unknown>> = {
 
 /**
  * Interactive WebGL molecule (3Dmol.js). Loads the SDF cached by the server from PubChem
- * (or an admin-uploaded file). The 3Dmol bundle is loaded lazily, only when a profile opens.
+ * (3D conformer when one exists, otherwise 2D coordinates). The 3Dmol bundle is loaded lazily, only when a profile opens.
  */
 export function MoleculeViewer({ src, sdf, label }: { src?: string; sdf?: string; label: string }) {
   const host = useRef<HTMLDivElement>(null);

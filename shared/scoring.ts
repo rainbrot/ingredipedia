@@ -104,9 +104,10 @@ export function scoreProduct(items: ScanItem[], sector: Sector, productName?: st
   const score = Math.max(1, Math.min(100, Math.round(base - penalty + organicBonus - additiveLoad)));
   const grade = gradeFor(score);
 
-  const verified = known.filter((i) => i.ingredient!.status === "verified").length;
-  const verifiedShare = verified / total;
-  const confidence = verifiedShare >= 0.8 ? "high" : verifiedShare >= 0.5 ? "medium" : "low";
+  // Confidence reflects how much of the label is backed by complete profiles (curated or auto-researched).
+  const complete = known.filter((i) => i.ingredient!.status !== "preliminary").length;
+  const completeShare = complete / total;
+  const confidence = completeShare >= 0.8 ? "high" : completeShare >= 0.5 ? "medium" : "low";
 
   // ---- Narrative summary ----
   const organicGroup = items.filter((i) => i.group === "organic");
@@ -115,7 +116,7 @@ export function scoreProduct(items: ScanItem[], sector: Sector, productName?: st
   const researched = known.filter((i) => (i.ingredient!.researchCount ?? 0) > 0);
   const most = [...researched].sort((a, b) => b.ingredient!.researchCount! - a.ingredient!.researchCount!)[0];
   const least = [...researched].sort((a, b) => a.ingredient!.researchCount! - b.ingredient!.researchCount!)[0];
-  const drafts = known.filter((i) => i.ingredient!.status !== "verified").length;
+  const preliminary = known.filter((i) => i.ingredient!.status === "preliminary").length;
 
   const subject = productName ? productName : `This ${SECTOR_NOUN[sector]}`;
   const sentences: string[] = [];
@@ -137,8 +138,10 @@ export function scoreProduct(items: ScanItem[], sector: Sector, productName?: st
       `${most.ingredient!.name} is the best-studied ingredient (${fmtCount(most.ingredient!.researchCount!)} papers), while ${least.ingredient!.name} has the thinnest evidence base (${fmtCount(least.ingredient!.researchCount!)}).`,
     );
   }
-  if (drafts > 0) {
-    sentences.push(`${drafts} ingredient${drafts === 1 ? " is" : "s are"} new to Assay and still under scientific review, so treat this rating as provisional.`);
+  if (preliminary > 0) {
+    sentences.push(
+      `${preliminary} ingredient${preliminary === 1 ? " is" : "s are"} new to Assay and still being researched automatically, so this rating may shift as their profiles fill in.`,
+    );
   }
 
   // ---- Highlights ----
@@ -154,7 +157,7 @@ export function scoreProduct(items: ScanItem[], sector: Sector, productName?: st
   if (labeledOrganic > 0) highlights.push({ tone: "good", text: `${labeledOrganic} certified-organic ingredient${labeledOrganic === 1 ? "" : "s"}` });
   if (worst.length === 0) highlights.push({ tone: "good", text: "No high-concern ingredients" });
   if (artificial > 8) highlights.push({ tone: "warn", text: `${artificial} synthetic or processed ingredients` });
-  if (drafts > 0) highlights.push({ tone: "info", text: `${drafts} profile${drafts === 1 ? "" : "s"} pending scientific review` });
+  if (preliminary > 0) highlights.push({ tone: "info", text: `${preliminary} profile${preliminary === 1 ? "" : "s"} still being researched` });
   const unknown = items.filter((i) => !i.ingredient).length;
   if (unknown > 0) highlights.push({ tone: "info", text: `${unknown} unreadable item${unknown === 1 ? "" : "s"} skipped` });
 

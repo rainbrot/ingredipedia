@@ -1,4 +1,4 @@
-import { item, myth, reg, type SeedIngredient } from "../types";
+import { myth, reg, type SeedIngredient } from "../types";
 
 export const FOOD: SeedIngredient[] = [
   {
@@ -23,14 +23,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Formulators use water as the continuous phase of emulsions, the carrier for water-soluble actives, and the diluent that sets a product's concentration and texture.",
-      reactions: [
-        item("Autoionization", "A tiny fraction of water molecules transfer a proton to each other, which is why pure water has a pH of 7 and why pH can be measured at all.", "2 H2O ⇌ H3O+ + OH-"),
-        item("Hydrolysis", "Water splits esters, salts and proteins in the presence of heat, acids, bases or enzymes, which is why water-based products need preservatives and pH control."),
-      ],
-      mechanisms: [
-        item("Hydration of the skin barrier", "Water plasticizes the stratum corneum's keratin, making skin more flexible; humectants and occlusives in a formula help keep it there."),
-        item("Osmotic balance", "Cells regulate volume by moving water across membranes through aquaporin channels in response to salt and sugar gradients."),
-      ],
       regulatory: [
         reg("U.S. EPA", "Tap water must meet National Primary Drinking Water Regulations for over 90 contaminants."),
         reg("U.S. FDA", "Bottled water is regulated as a food with a standard of identity and quality.", "21 CFR 165.110"),
@@ -40,31 +32,15 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Drinking many liters within a few hours can dilute blood sodium (hyponatremia), causing brain swelling. This is extremely rare and unrelated to product use.",
         dosage: "There is no meaningful risk from water in foods or personal-care products. Hyponatremia generally requires several liters consumed in a short period, often during endurance events.",
       },
-      sensitization: "Not an allergen or irritant. Frequent wet work can dry skin because it strips natural oils, not because water is harmful.",
       myths: [
         myth("\"Aqua\" is a cheap filler that dilutes a product.", "Water is the solvent that lets actives dissolve, spread and absorb evenly; most lotions and cleansers could not exist without it."),
         myth("Alkaline or \"structured\" water has special health effects.", "Stomach acid neutralizes drinking water's pH within minutes, and claims about restructured water have no support in physical chemistry."),
       ],
-      synthesis: {
-        method: "Naturally sourced, then purified.",
-        steps: [
-          "Municipal or well water is filtered to remove particulates.",
-          "Reverse osmosis forces water through a membrane that rejects dissolved salts.",
-          "Ion-exchange resins swap remaining ions for H+ and OH-, which recombine into water (deionization).",
-          "UV light or filtration removes microbes for cosmetic and pharmaceutical grades.",
-        ],
-        equations: ["H+ + OH- → H2O"],
-      },
       environment: {
         persistence: "Not applicable: water is part of the natural hydrologic cycle.",
         biodegradability: "Not applicable.",
         aquaticToxicity: "None.",
         notes: "The environmental cost of water in products is mostly the energy used to purify, heat and ship it.",
-      },
-      fun: {
-        history: "Henry Cavendish showed in 1781 that burning hydrogen produces water, and Antoine Lavoisier named hydrogen \"water-former\" in 1783, ending the idea that water was an element.",
-        uses: ["Water jets cutting steel and stone", "Heavy water (D2O) moderating nuclear reactors", "Ice as a building material in the Arctic"],
-        occurrence: "Covers about 71% of Earth's surface and makes up roughly 60% of the adult human body.",
       },
     },
   },
@@ -89,14 +65,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Provides sweetness, bulk and moisture retention, feeds yeast in bread, lowers the freezing point of ice cream, and browns during baking. In scrubs it acts as a dissolvable exfoliant.",
-      reactions: [
-        item("Inversion (hydrolysis)", "Acid or the enzyme invertase splits sucrose into glucose and fructose, the \"invert sugar\" used in syrups and made by bees in honey.", "C12H22O11 + H2O → C6H12O6 + C6H12O6"),
-        item("Caramelization and Maillard browning", "Above about 160 °C sucrose breaks down into hundreds of flavor and color compounds; with proteins it drives Maillard browning in baked goods."),
-      ],
-      mechanisms: [
-        item("Digestion and fructose metabolism", "Intestinal sucrase splits sucrose; glucose enters the bloodstream directly while fructose is processed mainly by the liver, where large intakes promote fat synthesis."),
-        item("Tooth decay", "Oral bacteria such as Streptococcus mutans ferment sucrose into lactic acid, dissolving enamel, and build sticky glucan plaque from it."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Generally Recognized as Safe; \"Added Sugars\" must be declared on the Nutrition Facts label.", "21 CFR 184.1854"),
         reg("World Health Organization", "Recommends free sugars below 10% of daily energy, ideally below 5% (about 25 g for adults)."),
@@ -106,31 +74,15 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Not toxic in the classical sense. Harm comes from chronic excess: repeated blood-glucose and insulin spikes, liver fat accumulation from fructose, and acid attack on teeth.",
         dosage: "A teaspoon in a recipe is trivial; the concern is daily totals. One 12-oz regular soda contains about 39 g of sugar, more than the WHO's ideal daily limit.",
       },
-      sensitization: "Not an allergen or skin sensitizer. Sugar scrubs can irritate if rubbed too hard on sensitive or broken skin.",
       myths: [
         myth("Sugar makes children hyperactive.", "Double-blind trials, summarized in a 1995 JAMA meta-analysis, found no effect of sugar on children's behavior; expectations shape what parents observe."),
         myth("\"Natural\" sugars like coconut sugar or raw cane sugar are healthier.", "They are still mostly sucrose and count as added sugar; trace minerals are nutritionally negligible."),
       ],
-      synthesis: {
-        method: "Naturally extracted from sugar cane or sugar beet.",
-        steps: [
-          "Cane is crushed (or beets are sliced into cossettes and soaked in hot water) to release sugar-rich juice.",
-          "The juice is clarified with lime and carbon dioxide, which precipitate impurities as calcium carbonate.",
-          "Water is evaporated under vacuum to form a syrup.",
-          "Seed crystals grow sucrose crystals, which are separated from molasses in centrifuges and dried.",
-        ],
-        equations: ["Ca(OH)2 + CO2 → CaCO3 + H2O"],
-      },
       environment: {
         persistence: "Not persistent; rapidly consumed by microbes.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Non-toxic, though large spills can deplete oxygen in waterways as microbes consume it.",
         notes: "Cane cultivation drives land-use change and field burning in some regions.",
-      },
-      fun: {
-        history: "Crystalline sugar was first produced in India around the 5th century CE; the Sanskrit \"khanda\" gave us the word candy. Andreas Marggraf found sucrose in beets in 1747, launching Europe's beet sugar industry.",
-        uses: ["A set retarder that slows cement hardening", "Traditional wound dressing (sugar paste draws water from bacteria)", "Fermentation feedstock for bioethanol"],
-        occurrence: "Found in fruit, maple sap, dates, carrots and the nectar of many flowers.",
       },
     },
   },
@@ -156,14 +108,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Enhances flavor, controls fermentation in bread, preserves by lowering water activity, and in shampoos thickens surfactant mixtures by packing micelles into worm-like shapes.",
-      reactions: [
-        item("Dissociation", "Salt separates into sodium and chloride ions in water, which is what the tongue tastes and what nerves use.", "NaCl → Na+ + Cl-"),
-        item("Chlor-alkali electrolysis", "Electrolysis of brine produces chlorine, hydrogen and sodium hydroxide, making salt the starting point for bleach and lye.", "2 NaCl + 2 H2O → Cl2 + H2 + 2 NaOH"),
-      ],
-      mechanisms: [
-        item("Nerve and muscle signaling", "Sodium gradients maintained by the Na+/K+-ATPase pump power nerve impulses and nutrient transport."),
-        item("Blood pressure", "Excess sodium increases fluid volume and vascular resistance in salt-sensitive people, raising blood pressure."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Generally Recognized as Safe; FDA issued voluntary sodium-reduction targets for processed foods in 2021."),
         reg("World Health Organization", "Recommends under 2 g of sodium (5 g of salt) per day for adults."),
@@ -173,29 +117,14 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Very large acute doses cause hypernatremia, drawing water out of brain cells. Chronic excess contributes to hypertension, stroke and kidney disease risk.",
         dosage: "Harm from a single product is unlikely; what matters is the daily total. Processed and restaurant foods supply about 70% of dietary sodium in the U.S.",
       },
-      sensitization: "Not an allergen. Concentrated salt can sting cuts or irritated skin.",
       myths: [
         myth("Sea salt and pink Himalayan salt are healthier than table salt.", "By weight they contain about the same sodium; trace minerals are negligible, and they usually lack the iodine added to table salt."),
         myth("Salt in shampoo damages hair.", "At the 1–2% used for thickening, sodium chloride is not shown to harm hair; the idea mostly comes from marketing for salt-free products."),
       ],
-      synthesis: {
-        method: "Naturally extracted from the sea or underground deposits.",
-        steps: [
-          "Solar evaporation of seawater in shallow ponds, or",
-          "Mining of rock salt deposits, or",
-          "Solution mining: water is pumped into salt beds and the brine is evaporated in vacuum pans.",
-          "Iodine (as potassium iodide) and anti-caking agents may be added.",
-        ],
-      },
       environment: {
         persistence: "Chloride does not break down and accumulates in fresh water.",
         biodegradability: "Not applicable (inorganic).",
         aquaticToxicity: "Road-salt runoff raises chloride levels that can harm freshwater organisms.",
-      },
-      fun: {
-        history: "Salt was so valuable that it funded empires and wars; Gandhi's 1930 Salt March against the British salt tax became a turning point in India's independence movement.",
-        uses: ["De-icing roads (the largest use in the U.S.)", "Feedstock for chlorine and PVC plastic", "Regenerating water-softener resins"],
-        occurrence: "Seawater holds about 35 g of dissolved salts per liter, most of it sodium chloride.",
       },
     },
   },
@@ -221,15 +150,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Adds tartness, lowers pH to help preservatives work, chelates metals that would otherwise catalyze spoilage, and dissolves limescale in cleaners.",
-      reactions: [
-        item("Neutralization with baking soda", "The fizz in bath bombs and effervescent tablets is citric acid reacting with sodium bicarbonate.", "C6H8O7 + 3 NaHCO3 → Na3C6H5O7 + 3 H2O + 3 CO2"),
-        item("Chelation of metal ions", "Its three carboxylate groups wrap around Ca2+, Mg2+, Fe3+ and Cu2+, softening water and stopping metals from catalyzing oxidation (an antioxidant synergist)."),
-        item("Descaling", "Converts insoluble calcium carbonate scale into soluble calcium citrate.", "3 CaCO3 + 2 C6H8O7 → Ca3(C6H5O7)2 + 3 H2O + 3 CO2"),
-      ],
-      mechanisms: [
-        item("Krebs cycle intermediate", "Citrate is made and consumed in the mitochondria of every aerobic cell, so dietary citric acid enters normal energy metabolism."),
-        item("Skin exfoliation", "As an alpha-hydroxy acid at low pH it loosens bonds between surface skin cells, though it is used mostly as a pH adjuster at low concentrations."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Generally Recognized as Safe with no limit beyond good manufacturing practice.", "21 CFR 184.1033"),
         reg("EU / EFSA", "Authorized as E330 at quantum satis (no numerical limit)."),
@@ -240,30 +160,14 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Concentrated citric acid is an eye and skin irritant because low pH denatures surface proteins; frequent acidic drinks gradually dissolve tooth enamel.",
         dosage: "Foods and cosmetics use roughly 0.1–1%. The body processes grams per day through normal metabolism; lemon juice itself is about 5–6% citric acid.",
       },
-      sensitization: "Not a sensitizer. It can sting on broken or very sensitive skin at low pH.",
       myths: [
         myth("Citric acid is made from toxic black mold.", "It is produced by fermenting sugar with Aspergillus niger, then purified; the final crystals contain no mold. A 2018 case series suggested reactions to residual impurities, but controlled studies have not confirmed this."),
         myth("\"Citric acid\" on a label means the product contains citrus.", "Industrial citric acid comes from fermentation, not fruit, so it is generally safe for people with citrus allergies."),
       ],
-      synthesis: {
-        method: "Bio-fermented: submerged fermentation of glucose, sucrose or molasses by Aspergillus niger.",
-        steps: [
-          "The mold is grown in a sugar solution with limited iron and manganese so it overproduces citrate.",
-          "The broth is filtered and citric acid is precipitated with lime as calcium citrate.",
-          "Sulfuric acid regenerates citric acid, leaving calcium sulfate (gypsum).",
-          "The solution is purified with activated carbon and ion exchange, then crystallized.",
-        ],
-        equations: ["Ca3(C6H5O7)2 + 3 H2SO4 → 2 C6H8O7 + 3 CaSO4"],
-      },
       environment: {
         persistence: "Not persistent.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low; it is a preferred \"green\" alternative to phosphates and EDTA in detergents.",
-      },
-      fun: {
-        history: "Carl Wilhelm Scheele first crystallized citric acid from lemon juice in 1784. In 1917 food chemist James Currie discovered that Aspergillus niger makes it efficiently, and Pfizer began industrial production two years later.",
-        uses: ["Descaling kettles and coffee makers", "Sodium citrate keeps donated blood from clotting", "Bath bombs and effervescent tablets"],
-        occurrence: "Lemons and limes, plus smaller amounts in oranges, berries and tomatoes.",
       },
     },
   },
@@ -289,14 +193,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Stops cut fruit and cured meats from discoloring, strengthens bread dough, fortifies foods, and in skincare acts as an antioxidant and brightening active.",
-      reactions: [
-        item("Oxidation to dehydroascorbic acid", "Vitamin C donates two electrons, neutralizing free radicals and reactive oxygen species; this is also why serums turn yellow-brown with age.", "C6H8O6 → C6H6O6 + 2 H+ + 2 e-"),
-        item("Iron reduction", "Reduces ferric iron (Fe3+) to ferrous iron (Fe2+), the form the gut absorbs.", "Fe3+ + e- → Fe2+"),
-      ],
-      mechanisms: [
-        item("Collagen synthesis", "A required cofactor for prolyl and lysyl hydroxylase enzymes; without it collagen is unstable, which causes scurvy."),
-        item("Skin brightening", "Interferes with tyrosinase activity and melanin formation, fading hyperpigmentation at effective topical concentrations (typically 10–20% at low pH)."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Generally Recognized as Safe as a nutrient and preservative.", "21 CFR 182.3013"),
         reg("National Academies", "RDA 90 mg/day for men and 75 mg/day for women; tolerable upper intake level 2,000 mg/day."),
@@ -306,30 +202,14 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Unabsorbed vitamin C draws water into the gut (osmotic diarrhea). In susceptible people, high doses raise urinary oxalate and kidney-stone risk.",
         dosage: "Dietary and cosmetic amounts are far below the 2 g/day upper limit. Topical products at 10–20% can tingle because of their low pH.",
       },
-      sensitization: "True allergy is very rare. Low-pH serums may cause temporary stinging or redness.",
       myths: [
         myth("Megadoses of vitamin C prevent colds.", "Cochrane reviews find regular supplements do not reduce how often the general population catches colds, though they slightly shorten their duration."),
         myth("Vitamin C serum makes skin more sensitive to the sun.", "Unlike some acids it does not increase photosensitivity, and it is often paired with sunscreen for added antioxidant protection."),
       ],
-      synthesis: {
-        method: "Synthetically produced from glucose using a combined chemical and fermentation process.",
-        steps: [
-          "Glucose is hydrogenated to sorbitol.",
-          "Gluconobacter bacteria oxidize sorbitol to L-sorbose.",
-          "A second fermentation (or chemical oxidation in the older Reichstein process) yields 2-keto-L-gulonic acid.",
-          "Acid-catalyzed lactonization forms ascorbic acid, which is crystallized.",
-        ],
-        equations: ["C6H12O6 + H2 → C6H14O6"],
-      },
       environment: {
         persistence: "Not persistent; oxidizes rapidly in air and water.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low.",
-      },
-      fun: {
-        history: "In 1747 naval surgeon James Lind showed citrus cured scurvy in one of the first controlled clinical trials. Albert Szent-Györgyi isolated vitamin C in 1928 and won the 1937 Nobel Prize; Norman Haworth synthesized it in 1933.",
-        uses: ["Flour improver in bread dough", "Photographic film developer", "Keeping cut apples and avocados from browning"],
-        occurrence: "Kakadu plums and acerola cherries are the richest sources; citrus, bell peppers and broccoli are everyday ones.",
       },
     },
   },
@@ -356,14 +236,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Prevents yeast and mold spoilage in sodas, pickles, sauces and rinse-off cosmetics, extending shelf life once a product is opened.",
-      reactions: [
-        item("Conversion to benzoic acid", "In acidic products, benzoate picks up a proton to form undissociated benzoic acid, the form that crosses microbial membranes.", "C6H5COO- + H+ → C6H5COOH"),
-        item("Benzene formation", "With ascorbic acid and trace copper or iron, hydroxyl radicals can decarboxylate benzoate into benzene, accelerated by heat and light. Reformulation has kept most drinks below drinking-water limits.", "C6H5COOH → C6H6 + CO2"),
-      ],
-      mechanisms: [
-        item("Antimicrobial action", "Benzoic acid diffuses into microbes, releases its proton in the neutral cytoplasm, acidifies the cell and inhibits glycolytic enzymes such as phosphofructokinase."),
-        item("Human metabolism", "The liver conjugates benzoate with glycine to form hippuric acid, which is excreted in urine within hours; this pathway is used medically to remove excess nitrogen."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Generally Recognized as Safe as a preservative.", "Up to 0.1% in food (21 CFR 184.1733)"),
         reg("JECFA / EFSA", "Group acceptable daily intake of 0–5 mg/kg body weight (as benzoic acid)."),
@@ -374,29 +246,14 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Very high doses overwhelm the glycine conjugation pathway. The oral LD50 in rats is about 4 g/kg, making it less acutely toxic than table salt.",
         dosage: "Typical exposure is well under the ADI (a 60 kg adult's ADI is about 300 mg/day). Beverages usually contain under 0.05%.",
       },
-      sensitization: "Rarely causes hives or pseudo-allergic reactions, mostly in people with aspirin sensitivity or chronic urticaria.",
       myths: [
         myth("Sodium benzoate turns into benzene in your body.", "Benzene can form in the bottle under specific conditions (vitamin C, metals, heat, light), not in the body. The body converts benzoate to hippuric acid."),
         myth("It causes ADHD.", "The 2007 Southampton study tested it mixed with dyes and found small behavioral effects in some children; the effect couldn't be pinned on benzoate, and it does not cause ADHD."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured.",
-        steps: [
-          "Toluene is oxidized by air over cobalt or manganese catalysts to benzoic acid.",
-          "Benzoic acid is purified by distillation or crystallization.",
-          "It is neutralized with sodium hydroxide or sodium carbonate, then dried.",
-        ],
-        equations: ["C6H5CH3 + 3/2 O2 → C6H5COOH + H2O", "C6H5COOH + NaOH → C6H5COONa + H2O"],
-      },
       environment: {
         persistence: "Low; does not bioaccumulate.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low toxicity to fish and invertebrates; EPA Safer Choice lists it as low concern.",
-      },
-      fun: {
-        history: "Benzoic acid was distilled from gum benzoin resin in the 16th century; its antifungal power was described by Ernst Salkowski in 1875, and benzoate became one of the first preservatives approved by the FDA.",
-        uses: ["Treating urea-cycle disorders in newborns", "Potassium benzoate creates the whistle in fireworks", "Corrosion inhibitor in antifreeze"],
-        occurrence: "Cranberries, lingonberries, cinnamon, cloves and fermented dairy naturally contain benzoic acid.",
       },
     },
   },
@@ -423,14 +280,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Inhibits molds and yeasts (less so bacteria) and stops wine from re-fermenting after bottling.",
-      reactions: [
-        item("Acid–base equilibrium", "In acidic foods sorbate forms undissociated sorbic acid (pKa 4.76), the active antimicrobial form.", "C6H7O2- + H+ ⇌ C6H8O2"),
-        item("Mold decarboxylation", "Some resistant molds decarboxylate sorbic acid to 1,3-pentadiene, causing a kerosene-like off-odor in spoiled cheese.", "C6H8O2 → C5H8 + CO2"),
-      ],
-      mechanisms: [
-        item("Enzyme inhibition", "Sorbic acid reacts with sulfhydryl groups of microbial enzymes and disrupts membrane transport, halting growth."),
-        item("Human metabolism", "Oxidized through normal fatty-acid beta-oxidation to carbon dioxide and water."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Generally Recognized as Safe as a chemical preservative.", "21 CFR 182.3640"),
         reg("EFSA (2019)", "Group ADI of 11 mg/kg body weight per day for sorbic acid and potassium sorbate."),
@@ -440,29 +289,14 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Low acute toxicity; very high concentrations can irritate skin and eyes.",
         dosage: "Foods use about 0.025–0.2%; cosmetics up to 0.6%. Typical intakes are well within the ADI.",
       },
-      sensitization: "Occasional contact urticaria or irritation; true allergy is uncommon.",
       myths: [
         myth("Potassium sorbate is a pesticide.", "It is a food preservative with a fatty-acid-like structure; it is not registered or used as a pesticide."),
         myth("It damages DNA.", "Some cell studies used concentrations far above food levels; regulatory reviews by EFSA and JECFA found no genotoxic concern at permitted uses."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured.",
-        steps: [
-          "Ketene reacts with crotonaldehyde to form a polyester intermediate.",
-          "Acid hydrolysis releases sorbic acid, which is purified by crystallization.",
-          "Neutralization with potassium hydroxide gives potassium sorbate.",
-        ],
-        equations: ["C6H8O2 + KOH → C6H7KO2 + H2O"],
-      },
       environment: {
         persistence: "Not persistent.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low.",
-      },
-      fun: {
-        history: "August Wilhelm von Hofmann isolated sorbic acid from rowanberry oil in 1859; its antimold effect was recognized around 1940.",
-        uses: ["Stopping wine from re-fermenting in the bottle", "Preserving pet food and tobacco", "Keeping dried fruit soft and mold-free"],
-        occurrence: "Named after the rowan tree (Sorbus aucuparia), whose berries contain its precursor.",
       },
     },
   },
@@ -487,14 +321,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Sweetens, retains moisture, prevents crystallization and browns well; being liquid it mixes easily into drinks.",
-      reactions: [
-        item("Starch hydrolysis", "Enzymes (alpha-amylase, then glucoamylase) break corn starch into glucose.", "(C6H10O5)n + n H2O → n C6H12O6"),
-        item("Isomerization", "Immobilized glucose isomerase converts part of the glucose into its sweeter isomer, fructose.", "C6H12O6 (glucose) ⇌ C6H12O6 (fructose)"),
-      ],
-      mechanisms: [
-        item("Hepatic fructose metabolism", "Fructose bypasses the main regulatory step of glycolysis in the liver; large amounts promote fat synthesis and raise triglycerides."),
-        item("Satiety", "Liquid sugars are less filling than solid food, making it easy to consume many calories from sweetened drinks."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Generally Recognized as Safe; the FDA rejected renaming it \"corn sugar\" in 2012.", "21 CFR 184.1866"),
         reg("EU", "Sold as glucose-fructose syrup or isoglucose; production quotas ended in 2017."),
@@ -503,30 +329,15 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Not toxic; health effects stem from excessive added-sugar intake (weight gain, type 2 diabetes risk, fatty liver, dental caries).",
         dosage: "A 20-oz regular soda can deliver about 65 g of sugar from HFCS, more than the typical daily added-sugar limit.",
       },
-      sensitization: "Not an allergen.",
       myths: [
         myth("HFCS is far worse than table sugar.", "HFCS-55 is 55% fructose versus 50% in sucrose; controlled studies show similar effects at equal doses. The problem is total added sugar."),
         myth("HFCS contains mercury.", "A 2009 report found traces in some samples from older chlor-alkali caustic soda; manufacturers use mercury-free processes."),
       ],
-      synthesis: {
-        method: "Semi-synthetic: enzymatic processing of corn starch.",
-        steps: [
-          "Corn is wet-milled to separate starch.",
-          "Alpha-amylase and glucoamylase convert starch to a glucose syrup.",
-          "Glucose isomerase converts about 42% of glucose to fructose.",
-          "Chromatography enriches fructose to 90%, which is blended back to make HFCS-55.",
-        ],
-      },
       environment: {
         persistence: "Not persistent.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Non-toxic.",
         notes: "Tied to large-scale corn monoculture and fertilizer runoff.",
-      },
-      fun: {
-        history: "Japanese researcher Yoshiyuki Takasaki developed an industrial glucose-isomerase process in the 1960s; HFCS replaced sugar in most U.S. sodas by the mid-1980s.",
-        uses: ["Feed for honeybee colonies in winter", "Humectant in soft cookies"],
-        occurrence: "Not natural, but honey has a similar fructose-to-glucose ratio.",
       },
     },
   },
@@ -552,14 +363,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Provides sugar-like sweetness with almost no calories in diet sodas, yogurts, gum and tabletop sweeteners.",
-      reactions: [
-        item("Digestive hydrolysis", "Gut enzymes split aspartame into aspartic acid, phenylalanine and methanol, which are absorbed like the same compounds from other foods.", "C14H18N2O5 + 2 H2O → C4H7NO4 + C9H11NO2 + CH3OH"),
-        item("Cyclization on heating", "Heat and storage convert it to diketopiperazine, which is not sweet, so diet drinks lose sweetness over time."),
-      ],
-      mechanisms: [
-        item("Sweet-taste receptor", "Binds the T1R2/T1R3 sweet receptor on the tongue."),
-        item("Phenylalanine load", "People with phenylketonuria (PKU) cannot metabolize phenylalanine, so products must carry a \"Phenylketonurics: contains phenylalanine\" warning."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Approved as a general-purpose sweetener.", "ADI 50 mg/kg/day"),
         reg("JECFA (2023)", "Reaffirmed the ADI of 40 mg/kg body weight after reviewing cancer data."),
@@ -570,28 +373,14 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Proposed mechanisms from animal and observational studies (oxidative stress, tumors in lifetime rodent studies) have not been consistently confirmed; the Ramazzini rat studies remain contested.",
         dosage: "A 70 kg adult would need about 9–14 cans of diet soda every day to reach JECFA's ADI. The methanol from a can is less than from a glass of fruit juice.",
       },
-      sensitization: "Not a skin sensitizer. Some people report headaches; controlled trials show inconsistent results.",
       myths: [
         myth("Aspartame is proven to cause cancer.", "IARC's 2B label means limited evidence (the same category as aloe vera extract). JECFA found no reason to change the safe daily limit."),
         myth("Aspartame turns into formaldehyde and poisons you.", "Methanol from aspartame is metabolized like the larger amounts naturally present in fruits and vegetables."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured from two amino acids.",
-        steps: [
-          "L-phenylalanine is esterified with methanol.",
-          "It is coupled to L-aspartic acid chemically (with protecting groups) or enzymatically with thermolysin.",
-          "The dipeptide ester is purified and crystallized.",
-        ],
-      },
       environment: {
         persistence: "Not persistent; hydrolyzes in water.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low.",
-      },
-      fun: {
-        history: "Chemist James Schlatter discovered aspartame's sweetness by accident in 1965 when he licked his finger while working on an anti-ulcer drug at G.D. Searle.",
-        uses: ["Flavor-enhancing chewing gum (it prolongs fruit flavors)", "Sugar-free medicines"],
-        occurrence: "Synthetic, but built from two amino acids found in all dietary protein.",
       },
     },
   },
@@ -617,14 +406,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Adds zero-calorie sweetness to drinks, baked goods, protein powders and flavored lip products.",
-      reactions: [
-        item("Selective chlorination", "Three hydroxyl groups of sucrose are replaced with chlorine, which blocks digestion and boosts sweetness about 600-fold."),
-        item("Thermal breakdown", "Above about 120 °C, especially with glycerol or fats, sucralose can form chlorinated compounds such as chloropropanols; Germany's BfR advises against baking with it at high heat."),
-      ],
-      mechanisms: [
-        item("Minimal absorption", "About 85% passes through the gut unabsorbed and is excreted; the absorbed fraction leaves in urine."),
-        item("Gut microbiome", "Some human and animal studies report changes in gut bacteria and glucose responses; results are inconsistent."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Approved as a general-purpose sweetener (1999).", "ADI 5 mg/kg/day"),
         reg("EFSA", "Authorized as E955.", "ADI 15 mg/kg/day"),
@@ -634,28 +415,14 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "A 2023 in-vitro study reported that sucralose-6-acetate, a manufacturing impurity and gut metabolite, damaged DNA in cells; this has not yet been confirmed in humans.",
         dosage: "A packet of Splenda contains about 12 mg of sucralose; typical intakes are far below the ADI.",
       },
-      sensitization: "Not a known skin sensitizer.",
       myths: [
         myth("Sucralose is basically sugar, so it's natural.", "It starts as sugar but is chemically chlorinated; the body does not recognize it as sugar."),
         myth("Zero-calorie sweeteners spike insulin just like sugar.", "Most trials show no acute blood-sugar spike; some show subtle changes in insulin response when combined with carbohydrates."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured from sucrose.",
-        steps: [
-          "The 6-hydroxyl of sucrose is protected by acetylation.",
-          "Chlorination (for example with a Vilsmeier-type reagent) replaces three hydroxyls with chlorine.",
-          "The protecting acetate is removed and the product is crystallized.",
-        ],
-      },
       environment: {
         persistence: "Highly persistent; passes through wastewater treatment largely intact.",
         biodegradability: "Not readily biodegradable.",
         aquaticToxicity: "Low acute toxicity, but it is now widespread in rivers and groundwater.",
-      },
-      fun: {
-        history: "Discovered in 1976 at Queen Elizabeth College, London, reportedly when a student misheard \"test this compound\" as \"taste this compound\".",
-        uses: ["Tracer for wastewater in groundwater studies"],
-        occurrence: "Synthetic; not found in nature.",
       },
     },
   },
@@ -680,14 +447,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Adds bitterness and stimulant effect to colas and energy drinks; in eye creams it constricts blood vessels to reduce puffiness temporarily.",
-      reactions: [
-        item("Supercritical CO2 extraction", "Pressurized carbon dioxide selectively dissolves caffeine from green coffee beans in decaffeination."),
-        item("Liver demethylation", "CYP1A2 removes methyl groups, producing paraxanthine, theobromine and theophylline."),
-      ],
-      mechanisms: [
-        item("Adenosine receptor blockade", "Caffeine blocks A1 and A2A adenosine receptors, preventing the drowsiness signal and increasing dopamine and norepinephrine activity."),
-        item("Half-life", "Its half-life is about 3–7 hours, longer in pregnancy or with some medications."),
-      ],
       regulatory: [
         reg("U.S. FDA", "GRAS in cola-type beverages; FDA cites 400 mg/day as not generally associated with adverse effects for healthy adults.", "0.02% in colas (21 CFR 182.1180)"),
         reg("EFSA", "Single doses up to 200 mg and 400 mg/day are safe for adults; 200 mg/day in pregnancy."),
@@ -697,28 +456,14 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "At high doses it causes rapid heart rate, anxiety and arrhythmia; massive doses (grams) can cause seizures and death, usually from pure powders or pills.",
         dosage: "A cup of coffee has about 95 mg; a 16-oz energy drink 150–300 mg. Toxic effects appear around 1.2 g taken quickly; a teaspoon of pure powder can exceed that.",
       },
-      sensitization: "Not a skin sensitizer.",
       myths: [
         myth("Coffee dehydrates you.", "Moderate habitual intake has only a mild diuretic effect; caffeinated drinks still count toward daily fluids."),
         myth("Caffeine stunts growth.", "There is no evidence that caffeine affects height."),
       ],
-      synthesis: {
-        method: "Mostly naturally extracted (a by-product of decaffeination); also synthesized.",
-        steps: [
-          "Green coffee beans or tea leaves are extracted with water, CO2 or solvent.",
-          "Caffeine is recovered, purified by recrystallization or sublimation.",
-          "Synthetic caffeine is made from dimethylurea and malonic acid via the Traube purine synthesis.",
-        ],
-      },
       environment: {
         persistence: "Moderately persistent; a common marker of human wastewater in rivers.",
         biodegradability: "Biodegradable in treatment plants.",
         aquaticToxicity: "Low at environmental levels.",
-      },
-      fun: {
-        history: "Friedlieb Ferdinand Runge isolated caffeine in 1819 after Goethe urged him to analyze coffee beans; Emil Fischer synthesized it in 1895.",
-        uses: ["Treating breathing pauses in premature babies (caffeine citrate)", "Eye creams for puffiness", "A natural insecticide in plants"],
-        occurrence: "Coffee, tea, cacao, guarana, yerba mate and kola nut; plants use it to deter insects.",
       },
     },
   },
@@ -745,14 +490,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Provides sharp acidity in colas, adjusts pH in cosmetics, and converts rust in toilet and metal cleaners.",
-      reactions: [
-        item("Rust conversion", "Converts iron oxide into a hard iron phosphate layer that can be painted over.", "2 H3PO4 + Fe2O3 → 2 FePO4 + 3 H2O"),
-        item("Neutralization", "Reacts with bases to form phosphate buffers used throughout food and cosmetic formulation.", "H3PO4 + NaOH → NaH2PO4 + H2O"),
-      ],
-      mechanisms: [
-        item("Enamel erosion", "Colas at pH about 2.5 dissolve hydroxyapatite in enamel when sipped frequently."),
-        item("Bone mineral balance", "A high phosphorus intake with low calcium may disturb calcium balance; cola intake was linked to lower hip bone density in women in the Framingham Osteoporosis Study."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Generally Recognized as Safe.", "21 CFR 182.1073"),
         reg("EU / EFSA", "Authorized as E338 with maximum levels by food category; EFSA set a group ADI for phosphates in 2019."),
@@ -762,28 +499,14 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Concentrated acid denatures and hydrolyzes tissue proteins, causing chemical burns.",
         dosage: "Colas contain about 0.05%. Rust removers and toilet cleaners can contain 10–30%, requiring gloves and ventilation.",
       },
-      sensitization: "Not a sensitizer; concentrated solutions are corrosive.",
       myths: [
         myth("A cola will dissolve a tooth overnight.", "Erosion takes repeated exposure over time; saliva buffers acids between sips."),
         myth("Phosphoric acid in soda leaches calcium from your bones.", "The bone link is modest and may partly reflect cola replacing milk in the diet."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured from phosphate rock.",
-        steps: [
-          "Wet process: phosphate rock is digested with sulfuric acid, producing phosphoric acid and gypsum.",
-          "Thermal process (food grade): elemental phosphorus is burned to P4O10, then absorbed in water.",
-        ],
-        equations: ["Ca5(PO4)3F + 5 H2SO4 + 10 H2O → 3 H3PO4 + 5 CaSO4·2H2O + HF", "P4O10 + 6 H2O → 4 H3PO4"],
-      },
       environment: {
         persistence: "Phosphate persists as a nutrient.",
         biodegradability: "Not applicable (inorganic).",
         aquaticToxicity: "Phosphate runoff drives algal blooms; phosphates were phased out of U.S. laundry and dishwasher detergents for this reason.",
-      },
-      fun: {
-        history: "Phosphorus was discovered in 1669 by Hennig Brand, who boiled down about 1,500 gallons of urine hunting for the philosopher's stone.",
-        uses: ["Dental etching gel before fillings", "Fertilizer production (its largest use)", "Rust converters"],
-        occurrence: "Phosphate minerals (apatite); phosphate groups form the backbone of DNA.",
       },
     },
   },
@@ -810,13 +533,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Boosts savory, meaty (umami) flavor in soups, snacks, sauces and seasonings, allowing less salt overall.",
-      reactions: [
-        item("Dissociation", "In food and saliva MSG separates into sodium and free glutamate, the form that activates taste receptors.", "C5H8NNaO4 → C5H8NO4- + Na+"),
-      ],
-      mechanisms: [
-        item("Umami taste receptor", "Glutamate binds the T1R1/T1R3 receptor and metabotropic glutamate receptors on the tongue."),
-        item("Gut metabolism", "Most dietary glutamate is used as fuel by intestinal cells, so little reaches the bloodstream or brain."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Generally Recognized as Safe; must be labeled as monosodium glutamate."),
         reg("JECFA", "ADI \"not specified\" (the safest category)."),
@@ -826,29 +542,14 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "No toxic mechanism at dietary levels; very large doses without food may cause transient symptoms in a small number of people.",
         dosage: "Typical intake is about 0.5–1 g/day. Symptoms in some trials appeared only after 3 g or more without food.",
       },
-      sensitization: "Not an allergen.",
       myths: [
         myth("\"Chinese Restaurant Syndrome\" proves MSG is harmful.", "The idea began with a 1968 letter to a medical journal; double-blind studies have not reproduced consistent reactions, and the narrative carried xenophobic undertones."),
         myth("MSG is artificial.", "It is made by fermentation, and the glutamate is identical to that in tomatoes, parmesan, mushrooms and breast milk."),
       ],
-      synthesis: {
-        method: "Bio-fermented.",
-        steps: [
-          "Corynebacterium glutamicum ferments sugar or starch and secretes glutamic acid.",
-          "Glutamic acid is crystallized from the broth.",
-          "It is neutralized with sodium hydroxide or carbonate and recrystallized as MSG.",
-        ],
-        equations: ["C5H9NO4 + NaOH → C5H8NNaO4 + H2O"],
-      },
       environment: {
         persistence: "Not persistent.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low.",
-      },
-      fun: {
-        history: "Japanese chemist Kikunae Ikeda isolated glutamate from kombu seaweed broth in 1908, named its taste \"umami\" and co-founded Ajinomoto to sell it.",
-        uses: ["Plant growth stimulant", "Salt-reduction strategy in processed foods"],
-        occurrence: "Parmesan, tomatoes, soy sauce, kombu, mushrooms and human breast milk.",
       },
     },
   },
@@ -875,13 +576,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Colors candy, drinks, cereals, snacks and cosmetics a bright, consistent red with no flavor or nutritional role.",
-      reactions: [
-        item("Azo reduction by gut bacteria", "Bacterial azoreductases cleave the azo bond, releasing two sulfonated aromatic amines that are mostly excreted.", "R–N=N–R' + 4 [H] → R–NH2 + R'–NH2"),
-      ],
-      mechanisms: [
-        item("Behavioral effects in children", "A 2007 randomized trial (the Southampton study) found mixtures containing Red 40 increased hyperactive behavior in the general child population; California's 2021 OEHHA review reached a similar conclusion."),
-        item("Gut inflammation in animal models", "A 2022 mouse study found chronic Red 40 exposure raised gut serotonin and worsened experimental colitis; human relevance is unknown."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Certified color additive; FDA announced in 2025 a plan to phase out petroleum-based dyes, relying largely on industry commitments.", "21 CFR 74.340"),
         reg("EU", "Authorized as E129 but foods must carry the warning \"may have an adverse effect on activity and attention in children\"."),
@@ -892,29 +586,14 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Low acute toxicity. Concerns center on neurobehavioral effects in sensitive children and on trace carcinogenic impurities (benzidine) limited by FDA batch certification.",
         dosage: "U.S. children's intakes can approach several mg/kg on high-candy days; average intakes are below the ADI.",
       },
-      sensitization: "Rare hives or allergic-type reactions reported; not a common sensitizer.",
       myths: [
         myth("Red 40 is made from bugs.", "That's carmine (cochineal). Red 40 is synthesized from petroleum-derived chemicals."),
         myth("Red 40 causes ADHD.", "It doesn't cause ADHD, but evidence suggests it can worsen hyperactive behavior in some sensitive children."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured (azo coupling).",
-        steps: [
-          "Cresidine-4-sulfonic acid is diazotized with nitrous acid at low temperature.",
-          "The diazonium salt is coupled with 6-hydroxy-2-naphthalenesulfonic acid (Schaeffer's salt).",
-          "The dye is salted out, purified, and each batch is certified by the FDA.",
-        ],
-        equations: ["Ar–NH2 + HNO2 + H+ → Ar–N2+ + 2 H2O"],
-      },
       environment: {
         persistence: "Moderately persistent; azo dyes resist aerobic breakdown.",
         biodegradability: "Poorly biodegradable aerobically.",
         aquaticToxicity: "Low acute toxicity; colors waterways.",
-      },
-      fun: {
-        history: "Introduced in 1971 by Allied Chemical, Red 40 took over after Red No. 2 (amaranth) was banned in the U.S. in 1976.",
-        uses: ["Tinting cough syrups and vitamins", "Lipsticks and blush (as CI 16035)"],
-        occurrence: "Synthetic only.",
       },
     },
   },
@@ -940,13 +619,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Colors soft drinks, candies, chips, pickles, soaps and cosmetics yellow or, mixed with blue, green.",
-      reactions: [
-        item("Azo reduction", "Gut bacteria split tartrazine into sulfanilic acid and an aminopyrazolone that are largely excreted.", "R–N=N–R' + 4 [H] → R–NH2 + R'–NH2"),
-      ],
-      mechanisms: [
-        item("Intolerance reactions", "In a small subset of people, especially those sensitive to aspirin, it can trigger hives or asthma through non-IgE (pseudo-allergic) pathways."),
-        item("Behavioral effects", "Included in the Southampton trial mixtures that increased hyperactivity in some children."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Certified color; must be declared by name on labels because of intolerance reports.", "21 CFR 74.705"),
         reg("EU", "Authorized as E102 with the mandatory hyperactivity warning label."),
@@ -956,28 +628,14 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Low acute toxicity; the main documented hazards are intolerance reactions and behavioral effects in sensitive children.",
         dosage: "JECFA ADI is 0–10 mg/kg body weight; typical exposure is lower.",
       },
-      sensitization: "Can cause urticaria in sensitive individuals; estimated to affect well under 1 in 1,000 people.",
       myths: [
         myth("Yellow 5 lowers sperm count.", "This long-running rumor about neon sodas has no supporting human evidence."),
         myth("Yellow 5 is banned in Europe.", "It is permitted in the EU, but products must carry a warning about children's activity and attention."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured (azo coupling).",
-        steps: [
-          "Sulfanilic acid is diazotized with nitrous acid.",
-          "The diazonium salt is coupled with a sulfophenyl pyrazolone carboxylic acid.",
-          "The trisodium salt is isolated, purified and batch-certified.",
-        ],
-      },
       environment: {
         persistence: "Moderately persistent.",
         biodegradability: "Poorly biodegradable aerobically.",
         aquaticToxicity: "Low acute toxicity.",
-      },
-      fun: {
-        history: "Discovered in 1884 by Swiss chemist Johann Heinrich Ziegler; its name comes from tartaric acid, used in early syntheses.",
-        uses: ["Coloring medications and vitamins", "Soaps and shampoos"],
-        occurrence: "Synthetic only.",
       },
     },
   },
@@ -1002,13 +660,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Provides consistent brown color in colas, soy sauce, beer, gravy, baked goods and some hair and skin products.",
-      reactions: [
-        item("Caramelization", "Controlled heating of sugars dehydrates and polymerizes them into brown melanoidins and caramelans."),
-        item("Ammonia process by-product", "In classes III and IV, ammonia reacts with sugar fragments to form 4-methylimidazole (4-MEI)."),
-      ],
-      mechanisms: [
-        item("4-MEI in animal studies", "High doses of 4-MEI caused lung tumors in mice in a U.S. National Toxicology Program study; IARC classified 4-MEI as possibly carcinogenic (Group 2B)."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Color additive exempt from certification.", "21 CFR 73.85"),
         reg("California Prop 65", "4-MEI is listed; beverages over 29 µg/day exposure need a warning, which led major colas to reduce 4-MEI levels in 2012."),
@@ -1018,27 +669,13 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Caramel itself is poorly absorbed; concern is limited to 4-MEI and a related impurity (THI) in ammonia-process classes.",
         dosage: "Exposure depends heavily on cola consumption; reformulated U.S. colas contain much lower 4-MEI than before 2012.",
       },
-      sensitization: "Not a known allergen.",
       myths: [
         myth("Caramel color is just burnt sugar.", "Class I is, but classes III and IV are made with ammonia compounds that create by-products like 4-MEI."),
       ],
-      synthesis: {
-        method: "Semi-synthetic: controlled heating of food-grade carbohydrates.",
-        steps: [
-          "Glucose or sucrose syrup is heated with food-grade acids, alkalis or salts.",
-          "Ammonium or sulfite compounds are added for classes II–IV to tune color and charge.",
-          "The mixture is cooled and filtered when target color intensity is reached.",
-        ],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Biodegradable.",
         aquaticToxicity: "Low.",
-      },
-      fun: {
-        history: "Caramel is among the oldest food colorings, used in beer and spirits since the 1800s.",
-        uses: ["Coloring whisky and rum", "Darkening pet food"],
-        occurrence: "Browning of sugars in cooking creates similar compounds naturally.",
       },
     },
   },
@@ -1066,13 +703,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Creates viscosity and suspends particles, keeping dressings from separating and replacing gluten's structure in gluten-free baking.",
-      reactions: [
-        item("Shear thinning", "Its rigid helical chains align under stirring, so sauces pour easily but thicken again at rest."),
-        item("Synergy with locust bean gum", "Its helices bind to galactomannans, forming elastic gels that neither forms alone."),
-      ],
-      mechanisms: [
-        item("Fermentable fiber", "Human enzymes cannot digest it; gut bacteria ferment part of it, and large doses increase stool bulk."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Approved food additive.", "21 CFR 172.695"),
         reg("EFSA (2017)", "ADI \"not specified\"; FDA and EFSA advise against use in premature infants after thickener-associated necrotizing enterocolitis cases."),
@@ -1081,27 +711,13 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Not absorbed; effects are mechanical and fermentative in the gut.",
         dosage: "Foods use about 0.05–0.5%. Laxative effects appear above about 15 g/day.",
       },
-      sensitization: "Rare occupational allergy from inhaling powder; food reactions are very uncommon.",
       myths: [
         myth("Xanthan gum is made from bacteria, so it's unsafe.", "Bacteria make it during fermentation, but the purified gum contains no living organisms."),
       ],
-      synthesis: {
-        method: "Bio-fermented by Xanthomonas campestris.",
-        steps: [
-          "The bacterium ferments glucose or sucrose and secretes xanthan.",
-          "The broth is pasteurized to kill the bacteria.",
-          "Xanthan is precipitated with isopropyl alcohol, dried and milled.",
-        ],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Biodegradable.",
         aquaticToxicity: "Low.",
-      },
-      fun: {
-        history: "Discovered in the 1950s by Allene Rosalind Jeanes's team at the USDA; approved for food in 1968.",
-        uses: ["Thickening oil-drilling mud", "Helping people with swallowing difficulties"],
-        occurrence: "Made by the same bacterium that causes black rot on cabbage and broccoli.",
       },
     },
   },
@@ -1129,13 +745,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Stabilizes emulsions, reduces chocolate viscosity, prevents sticking in cooking sprays and softens skin in creams.",
-      reactions: [
-        item("Interface stabilization", "Its amphiphilic molecules sit at oil–water interfaces, lowering interfacial tension and preventing droplets from merging."),
-        item("Enzymatic hydrolysis", "Phospholipases split lecithin into lysolecithin, a stronger emulsifier used in some processing."),
-      ],
-      mechanisms: [
-        item("Choline source", "Phosphatidylcholine supplies choline, used for cell membranes and the neurotransmitter acetylcholine."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Generally Recognized as Safe.", "21 CFR 184.1400"),
         reg("EFSA (2017)", "ADI \"not specified\"; no safety concern at reported uses."),
@@ -1145,27 +754,13 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Digested like dietary fats and phospholipids.",
         dosage: "Chocolate uses about 0.3–0.5%. Supplement doses of several grams per day are well tolerated.",
       },
-      sensitization: "Most soy-allergic people tolerate it, but highly sensitive individuals may react to protein traces.",
       myths: [
         myth("Soy lecithin disrupts hormones.", "Lecithin contains negligible isoflavones; the phytoestrogen debate concerns whole soy foods and supplements."),
       ],
-      synthesis: {
-        method: "Naturally extracted as a by-product of soybean oil refining.",
-        steps: [
-          "Crude soybean oil is mixed with water (degumming), hydrating the phospholipids.",
-          "The hydrated gums are separated by centrifuge.",
-          "The gums are dried, and may be bleached or fractionated.",
-        ],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low.",
-      },
-      fun: {
-        history: "French chemist Théodore Gobley isolated lecithin from egg yolk in the 1840s and named it after the Greek \"lekithos\" (egg yolk).",
-        uses: ["Non-stick cooking sprays", "Paint and ink dispersant", "Liposome drug delivery"],
-        occurrence: "Egg yolks, soybeans, sunflower seeds and every cell membrane.",
       },
     },
   },
@@ -1192,14 +787,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Releases CO2 to raise dough, neutralizes acids and odors, softens water, and acts as a mild abrasive in toothpaste and cleaners.",
-      reactions: [
-        item("Leavening with acid", "Acids in buttermilk or baking powder release carbon dioxide bubbles.", "NaHCO3 + H+ → Na+ + H2O + CO2"),
-        item("Thermal decomposition", "Heat alone decomposes it to sodium carbonate, water and CO2.", "2 NaHCO3 → Na2CO3 + H2O + CO2"),
-        item("Reaction with vinegar", "Neutralizes acetic acid into sodium acetate, water and CO2.", "NaHCO3 + CH3COOH → CH3COONa + H2O + CO2"),
-      ],
-      mechanisms: [
-        item("Acid buffering", "Bicarbonate is the body's main blood buffer; as an antacid it neutralizes stomach acid."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Generally Recognized as Safe.", "21 CFR 184.1736"),
         reg("EU", "Authorized as E500(ii) at quantum satis."),
@@ -1209,29 +796,14 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Large ingestions can cause metabolic alkalosis and high blood sodium; rapid CO2 release after big meals has rarely caused stomach rupture.",
         dosage: "Baking uses about 1 teaspoon per recipe. Antacid labels limit adult use to a few grams per day.",
       },
-      sensitization: "Not a sensitizer; alkaline deodorants can irritate sensitive underarms.",
       myths: [
         myth("Baking soda plus vinegar is a super cleaner.", "They neutralize each other into salty water; the fizz is only CO2. Each works better on its own."),
         myth("Baking soda cures cancer by alkalizing the body.", "Blood pH is tightly regulated; diet cannot meaningfully change it, and this claim has caused harm."),
       ],
-      synthesis: {
-        method: "Mined (from trona or nahcolite) or synthetically manufactured.",
-        steps: [
-          "Solvay process: brine absorbs ammonia and carbon dioxide, precipitating sodium bicarbonate.",
-          "Or trona ore is refined to soda ash, then carbonated to bicarbonate.",
-          "The crystals are washed and dried.",
-        ],
-        equations: ["NaCl + NH3 + CO2 + H2O → NaHCO3 + NH4Cl", "Na2CO3 + CO2 + H2O → 2 NaHCO3"],
-      },
       environment: {
         persistence: "Not persistent; part of the natural carbonate cycle.",
         biodegradability: "Not applicable (inorganic).",
         aquaticToxicity: "Low.",
-      },
-      fun: {
-        history: "Commercial baking soda was sold in the U.S. from 1846 by the company later known as Church & Dwight (Arm & Hammer); Ernest Solvay's 1860s process made it cheap.",
-        uses: ["Dry-chemical fire extinguishers", "Intravenous treatment of metabolic acidosis", "Blasting paint off delicate surfaces (soda blasting)"],
-        occurrence: "The mineral nahcolite, mineral springs, and human blood as the bicarbonate buffer.",
       },
     },
   },
@@ -1259,13 +831,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Thickens and stabilizes plant milks, ice cream, chocolate milk and deli meats; binds toothpaste.",
-      reactions: [
-        item("Ion-induced gelling", "Kappa-carrageenan forms firm gels with potassium ions and iota-carrageenan soft gels with calcium, as helices link together."),
-        item("Acid hydrolysis", "Harsh acid and heat break it into low-molecular-weight poligeenan, a different substance not permitted in food."),
-      ],
-      mechanisms: [
-        item("Intestinal inflammation debate", "Some cell and animal studies link carrageenan to inflammation via TLR4 signaling; other studies and regulatory reviews found no effect at food-grade molecular weights."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Approved food additive.", "21 CFR 172.620"),
         reg("EFSA (2018)", "Temporary ADI of 75 mg/kg body weight per day while more data are gathered."),
@@ -1275,28 +840,14 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Food-grade carrageenan is poorly absorbed; concern focuses on possible degradation to smaller fragments and on gut barrier effects in sensitive people.",
         dosage: "Foods use about 0.01–1%. EFSA estimated some high consumers could exceed the temporary ADI.",
       },
-      sensitization: "Not a common allergen.",
       myths: [
         myth("Carrageenan is the same as poligeenan, a carcinogen.", "Poligeenan is a degraded, much smaller molecule; food-grade carrageenan has a specified minimum molecular weight."),
       ],
-      synthesis: {
-        method: "Naturally extracted from red seaweed.",
-        steps: [
-          "Seaweed (Kappaphycus, Eucheuma, Chondrus) is washed and treated with hot alkali.",
-          "The extract is filtered and concentrated.",
-          "Carrageenan is precipitated with alcohol or potassium chloride, dried and milled.",
-        ],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Biodegradable.",
         aquaticToxicity: "Low.",
         notes: "Seaweed farming supports coastal communities in the Philippines and Indonesia.",
-      },
-      fun: {
-        history: "Irish cooks have thickened milk puddings with Irish moss (Chondrus crispus) for centuries; the name comes from Carragheen, a coastal area of Ireland.",
-        uses: ["Air-freshener gels", "Fire-fighting foams", "Toothpaste binder"],
-        occurrence: "Cell walls of red seaweeds.",
       },
     },
   },
@@ -1323,13 +874,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Prevents rancidity in oils and cosmetics and provides antioxidant and conditioning benefits for skin.",
-      reactions: [
-        item("Chain-breaking antioxidant", "Donates a hydrogen atom from its phenol to a lipid peroxyl radical, stopping chain reactions that turn fats rancid.", "LOO• + TOH → LOOH + TO•"),
-        item("Regeneration by vitamin C", "Ascorbate reduces the tocopheroxyl radical back to tocopherol, recycling it."),
-      ],
-      mechanisms: [
-        item("Membrane protection", "Embedded in cell membranes, it protects polyunsaturated fatty acids from peroxidation."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Generally Recognized as Safe as a nutrient and preservative.", "21 CFR 182.3890"),
         reg("National Academies", "RDA 15 mg/day; upper limit 1,000 mg/day from supplements."),
@@ -1339,26 +883,13 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "High-dose supplements can interfere with vitamin K-dependent clotting; the SELECT trial found 400 IU/day increased prostate cancer risk.",
         dosage: "Foods and cosmetics contain milligrams; concerns apply to long-term supplement doses of hundreds of IU per day.",
       },
-      sensitization: "Contact dermatitis is uncommon but reported, more often with tocopheryl acetate or linoleate derivatives.",
       myths: [
         myth("Vitamin E oil erases scars.", "Controlled studies show no benefit over plain moisturizer, and some people develop contact dermatitis."),
       ],
-      synthesis: {
-        method: "Naturally extracted from vegetable oils, or synthesized.",
-        steps: [
-          "Natural: tocopherols are concentrated from soybean-oil deodorizer distillate by molecular distillation.",
-          "Synthetic: trimethylhydroquinone is condensed with isophytol under acid catalysis to all-rac-alpha-tocopherol.",
-        ],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Biodegradable.",
         aquaticToxicity: "Low.",
-      },
-      fun: {
-        history: "Herbert Evans and Katharine Bishop discovered vitamin E in 1922 as a factor rats needed for fertility; the name tocopherol comes from Greek for \"to bear offspring\".",
-        uses: ["Stabilizer in plastics for medical implants", "Antioxidant in animal feed"],
-        occurrence: "Wheat germ oil, sunflower seeds, almonds and olive oil.",
       },
     },
   },
@@ -1382,13 +913,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Adds or restores specific tastes and aromas lost in processing, at parts-per-million concentrations.",
-      reactions: [
-        item("Extraction and distillation", "Volatile aroma compounds are separated from plant or animal sources with steam, solvents or supercritical CO2."),
-        item("Fermentation and enzymes", "Microbes or enzymes can convert natural precursors into flavor molecules and still qualify as natural."),
-      ],
-      mechanisms: [
-        item("Olfaction", "Volatile molecules activate some of the roughly 400 human olfactory receptor types; most of what we call flavor is smell."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Defined as flavor derived from plant or animal sources whose primary function is flavor, not nutrition.", "21 CFR 101.22"),
         reg("FEMA GRAS program", "Industry-led expert panel reviews flavor substances; critics note limited FDA oversight."),
@@ -1397,28 +921,14 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Individual flavor compounds are used at very low levels; safety depends on the specific undisclosed components.",
         dosage: "Typically less than 0.1% of a food.",
       },
-      sensitization: "Allergens must still be declared, but people with rare sensitivities cannot identify hidden components.",
       myths: [
         myth("\"Natural flavors\" means the product contains that fruit.", "Strawberry natural flavor can be derived from other natural sources; it need not come from strawberries."),
         myth("Natural flavors are safer than artificial ones.", "Many natural and artificial flavor molecules are chemically identical; the difference is where they come from, not how safe they are."),
       ],
-      synthesis: {
-        method: "Naturally extracted, distilled or bio-fermented.",
-        steps: [
-          "Raw materials are extracted or distilled to isolate flavor fractions.",
-          "Fermentation or enzymatic conversion can produce specific natural flavor molecules.",
-          "Flavorists blend dozens of components with carriers into a proprietary formula.",
-        ],
-      },
       environment: {
         persistence: "Varies by component.",
         biodegradability: "Most components are biodegradable.",
         aquaticToxicity: "Low at use levels.",
-      },
-      fun: {
-        history: "The modern flavor industry grew in the 20th century; FEMA's GRAS program began reviewing flavor substances in 1960.",
-        uses: ["Pet foods", "Medicines and vitamins", "Vapes and oral nicotine products"],
-        occurrence: "Derived from fruits, spices, herbs, meat, dairy and fermentation.",
       },
     },
   },
@@ -1442,12 +952,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Delivers consistent, affordable flavor profiles that do not depend on crop quality.",
-      reactions: [
-        item("Esterification", "Fruity esters are made by reacting acids with alcohols, e.g., ethyl butyrate for pineapple.", "CH3CH2CH2COOH + C2H5OH → CH3CH2CH2COOC2H5 + H2O"),
-      ],
-      mechanisms: [
-        item("Olfactory receptors", "Synthetic flavor molecules bind the same odorant receptors as their natural twins."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Permitted synthetic flavoring substances are listed in federal regulations; others are GRAS through FEMA review.", "21 CFR 172.515"),
         reg("U.S. FDA (2018)", "Removed seven synthetic flavors, including pulegone and benzophenone, from the permitted list."),
@@ -1456,26 +960,13 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Varies by molecule; most are simple esters, aldehydes and alcohols metabolized quickly.",
         dosage: "Usually parts per million.",
       },
-      sensitization: "Rare; cinnamaldehyde and some aldehydes can sensitize in cosmetics.",
       myths: [
         myth("Artificial flavors are made in labs, so they must be worse.", "Synthetic vanillin is the same molecule as vanillin from vanilla beans."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured.",
-        steps: [
-          "Target flavor molecules are synthesized from petrochemical or other feedstocks.",
-          "They are purified and blended with carriers by flavorists.",
-        ],
-      },
       environment: {
         persistence: "Varies by component.",
         biodegradability: "Most are biodegradable.",
         aquaticToxicity: "Low at use levels.",
-      },
-      fun: {
-        history: "Ferdinand Tiemann and Wilhelm Haarmann synthesized vanillin in 1874, launching the synthetic flavor industry.",
-        uses: ["Candy and soft drinks", "Oral medicines"],
-        occurrence: "Many of the same molecules occur in fruits and spices.",
       },
     },
   },
@@ -1502,13 +993,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Makes candy coatings, frosting and toothpaste opaque white; in sunscreen it reflects, scatters and absorbs UV light.",
-      reactions: [
-        item("Photocatalysis", "UV light excites electrons in TiO2, creating electron–hole pairs that generate reactive oxygen species; cosmetic grades are coated with silica or alumina to suppress this.", "TiO2 + hν → e- + h+"),
-      ],
-      mechanisms: [
-        item("UV attenuation", "Particles scatter and absorb UVB and short UVA; they stay on the skin surface rather than penetrating intact skin."),
-        item("Gut exposure", "Food-grade TiO2 includes nanoparticles that can accumulate in some tissues in animal studies; EFSA could not rule out DNA damage."),
-      ],
       regulatory: [
         reg("EFSA (2021) / EU", "No longer considered safe as a food additive; E171 banned in EU food since 2022."),
         reg("U.S. FDA", "Permitted color additive in food and a sunscreen active ingredient.", "Up to 1% of food by weight (21 CFR 73.575); up to 25% in sunscreen"),
@@ -1518,29 +1002,13 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Inhaled fine particles cause lung inflammation in rats; potential genotoxicity from nanoparticles in food remains unresolved.",
         dosage: "In lotions it is not absorbed through intact skin; avoid inhaling loose powders and sprays.",
       },
-      sensitization: "Not a skin sensitizer; well tolerated by sensitive skin.",
       myths: [
         myth("Mineral sunscreens with TiO2 get into your bloodstream.", "Studies show it stays on the skin's surface; FDA absorption concerns focused on chemical filters like oxybenzone."),
       ],
-      synthesis: {
-        method: "Mined, then synthetically refined.",
-        steps: [
-          "Chloride process: rutile ore is chlorinated with coke to titanium tetrachloride.",
-          "TiCl4 is purified by distillation and burned in oxygen to pure TiO2.",
-          "Sulfate process (alternative): ilmenite ore is digested in sulfuric acid.",
-          "Particles are milled and coated for cosmetic use.",
-        ],
-        equations: ["TiO2 + 2 Cl2 + C → TiCl4 + CO2", "TiCl4 + O2 → TiO2 + 2 Cl2"],
-      },
       environment: {
         persistence: "Persistent (inert mineral).",
         biodegradability: "Not applicable.",
         aquaticToxicity: "Low for coated bulk grades; nanoparticle effects are under study.",
-      },
-      fun: {
-        history: "William Gregor discovered titanium in 1791 in Cornish sand; TiO2 replaced toxic lead white in paints from the 1920s.",
-        uses: ["White paint (its largest use)", "Self-cleaning glass", "Pills and tablet coatings"],
-        occurrence: "Minerals rutile, anatase and brookite.",
       },
     },
   },
@@ -1566,12 +1034,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Prevents oxidation of fats and oils in cereals, chewing gum and cosmetics.",
-      reactions: [
-        item("Radical scavenging", "Its hindered phenol donates a hydrogen atom to peroxyl radicals, forming a stable phenoxyl radical.", "ROO• + ArOH → ROOH + ArO•"),
-      ],
-      mechanisms: [
-        item("Metabolism", "Oxidized in the liver by cytochrome P450 enzymes; some metabolites have been studied for toxicity in rodents."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Generally Recognized as Safe.", "Up to 0.02% of the fat content (21 CFR 182.3173)"),
         reg("EFSA (2012)", "ADI 0.25 mg/kg body weight per day."),
@@ -1581,26 +1043,13 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "High doses in rodents affected the liver and thyroid; effects on tumors were both promoting and protective depending on the study.",
         dosage: "Human intake is estimated well below the EFSA ADI.",
       },
-      sensitization: "Rare contact allergy.",
       myths: [
         myth("BHT is embalming fluid.", "BHT is an antioxidant; embalming uses formaldehyde. BHT is also used in some fuels and rubbers, which is where the rumor may come from."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured.",
-        steps: [
-          "p-Cresol is alkylated with isobutylene in the presence of an acid catalyst (Friedel–Crafts alkylation).",
-          "The product is purified by distillation and crystallization.",
-        ],
-      },
       environment: {
         persistence: "Moderately persistent.",
         biodegradability: "Not readily biodegradable.",
         aquaticToxicity: "Toxic to aquatic life at higher concentrations.",
-      },
-      fun: {
-        history: "Patented in 1947 and approved for food use in the U.S. in 1954.",
-        uses: ["Jet fuel and oil antioxidant", "Rubber and plastics stabilizer"],
-        occurrence: "Has been reported as a natural product of some phytoplankton.",
       },
     },
   },
@@ -1625,13 +1074,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Adds bulk and mouthfeel, carries spray-dried flavors, and supplies quick energy in sports drinks.",
-      reactions: [
-        item("Starch hydrolysis", "Acid or amylase enzymes cut starch into shorter glucose chains.", "(C6H10O5)n + H2O → shorter glucose polymers"),
-      ],
-      mechanisms: [
-        item("Rapid digestion", "Amylases quickly break it down, so its glycemic index can exceed that of table sugar."),
-        item("Gut effects", "Some animal studies suggest it may alter gut mucus and bacteria; human data are limited."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Generally Recognized as Safe.", "21 CFR 184.1444"),
       ],
@@ -1639,27 +1081,13 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Not toxic; metabolic effects mirror other rapidly digested carbohydrates.",
         dosage: "Usually small amounts; concern is higher in drinks and powders where it is a major ingredient.",
       },
-      sensitization: "Not an allergen; wheat-derived versions are gluten-free after processing.",
       myths: [
         myth("Maltodextrin is worse than sugar.", "Its glycemic index is high, but most foods contain only small amounts."),
       ],
-      synthesis: {
-        method: "Semi-synthetic: enzymatic processing of starch.",
-        steps: [
-          "Corn, potato, rice or wheat starch is gelatinized in water.",
-          "Alpha-amylase partially hydrolyzes it.",
-          "The solution is purified and spray-dried.",
-        ],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low.",
-      },
-      fun: {
-        history: "Commercialized in the mid-20th century as starch processing matured.",
-        uses: ["Endurance-sport energy gels", "Turning oils into powders in modernist cooking"],
-        occurrence: "Forms naturally when starch is partly digested.",
       },
     },
   },
@@ -1686,14 +1114,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Gives cured meats their pink color and flavor and inhibits Clostridium botulinum.",
-      reactions: [
-        item("Nitrosylation of myoglobin", "Nitrite forms nitric oxide, which binds myoglobin to create pink nitrosylmyoglobin.", "NO2- + H+ → HNO2"),
-        item("Nitrosamine formation", "At high heat (such as frying bacon), nitrous acid reacts with amines to form N-nitrosamines; added vitamin C or erythorbate reduces this.", "R2NH + HNO2 → R2N–NO + H2O"),
-      ],
-      mechanisms: [
-        item("Carcinogenicity", "Nitrosamines are metabolized to DNA-alkylating agents that cause mutations; this underlies the link between processed meat and colorectal cancer."),
-        item("Methemoglobinemia", "Large doses oxidize hemoglobin to methemoglobin, which cannot carry oxygen."),
-      ],
       regulatory: [
         reg("U.S. FDA / USDA", "Permitted in cured meats with limits; bacon must include ascorbate or erythorbate.", "200 ppm maximum in finished products (21 CFR 172.175)"),
         reg("IARC", "Processed meat is Group 1 (carcinogenic); ingested nitrite under conditions causing nitrosation is Group 2A."),
@@ -1703,27 +1123,13 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Acute toxicity from methemoglobinemia; chronic risk from nitrosamine formation.",
         dosage: "Cured meats contain tens of ppm residual nitrite. Most dietary nitrite comes from vegetables' nitrate converted by oral bacteria, which comes with protective antioxidants.",
       },
-      sensitization: "Not an allergen.",
       myths: [
         myth("\"Uncured, no nitrates added\" bacon is nitrite-free.", "It is cured with celery powder, a natural nitrate source that becomes the same nitrite."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured.",
-        steps: [
-          "Nitrogen oxides from ammonia oxidation are absorbed into sodium hydroxide or carbonate solution.",
-          "Sodium nitrite crystallizes and is separated from nitrate.",
-        ],
-        equations: ["2 NaOH + NO + NO2 → 2 NaNO2 + H2O"],
-      },
       environment: {
         persistence: "Converted to nitrate in the environment.",
         biodegradability: "Not applicable (inorganic).",
         aquaticToxicity: "Toxic to fish at elevated concentrations.",
-      },
-      fun: {
-        history: "Salt-curing with saltpeter is ancient; in the late 1800s scientists found bacteria convert nitrate to nitrite, the real curing agent. The USDA approved direct nitrite use in 1925.",
-        uses: ["Cyanide poisoning antidote", "Corrosion inhibitor"],
-        occurrence: "Formed from nitrate in leafy greens and beets by oral bacteria.",
       },
     },
   },
@@ -1749,13 +1155,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Provides texture and shelf stability in baked goods and spreads, and is the base of soaps and many surfactants.",
-      reactions: [
-        item("Saponification", "Reacting palm oil with lye makes soap (sodium palmitate) and glycerin.", "C3H5(OOCR)3 + 3 NaOH → C3H5(OH)3 + 3 RCOONa"),
-        item("Refining contaminants", "Deodorizing at over 200 °C can form 3-MCPD and glycidyl fatty acid esters; industry has reduced them since EFSA's 2016 opinion."),
-      ],
-      mechanisms: [
-        item("Blood cholesterol", "Palmitic acid raises LDL cholesterol compared with unsaturated oils."),
-      ],
       regulatory: [
         reg("EU", "Maximum limits for glycidyl esters in vegetable oils since 2018."),
         reg("RSPO", "The Roundtable on Sustainable Palm Oil certifies deforestation-controlled supply chains."),
@@ -1765,28 +1164,14 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Not acutely toxic; long-term risk relates to saturated fat intake and processing contaminants.",
         dosage: "Health guidance recommends limiting saturated fat to under 10% of calories.",
       },
-      sensitization: "Not an allergen.",
       myths: [
         myth("Red palm oil is a superfood.", "It is rich in beta-carotene and vitamin E, but it's still about 50% saturated fat."),
       ],
-      synthesis: {
-        method: "Naturally extracted from oil-palm fruit.",
-        steps: [
-          "Fresh fruit bunches are sterilized with steam.",
-          "Fruit is pressed to release crude palm oil.",
-          "Oil is refined, bleached and deodorized, then fractionated into liquid olein and solid stearin.",
-        ],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low.",
         notes: "Plantation expansion in Indonesia and Malaysia has destroyed rainforest habitat for orangutans and released peatland carbon.",
-      },
-      fun: {
-        history: "West Africans have used palm oil for about 5,000 years; residues have been found in an Egyptian tomb at Abydos.",
-        uses: ["Biodiesel", "Candles", "Soap bars"],
-        occurrence: "Fruit of the oil palm (Elaeis guineensis).",
       },
     },
   },
@@ -1812,14 +1197,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Acidifies and preserves foods, exfoliates and hydrates skin, and descales in bathroom cleaners.",
-      reactions: [
-        item("Lactic fermentation", "Bacteria convert sugars into lactic acid, souring milk and vegetables.", "C6H12O6 → 2 C3H6O3"),
-        item("Polymerization", "Condenses into polylactic acid (PLA), a compostable plastic.", "n C3H6O3 → (C3H4O2)n + n H2O"),
-      ],
-      mechanisms: [
-        item("Exfoliation", "At low pH it weakens bonds between surface skin cells, smoothing texture."),
-        item("Hydration", "Sodium lactate is a component of the skin's natural moisturizing factor, drawing water into the stratum corneum."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Generally Recognized as Safe; recommends a sunburn alert on alpha-hydroxy acid cosmetics.", "21 CFR 184.1061"),
         reg("Cosmetic Ingredient Review", "AHAs are safe at 10% or less, pH 3.5 or higher, with sun protection advised."),
@@ -1828,27 +1205,13 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Low pH can irritate eyes and skin; AHAs thin the outer skin layer, raising UV sensitivity.",
         dosage: "Foods use under 1%; retail skincare typically 5–10%.",
       },
-      sensitization: "Not a sensitizer; can sting sensitive skin.",
       myths: [
         myth("Lactic acid buildup causes next-day muscle soreness.", "Delayed soreness comes from muscle micro-damage; lactate clears within an hour and is used as fuel."),
       ],
-      synthesis: {
-        method: "Bio-fermented.",
-        steps: [
-          "Lactobacillus or engineered microbes ferment glucose or sucrose.",
-          "Lactic acid is recovered as calcium lactate and acidified.",
-          "It is purified by distillation or ion exchange.",
-        ],
-      },
       environment: {
         persistence: "Not persistent.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low.",
-      },
-      fun: {
-        history: "Carl Wilhelm Scheele isolated lactic acid from sour milk in 1780.",
-        uses: ["PLA bioplastics and 3D-printer filament", "Descaling kettles"],
-        occurrence: "Yogurt, sauerkraut, sourdough, sweat and working muscles.",
       },
     },
   },
@@ -1874,12 +1237,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Sweetens diet drinks and sugar-free foods, masking bitterness when blended with other sweeteners.",
-      reactions: [
-        item("Stability", "Resists heat and acid, and is excreted unchanged."),
-      ],
-      mechanisms: [
-        item("Sweet taste receptor", "Activates T1R2/T1R3; at high concentrations it also triggers bitter receptors, causing an aftertaste."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Approved general-purpose sweetener (2003).", "ADI 15 mg/kg/day"),
         reg("JECFA", "ADI 0–15 mg/kg body weight."),
@@ -1888,27 +1245,13 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Not metabolized; animal studies at typical exposures show no consistent toxicity.",
         dosage: "Diet sodas contain tens of mg per can, well under the ADI.",
       },
-      sensitization: "Not a known sensitizer.",
       myths: [
         myth("Ace-K is metabolized into toxic acetoacetamide.", "Acetoacetamide forms only after long storage under harsh conditions; the sweetener is excreted unchanged."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured.",
-        steps: [
-          "Sulfamic acid reacts with diketene to form an acetoacetamide sulfonic acid.",
-          "Sulfur trioxide cyclizes the intermediate.",
-          "Neutralization with potassium hydroxide gives acesulfame potassium.",
-        ],
-      },
       environment: {
         persistence: "Highly persistent; used as a tracer for wastewater in groundwater.",
         biodegradability: "Poorly biodegradable, though some treatment plants now degrade it.",
         aquaticToxicity: "Low acute toxicity.",
-      },
-      fun: {
-        history: "Discovered in 1967 by Karl Clauss at Hoechst, who noticed sweetness after licking his finger.",
-        uses: ["Tracer for sewage contamination", "Sugar-free toothpaste and mouthwash"],
-        occurrence: "Synthetic only.",
       },
     },
   },
@@ -1936,12 +1279,6 @@ export const FOOD: SeedIngredient[] = [
     },
     profile: {
       function: "Buffers acidity in drinks, emulsifies processed cheese, and binds calcium and magnesium in detergents.",
-      reactions: [
-        item("Calcium chelation", "Binds calcium in casein so cheese proteins disperse smoothly when melted and hard-water ions don't block detergents.", "3 Ca2+ + 2 C6H5O7^3- → Ca3(C6H5O7)2"),
-      ],
-      mechanisms: [
-        item("Anticoagulation", "Chelates calcium needed for clotting, which is why it is used in blood collection bags."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Generally Recognized as Safe.", "21 CFR 182.1751"),
         reg("EU", "Authorized as E331 at quantum satis."),
@@ -1950,24 +1287,13 @@ export const FOOD: SeedIngredient[] = [
         mechanism: "Very low toxicity; metabolized to bicarbonate.",
         dosage: "Foods use under 1%.",
       },
-      sensitization: "Not a sensitizer.",
       myths: [
         myth("Sodium citrate is just salt.", "It is a citrate salt with far less sodium per gram than table salt and different functions."),
       ],
-      synthesis: {
-        method: "Made by neutralizing fermentation-derived citric acid.",
-        steps: ["Citric acid is neutralized with sodium hydroxide or carbonate, then crystallized."],
-        equations: ["C6H8O7 + 3 NaOH → Na3C6H5O7 + 3 H2O"],
-      },
       environment: {
         persistence: "Not persistent.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low; a green replacement for phosphate builders.",
-      },
-      fun: {
-        history: "Used as a blood anticoagulant since 1914, making stored blood transfusions practical during World War I.",
-        uses: ["Smooth nacho cheese sauce", "Blood-bank anticoagulant", "Kidney-stone prevention"],
-        occurrence: "Forms whenever citric acid meets sodium in solution, including in citrus-flavored drinks.",
       },
     },
   },

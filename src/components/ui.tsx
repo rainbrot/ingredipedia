@@ -1,8 +1,8 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { BadgeCheck, ChevronDown, CircleHelp, FlaskConical, Hourglass, Leaf, Mountain, TriangleAlert, WandSparkles, X } from "lucide-react";
+import { BadgeCheck, ChevronDown, CircleHelp, FlaskConical, Hourglass, Leaf, Microscope, Mountain, TriangleAlert, X } from "lucide-react";
 import { formulaParts } from "../../shared/formula";
-import { gradeFor, ORIGIN_LABEL, type Grade, type IngredientSummary, type Origin } from "../../shared/types";
+import { EVIDENCE_LABEL, gradeFor, ORIGIN_LABEL, STATUS_LABEL, type EvidenceLevel, type Grade, type IngredientSummary, type Origin, type Status } from "../../shared/types";
 
 export type Tone = "excellent" | "good" | "fair" | "poor" | "bad" | "none";
 
@@ -61,17 +61,35 @@ export function GradeLabel({ score }: { score: number }) {
   return <span className={`grade tone-${toneFor(score)}`}>{gradeFor(score)}</span>;
 }
 
+const STATUS_HINT: Record<Status, string> = {
+  curated: "Written by the Assay content team, with sources",
+  researched: "Built automatically from PubChem and PubMed",
+  preliminary: "A first draft; automatic research is still filling it in",
+};
+
 export function StatusChip({ ing }: { ing: Pick<IngredientSummary, "status" | "researchState"> }) {
-  if (ing.status === "verified") {
-    return (
-      <span className="chip verified">
-        <BadgeCheck aria-hidden="true" /> Verified
-      </span>
-    );
-  }
+  const Icon = ing.status === "curated" ? BadgeCheck : ing.status === "researched" ? Microscope : Hourglass;
   return (
-    <span className="chip draft" title="Generated automatically and shown only to you until a scientist verifies it">
-      <WandSparkles aria-hidden="true" /> Basic AI Draft
+    <span className={`chip status-${ing.status}`} title={STATUS_HINT[ing.status]}>
+      <Icon aria-hidden="true" /> {STATUS_LABEL[ing.status]}
+    </span>
+  );
+}
+
+const EVIDENCE_RANK: Record<EvidenceLevel, number> = { established: 4, human: 3, lab: 2, emerging: 1 };
+
+/** How strong the evidence behind a claim is, as a four-step meter plus words. */
+export function EvidenceBadge({ level }: { level: EvidenceLevel }) {
+  const rank = EVIDENCE_RANK[level] ?? 1;
+  return (
+    <span className={`evidence ev-${level}`} title={`Evidence: ${EVIDENCE_LABEL[level]}`}>
+      <span className="ev-meter" aria-hidden="true">
+        {[1, 2, 3, 4].map((i) => (
+          <i key={i} data-on={i <= rank} />
+        ))}
+      </span>
+      <span className="sr-only">Evidence level: </span>
+      {EVIDENCE_LABEL[level]}
     </span>
   );
 }

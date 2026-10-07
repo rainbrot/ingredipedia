@@ -3,13 +3,14 @@ import { z } from "zod";
 import * as repo from "../repo";
 import { AI_MODEL, aiEnabled, ocrLabel } from "../services/ai";
 import { subscribe } from "../services/events";
+import { lookupBarcode, normalizeBarcode } from "../services/barcode";
 import { UserError, buildScanResult, processScan } from "../services/pipeline";
 import * as pubchem from "../services/pubchem";
-import type { AppConfig, Ingredient, ScanProgress } from "../../shared/types";
+import type { AppConfig, ScanProgress } from "../../shared/types";
 
 export const publicRouter = Router();
 
-/** Anonymous per-install id (no accounts): scan history and draft visibility are keyed to it. */
+/** Anonymous per-install id (no accounts): scan history is keyed to it. */
 function deviceId(req: Request): string {
   const id = String(req.header("x-assay-device") ?? "");
   return /^[a-zA-Z0-9-]{8,64}$/.test(id) ? id : "";
@@ -22,7 +23,27 @@ publicRouter.get("/config", (_req, res) => {
 
 publicRouter.get("/stats", (_req, res) => {
   const counts = repo.countByStatus();
-  res.json({ verified: counts.verified, pending: counts.needs_verification, scans: repo.totalScans() });
+  res.json({ ...counts, total: counts.curated + counts.researched + counts.preliminary, scans: repo.totalScans() });
+});
+
+/** Every known label spelling, so the client can correct OCR misreads before analysis. */
+publicRouter.get("/lexicon", (_req, res) => {
+  const entries = [...repo.aliasIndex().entries()].map(([key, id]) => [key, id]);
+  res.setHeader("Cache-Control", "public, max-age=300");
+  res.json({ entries });
+});
+
+publicRouter.get("/barcode/:code", async (req, res) => {
+  const code = normalizeBarcode(req.params.code);
+  if (!code) return res.status(400).json({ error: "That doesn't look like a valid product barcode. Check the digits and try again." });
+  const sector = ["food", "beauty", "cleaning"].includes(String(req.query.sector)) ? (req.query.sector as "food" | "beauty" | "cleaning") : undefined;
+  try {
+    const product = await lookupBarcode(code, sector);
+    if (!product) return res.status(404).json({ error: "This barcode isn't in the open product databases yet. Scan the ingredient list instead." });
+    res.json(product);
+  } catch {
+    res.status(502).json({ error: "The product database isn't responding. Try again, or scan the ingredient list." });
+  }
 });
 
 publicRouter.get("/events", (_req, res) => subscribe(res));
@@ -34,6 +55,12 @@ const ScanBody = z.object({
   sector: z.enum(["food", "beauty", "cleaning"]),
   text: z.string().min(3).max(12_000),
   name: z.string().max(80).optional(),
+  barcode: z.string().regex(/^\d{8,14}$/).optional(),
+  imageUrl: z
+    .string()
+    .url()
+    .refine((u) => /^https:\/\/images\.open(food|beauty|products)facts\.org\//.test(u))
+    .optional(),
 });
 
 publicRouter.post("/scans", async (req: Request, res: Response) => {
@@ -114,6 +141,7 @@ publicRouter.post("/ocr", async (req, res) => {
 
 const ListParams = z.object({
   q: z.string().max(80).optional(),
+  status: z.enum(["curated", "researched", "preliminary"]).optional(),
   sector: z.enum(["food", "beauty", "cleaning"]).optional(),
   sort: z.enum(["name", "score_asc", "score_desc", "research_desc", "research_asc", "recent"]).optional(),
   limit: z.coerce.number().int().min(1).max(100).optional(),
@@ -123,31 +151,64 @@ const ListParams = z.object({
 publicRouter.get("/ingredients", (req, res) => {
   const params = ListParams.safeParse(req.query);
   if (!params.success) return res.status(400).json({ error: "Invalid query" });
-  // Only verified profiles are published globally.
-  res.json(repo.listIngredients({ ...params.data, status: "verified" }));
+  res.json(repo.listIngredients({ ...params.data, status: params.data.status }));
 });
-
-function canView(ing: Ingredient, req: Request): boolean {
-  if (ing.status === "verified") return true;
-  const device = deviceId(req);
-  return !!device && repo.deviceHasScanned(device, ing.id);
-}
 
 publicRouter.get("/ingredients/:id", (req, res) => {
   const ing = repo.getIngredient(req.params.id);
   if (!ing) return res.status(404).json({ error: "Ingredient not found" });
-  if (!canView(ing, req)) {
-    // Unverified drafts are private to the users who scanned them.
-    return res.status(403).json({ error: "This ingredient is still being reviewed by our scientists.", name: ing.name, pending: true });
-  }
-  if (ing.status === "verified") res.setHeader("Cache-Control", "public, max-age=60, stale-while-revalidate=86400");
+  if (ing.status === "curated") res.setHeader("Cache-Control", "public, max-age=60, stale-while-revalidate=86400");
   res.json(ing);
+});
+
+/** "Something looks wrong" from a user: re-research automatically instead of waiting for a moderator. */
+publicRouter.post("/ingredients/:id/report", (req, res) => {
+  const ing = repo.getIngredient(req.params.id);
+  if (!ing) return res.status(404).json({ error: "Ingredient not found" });
+  const reason = z.string().trim().min(3).max(500).safeParse(req.body?.reason);
+  if (!reason.success) return res.status(400).json({ error: "Tell us briefly what looks wrong (at least 3 characters)." });
+  const already = repo.recentlyReported(ing.id);
+  repo.addReport(ing.id, deviceId(req), reason.data);
+  if (!already) repo.enqueueJob(ing.id, ing.status === "curated" ? "refresh" : "research");
+  repo.logAudit(ing.id, "user_report", reason.data.slice(0, 200));
+  res.json({ ok: true, requeued: !already });
+});
+
+publicRouter.get("/learn/myths", (_req, res) => {
+  res.setHeader("Cache-Control", "public, max-age=300");
+  res.json({ items: repo.allMyths() });
+});
+
+/** Structures for any PubChem compound (used by lessons, e.g. the two mirror-image forms of limonene). */
+publicRouter.get("/molecule/:cid/:file", async (req, res) => {
+  const cid = Number(req.params.cid);
+  if (!Number.isInteger(cid) || cid <= 0 || cid > 1e9) return res.status(400).end();
+  const kind = req.params.file === "structure.png" ? "png" : req.params.file === "sdf" ? "sdf" : null;
+  if (!kind) return res.status(404).end();
+  const key = `molecule:${kind}:${cid}`;
+  let hit = repo.cacheGet(key);
+  if (!hit) {
+    if (kind === "png") {
+      const png = await pubchem.fetchStructurePng(cid).catch(() => null);
+      if (!png) return res.status(404).end();
+      hit = { contentType: "image/png", body: png };
+    } else {
+      const sdf = await pubchem.fetchSdf(cid).catch(() => null);
+      if (!sdf) return res.status(404).end();
+      hit = { contentType: sdf.source === "pubchem-3d" ? "chemical/x-mdl-sdfile; 3d" : "chemical/x-mdl-sdfile; 2d", body: new TextEncoder().encode(sdf.sdf) };
+    }
+    repo.cachePut(key, hit.contentType, hit.body);
+  }
+  res.setHeader("Content-Type", hit.contentType.split(";")[0]);
+  if (kind === "sdf") res.setHeader("X-Structure-Source", hit.contentType.includes("3d") ? "pubchem-3d" : "pubchem-2d");
+  res.setHeader("Cache-Control", "public, max-age=604800, immutable");
+  res.send(Buffer.from(hit.body));
 });
 
 /** 3D structure, cached permanently in the database after the first fetch. */
 publicRouter.get("/ingredients/:id/sdf", async (req, res) => {
   const ing = repo.getIngredient(req.params.id);
-  if (!ing || !canView(ing, req)) return res.status(404).end();
+  if (!ing) return res.status(404).end();
   let cached = repo.getSdf(ing.id);
   if (!cached && ing.pubchemCid) {
     const fetched = await pubchem.fetchSdf(ing.pubchemCid).catch(() => null);
@@ -166,7 +227,7 @@ publicRouter.get("/ingredients/:id/sdf", async (req, res) => {
 /** 2D skeletal diagram from PubChem, cached permanently. */
 publicRouter.get("/ingredients/:id/structure.png", async (req, res) => {
   const ing = repo.getIngredient(req.params.id);
-  if (!ing || !ing.pubchemCid || !canView(ing, req)) return res.status(404).end();
+  if (!ing || !ing.pubchemCid) return res.status(404).end();
   const key = `png:${ing.pubchemCid}`;
   let hit = repo.cacheGet(key);
   if (!hit) {

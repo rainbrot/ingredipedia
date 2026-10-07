@@ -1,4 +1,4 @@
-import { item, myth, reg, type SeedIngredient } from "../types";
+import { myth, reg, type SeedIngredient } from "../types";
 
 export const CLEANING: SeedIngredient[] = [
   {
@@ -23,15 +23,6 @@ export const CLEANING: SeedIngredient[] = [
     },
     profile: {
       function: "Disinfects surfaces and water, removes stains and mildew, and whitens laundry.",
-      reactions: [
-        item("Hypochlorous acid equilibrium", "In water, hypochlorite forms hypochlorous acid (HOCl), the more potent germ killer; the balance depends on pH (pKa about 7.5).", "OCl- + H2O ⇌ HOCl + OH-"),
-        item("Chlorine gas with acids", "Mixing with acidic toilet cleaners or vinegar releases toxic chlorine gas.", "NaOCl + 2 HCl → Cl2 + NaCl + H2O"),
-        item("Chloramines with ammonia", "Mixing with ammonia-based glass cleaners forms toxic chloramine vapors.", "NaOCl + NH3 → NH2Cl + NaOH"),
-      ],
-      mechanisms: [
-        item("Oxidative killing", "HOCl oxidizes thiol groups, chlorinates amines, and unfolds proteins and DNA in microbes within seconds."),
-        item("Innate immunity parallel", "Human neutrophils make the same HOCl with the enzyme myeloperoxidase to kill bacteria."),
-      ],
       regulatory: [
         reg("U.S. EPA", "Registered disinfectant under FIFRA when making germ-kill claims."),
         reg("GHS", "Danger: causes severe skin burns and eye damage; very toxic to aquatic life (concentrated)."),
@@ -41,29 +32,14 @@ export const CLEANING: SeedIngredient[] = [
         mechanism: "Oxidizes and saponifies tissue; inhaled chlorine or chloramine gas forms acids in the airways causing inflammation and fluid in the lungs.",
         dosage: "Household bleach is 3–8%; recommended disinfecting dilutions are about 0.1–0.5%. Swallowing small amounts usually causes only irritation; mixing gases send thousands to U.S. poison centers every year.",
       },
-      sensitization: "Irritant rather than allergen; repeated cleaning exposure is associated with asthma in cleaning workers.",
       myths: [
         myth("More bleach cleans better.", "Bleach disinfects and whitens but doesn't remove dirt; clean first, then disinfect at the labeled dilution."),
         myth("Bleach is \"toxic waste\" that persists in the environment.", "It breaks down quickly to salt and water, though it can form chlorinated by-products with organic matter."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured from chlorine and sodium hydroxide.",
-        steps: [
-          "Brine is electrolyzed to produce chlorine and sodium hydroxide (chlor-alkali process).",
-          "Chlorine gas is bubbled into cold sodium hydroxide solution.",
-          "The solution is diluted and stabilized with a little extra lye.",
-        ],
-        equations: ["Cl2 + 2 NaOH → NaCl + NaOCl + H2O"],
-      },
       environment: {
         persistence: "Low; decomposes rapidly to chloride.",
         biodegradability: "Not applicable (inorganic); degrades chemically.",
         aquaticToxicity: "Very toxic to aquatic life in concentrated form; can form trihalomethanes and other by-products.",
-      },
-      fun: {
-        history: "Claude Louis Berthollet invented the first chlorine bleach, \"Eau de Javel,\" near Paris in 1789; Henry Dakin's dilute hypochlorite solution saved countless wounded soldiers in World War I.",
-        uses: ["Drinking-water and pool disinfection", "Root-canal irrigation in dentistry", "Dakin's solution for wound care"],
-        occurrence: "Made naturally by white blood cells to destroy pathogens.",
       },
     },
   },
@@ -90,13 +66,6 @@ export const CLEANING: SeedIngredient[] = [
     },
     profile: {
       function: "Breaks down fats and proteins in drain and oven cleaners, adjusts pH in cosmetics, and turns oils into soap.",
-      reactions: [
-        item("Saponification", "Converts fats into soap and glycerin, which is how it dissolves grease clogs.", "C3H5(OOCR)3 + 3 NaOH → C3H5(OH)3 + 3 RCOONa"),
-        item("Neutralization", "Reacts with acids in formulas to set the final pH.", "NaOH + HCl → NaCl + H2O"),
-      ],
-      mechanisms: [
-        item("Liquefactive necrosis", "Saponifies cell-membrane lipids and denatures proteins, letting the burn penetrate deeper; alkali eye injuries are among the most severe chemical burns."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Generally Recognized as Safe as a food processing aid.", "21 CFR 184.1763"),
         reg("Cosmetic Ingredient Review", "Safe as a pH adjuster; hair straighteners are limited in concentration."),
@@ -106,28 +75,13 @@ export const CLEANING: SeedIngredient[] = [
         mechanism: "Corrosive to any tissue it contacts; ingestion causes esophageal burns.",
         dosage: "Drain openers can be 30–50% lye. In cosmetics it's used in tiny amounts and fully neutralized.",
       },
-      sensitization: "Not a sensitizer; a strong irritant and corrosive.",
       myths: [
         myth("Handmade soap made with lye is harsh and toxic.", "All true soap is made with lye; saponification consumes it, leaving none in properly made soap."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured by electrolysis of brine.",
-        steps: [
-          "Saltwater is electrolyzed in membrane cells.",
-          "Chlorine forms at the anode and hydrogen at the cathode, leaving sodium hydroxide solution.",
-          "The solution is concentrated or dried into pellets.",
-        ],
-        equations: ["2 NaCl + 2 H2O → 2 NaOH + H2 + Cl2"],
-      },
       environment: {
         persistence: "Neutralized quickly by carbon dioxide and acids in the environment.",
         biodegradability: "Not applicable (inorganic).",
         aquaticToxicity: "Harmful by raising pH when spilled.",
-      },
-      fun: {
-        history: "Soap was made with wood-ash lye for millennia; the Castner–Kellner electrolysis process of the 1890s made caustic soda cheap.",
-        uses: ["The glossy brown crust on pretzels", "Curing olives", "Making lutefisk", "Biodiesel production"],
-        occurrence: "Does not occur naturally; ancient soapmakers used potassium lye from wood ash.",
       },
     },
   },
@@ -152,14 +106,6 @@ export const CLEANING: SeedIngredient[] = [
     },
     profile: {
       function: "Disinfects surfaces, whitens teeth and laundry, lightens hair and removes organic stains.",
-      reactions: [
-        item("Decomposition", "Catalase in blood or trace metals break it into water and oxygen, causing the familiar fizz.", "2 H2O2 → 2 H2O + O2"),
-        item("Fenton reaction", "Iron catalyzes formation of highly reactive hydroxyl radicals.", "Fe2+ + H2O2 → Fe3+ + OH- + •OH"),
-      ],
-      mechanisms: [
-        item("Oxidative damage to microbes", "Hydroxyl radicals attack membrane lipids, proteins and DNA."),
-        item("Cell signaling", "At tiny concentrations, cells use H2O2 as a signaling molecule."),
-      ],
       regulatory: [
         reg("U.S. EPA", "Registered disinfectant active; on EPA's list for many pathogens."),
         reg("EU Cosmetics Regulation", "Teeth whitening limited.", "0.1% over the counter; up to 6% via dentists"),
@@ -169,29 +115,14 @@ export const CLEANING: SeedIngredient[] = [
         mechanism: "Oxidizes tissue; swallowing concentrated solutions can release large volumes of oxygen, causing gas embolism.",
         dosage: "3% is a mild irritant; 35% \"food grade\" peroxide has caused severe injuries and deaths when ingested.",
       },
-      sensitization: "Not a sensitizer; can irritate skin and gums.",
       myths: [
         myth("Pouring peroxide on cuts helps them heal.", "It kills bacteria but also damages healthy cells and can slow healing; rinsing with water is better."),
         myth("Drinking diluted food-grade peroxide detoxifies the body.", "This is dangerous and unsupported."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured by the anthraquinone process.",
-        steps: [
-          "2-Ethylanthraquinone is hydrogenated over palladium to its hydroquinone.",
-          "Air oxidizes it back, releasing hydrogen peroxide.",
-          "Peroxide is extracted with water and concentrated; the anthraquinone is recycled.",
-        ],
-        equations: ["H2 + O2 → H2O2"],
-      },
       environment: {
         persistence: "Very low; decomposes to water and oxygen.",
         biodegradability: "Not applicable; decomposes naturally.",
         aquaticToxicity: "Toxic at high concentrations but short-lived.",
-      },
-      fun: {
-        history: "Louis Jacques Thénard first made hydrogen peroxide in 1818 by reacting barium peroxide with nitric acid.",
-        uses: ["Rocket propellant", "Bleaching hair", "Paper pulp bleaching"],
-        occurrence: "Bombardier beetles combine it with hydroquinones for a boiling defensive spray; honey's antibacterial activity partly comes from peroxide.",
       },
     },
   },
@@ -216,13 +147,6 @@ export const CLEANING: SeedIngredient[] = [
     },
     profile: {
       function: "Kills bacteria and enveloped viruses on surfaces; preserves eye drops and nasal sprays.",
-      reactions: [
-        item("Menshutkin reaction (synthesis)", "A tertiary amine reacts with benzyl chloride to form the quaternary ammonium salt.", "R–N(CH3)2 + C6H5CH2Cl → [R–N(CH3)2CH2C6H5]+ Cl-"),
-      ],
-      mechanisms: [
-        item("Membrane disruption", "The positive head binds negatively charged microbial membranes and the hydrophobic tail inserts into them, causing leakage and cell death."),
-        item("Resistance selection", "Sub-lethal exposure can select for bacteria with efflux pumps that also resist some antibiotics."),
-      ],
       regulatory: [
         reg("U.S. EPA", "Registered disinfectant active ingredient."),
         reg("U.S. FDA", "Permitted in consumer antiseptics; FDA deferred final rulemaking pending more data."),
@@ -232,27 +156,13 @@ export const CLEANING: SeedIngredient[] = [
         mechanism: "Membrane-disrupting action also damages human cells: long-term eye-drop use harms the corneal surface, and aerosols irritate airways.",
         dosage: "Wipes and sprays contain about 0.1–0.3%; eye drops about 0.01%.",
       },
-      sensitization: "Can cause irritant and occasionally allergic contact dermatitis; associated with work-related asthma.",
       myths: [
         myth("Disinfecting wipes clean and disinfect in one swipe.", "Most labels require the surface to stay visibly wet for several minutes to disinfect."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured.",
-        steps: [
-          "Fatty alkyldimethylamines are prepared from fatty alcohols.",
-          "They are quaternized with benzyl chloride.",
-          "The product is diluted to a stable solution.",
-        ],
-      },
       environment: {
         persistence: "Adsorbs strongly to sludge and sediments.",
         biodegradability: "Biodegradable under aerobic conditions but inhibits microbes at high concentrations.",
         aquaticToxicity: "Very toxic to aquatic life.",
-      },
-      fun: {
-        history: "Introduced in 1935 by Gerhard Domagk, who later won a Nobel Prize for discovering sulfa drugs.",
-        uses: ["Eye-drop preservative", "Algaecide in pools", "Hand sanitizer active in alcohol-free products"],
-        occurrence: "Synthetic only.",
       },
     },
   },
@@ -279,13 +189,6 @@ export const CLEANING: SeedIngredient[] = [
     },
     profile: {
       function: "Softens water so detergents work, saponifies grease, and raises pH in laundry products.",
-      reactions: [
-        item("Water softening", "Precipitates hardness minerals as insoluble carbonates.", "Ca2+ + CO3^2- → CaCO3"),
-        item("Alkaline hydrolysis", "Its high pH helps break down fatty soils into soaps."),
-      ],
-      mechanisms: [
-        item("Irritancy", "Alkaline solutions disrupt the skin's acidic surface and can damage eyes."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Generally Recognized as Safe.", "21 CFR 184.1742"),
         reg("GHS", "Warning: causes serious eye irritation (H319)."),
@@ -294,27 +197,13 @@ export const CLEANING: SeedIngredient[] = [
         mechanism: "Alkaline irritation of eyes, skin and airways as dust.",
         dosage: "Laundry products can contain 10–40%.",
       },
-      sensitization: "Not a sensitizer.",
       myths: [
         myth("Washing soda and baking soda are the same.", "Washing soda (carbonate) is far more alkaline and not for cooking or skin."),
       ],
-      synthesis: {
-        method: "Mined from trona ore or made by the Solvay process.",
-        steps: [
-          "Trona (Na3(CO3)(HCO3)·2H2O) is mined and calcined, or",
-          "Sodium bicarbonate from the Solvay process is heated.",
-        ],
-        equations: ["2 NaHCO3 → Na2CO3 + H2O + CO2"],
-      },
       environment: {
         persistence: "Part of the natural carbonate cycle.",
         biodegradability: "Not applicable (inorganic).",
         aquaticToxicity: "Low; a common phosphate-free builder.",
-      },
-      fun: {
-        history: "Ancient Egyptians used natron, a natural sodium carbonate mixture, for mummification; Nicolas Leblanc's 1791 process was one of the first industrial chemical processes.",
-        uses: ["Glassmaking (its largest use)", "Ramen noodle alkaline water (kansui)", "Pool pH adjustment"],
-        occurrence: "Natron deposits and trona beds, like those in Wyoming's Green River Basin.",
       },
     },
   },
@@ -340,14 +229,6 @@ export const CLEANING: SeedIngredient[] = [
     },
     profile: {
       function: "Dissolves fragrances and actives, preserves, gives a quick-drying feel, and disinfects hands and surfaces.",
-      reactions: [
-        item("Fermentation", "Yeast convert sugar into ethanol and carbon dioxide.", "C6H12O6 → 2 C2H5OH + 2 CO2"),
-        item("Metabolic oxidation", "The liver converts ethanol to acetaldehyde, then acetic acid.", "C2H5OH → CH3CHO → CH3COOH"),
-      ],
-      mechanisms: [
-        item("Protein denaturation", "At 60–80%, alcohol denatures microbial proteins and dissolves membranes; some water is needed, so pure alcohol works worse."),
-        item("Skin lipid extraction", "High concentrations remove surface lipids, which can dry and irritate skin with frequent use."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Hand sanitizers must contain 60–95% ethanol.", "OTC antiseptic"),
         reg("U.S. TTB", "Denatured alcohol for cosmetics must contain bittering or denaturing agents to prevent drinking."),
@@ -357,29 +238,14 @@ export const CLEANING: SeedIngredient[] = [
         mechanism: "Central nervous system depressant when ingested; acetaldehyde is the carcinogenic metabolite.",
         dosage: "Swallowing hand sanitizer can cause alcohol poisoning in young children; topical use is low risk.",
       },
-      sensitization: "Rarely allergenic; can sting broken skin.",
       myths: [
         myth("Any alcohol in skincare ruins your skin barrier.", "High levels can be drying with frequent use, but low levels in well-formulated products have modest effects."),
       ],
-      synthesis: {
-        method: "Bio-fermented from sugars and starches, or synthesized from ethylene.",
-        steps: [
-          "Yeast ferment sugar cane, corn or grain mash.",
-          "The beer is distilled to 95% ethanol.",
-          "Industrial ethanol can also be made by hydrating ethylene over phosphoric acid.",
-        ],
-        equations: ["C2H4 + H2O → C2H5OH"],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low.",
         notes: "A volatile organic compound that contributes to smog formation.",
-      },
-      fun: {
-        history: "Distillation of alcohol was refined by Arab alchemists such as al-Kindi in the 9th century; the word \"alcohol\" comes from Arabic al-kuḥl.",
-        uses: ["Fuel for cars (E10 gasoline)", "Preserving biological specimens", "Rocket fuel for the V-2"],
-        occurrence: "Ripe fruit, fermented sap, and even vast interstellar clouds like Sagittarius B2.",
       },
     },
   },
@@ -405,13 +271,6 @@ export const CLEANING: SeedIngredient[] = [
     },
     profile: {
       function: "Disinfects, dissolves oils and residues, and evaporates quickly without streaks.",
-      reactions: [
-        item("Propene hydration", "Industrial synthesis adds water to propene.", "CH3CH=CH2 + H2O → (CH3)2CHOH"),
-        item("Oxidation to acetone", "The liver (and chemical oxidants) convert it to acetone.", "(CH3)2CHOH → (CH3)2CO + 2 [H]"),
-      ],
-      mechanisms: [
-        item("Protein denaturation", "Like ethanol, 60–90% solutions denature microbial proteins and dissolve membranes."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Antiseptic hand rubs may contain 70–91.3% isopropyl alcohol."),
         reg("GHS", "Danger: highly flammable (H225), causes serious eye irritation (H319), may cause drowsiness (H336)."),
@@ -420,26 +279,13 @@ export const CLEANING: SeedIngredient[] = [
         mechanism: "CNS depression after ingestion or heavy inhalation; metabolized to acetone.",
         dosage: "Rubbing alcohol is 70–91%; as little as 1 mL/kg swallowed can be dangerous for small children.",
       },
-      sensitization: "Rare allergy; frequent use dries skin.",
       myths: [
         myth("Higher-percentage alcohol always disinfects better.", "70% often works better than 91–99% because water helps it penetrate cells."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured from propene.",
-        steps: [
-          "Propene is hydrated indirectly with sulfuric acid or directly over acid catalysts.",
-          "The product is distilled.",
-        ],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low.",
-      },
-      fun: {
-        history: "The first commercial petrochemical, produced by Standard Oil of New Jersey in 1920.",
-        uses: ["Cleaning electronics and screens", "Fuel-line antifreeze (\"dry gas\")", "Dissolving resin in 3D printing"],
-        occurrence: "Synthetic.",
       },
     },
   },
@@ -466,13 +312,6 @@ export const CLEANING: SeedIngredient[] = [
     },
     profile: {
       function: "Removes grease and evaporates without residue in glass cleaners; opens hair cuticles in permanent hair dyes.",
-      reactions: [
-        item("Base equilibrium", "Ammonia accepts a proton from water, making the solution alkaline.", "NH3 + H2O ⇌ NH4+ + OH-"),
-        item("Chloramine formation", "Mixing with bleach produces toxic chloramine gas.", "NaOCl + NH3 → NH2Cl + NaOH"),
-      ],
-      mechanisms: [
-        item("Airway irritation", "Ammonia dissolves in moist mucous membranes, forming ammonium hydroxide that burns tissue."),
-      ],
       regulatory: [
         reg("GHS", "Danger: causes severe skin burns (H314), may cause respiratory irritation (H335), very toxic to aquatic life (H400)."),
         reg("OSHA", "Workplace exposure limit 50 ppm (8-hour average)."),
@@ -481,27 +320,13 @@ export const CLEANING: SeedIngredient[] = [
         mechanism: "Alkaline burns and airway inflammation; very high inhaled concentrations can cause fluid in the lungs.",
         dosage: "Household ammonia is 5–10%; the smell is noticeable at around 5 ppm, well below harmful levels.",
       },
-      sensitization: "Irritant, not allergen.",
       myths: [
         myth("Mixing ammonia and bleach makes a stronger cleaner.", "It makes toxic chloramine gas; never combine them."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured via the Haber–Bosch process.",
-        steps: [
-          "Nitrogen from air and hydrogen from natural gas react over an iron catalyst at 400–450 °C and high pressure.",
-          "Ammonia gas is dissolved in water.",
-        ],
-        equations: ["N2 + 3 H2 → 2 NH3"],
-      },
       environment: {
         persistence: "Low; converted by bacteria to nitrate.",
         biodegradability: "Nitrified by soil and water bacteria.",
         aquaticToxicity: "Very toxic to fish.",
-      },
-      fun: {
-        history: "The name comes from sal ammoniac collected near the temple of Amun in ancient Egypt. Fritz Haber and Carl Bosch's process (1909–1913) now feeds roughly half the world through fertilizer.",
-        uses: ["Fertilizer (its main use)", "Refrigerant", "Hair dye developer"],
-        occurrence: "Produced by decomposition of urea and proteins; found in the atmospheres of Jupiter and Saturn.",
       },
     },
   },
@@ -528,14 +353,6 @@ export const CLEANING: SeedIngredient[] = [
     },
     profile: {
       function: "Dissolves limescale and soap scum, deodorizes, and adds sourness and preservation to foods.",
-      reactions: [
-        item("Limescale removal", "Converts insoluble calcium carbonate into soluble calcium acetate.", "CaCO3 + 2 CH3COOH → Ca(CH3COO)2 + H2O + CO2"),
-        item("Acetic fermentation", "Acetobacter bacteria oxidize ethanol into acetic acid.", "C2H5OH + O2 → CH3COOH + H2O"),
-      ],
-      mechanisms: [
-        item("Acid antimicrobial effect", "Undissociated acetic acid enters microbial cells and acidifies them."),
-        item("Blood sugar", "A tablespoon or two with meals modestly lowers post-meal glucose in some trials."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Generally Recognized as Safe.", "21 CFR 184.1005"),
         reg("U.S. EPA", "Vinegar is not a registered disinfectant for germ-kill claims."),
@@ -545,28 +362,14 @@ export const CLEANING: SeedIngredient[] = [
         mechanism: "Acid irritation; concentrated forms burn tissue.",
         dosage: "Table vinegar at 5% is safe to eat; 20–30% \"horticultural vinegar\" requires protective gear.",
       },
-      sensitization: "Not a sensitizer.",
       myths: [
         myth("Vinegar disinfects as well as bleach.", "It reduces some bacteria but doesn't reliably kill many pathogens; use a registered disinfectant when needed."),
         myth("Vinegar is safe on every surface.", "Its acid can etch marble, granite and some finishes."),
       ],
-      synthesis: {
-        method: "Bio-fermented (food vinegar) or synthesized (industrial acetic acid).",
-        steps: [
-          "Food vinegar: ethanol from fermented fruit or grain is oxidized by Acetobacter.",
-          "Industrial acetic acid: methanol is carbonylated with carbon monoxide over rhodium or iridium catalysts.",
-        ],
-        equations: ["CH3OH + CO → CH3COOH"],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low when diluted.",
-      },
-      fun: {
-        history: "Vinegar was made in Babylon around 5000 BCE, and Hippocrates prescribed it for wounds. The name comes from French \"vin aigre,\" sour wine.",
-        uses: ["Making vinyl acetate for glues and paints", "Herbicide (at high concentration)", "Pickling"],
-        occurrence: "Produced whenever alcoholic drinks sour; a central metabolite as acetyl-CoA.",
       },
     },
   },
@@ -591,13 +394,6 @@ export const CLEANING: SeedIngredient[] = [
     },
     profile: {
       function: "Removes stains, whitens laundry and deodorizes without chlorine.",
-      reactions: [
-        item("Dissolution", "In water it separates into sodium carbonate and hydrogen peroxide.", "2 Na2CO3·3 H2O2 → 2 Na2CO3 + 3 H2O2"),
-        item("Low-temperature activation", "Activators such as TAED react with peroxide to form peracetic acid, which bleaches in cooler water."),
-      ],
-      mechanisms: [
-        item("Oxidative stain removal", "Peroxide oxidizes colored compounds (chromophores) in stains, breaking their conjugated bonds."),
-      ],
       regulatory: [
         reg("GHS", "Danger: may intensify fire (H272), harmful if swallowed (H302), causes serious eye damage (H318)."),
         reg("EU Ecolabel", "Accepted as a bleaching agent in eco-labeled detergents."),
@@ -606,27 +402,13 @@ export const CLEANING: SeedIngredient[] = [
         mechanism: "Oxidative and alkaline damage to eyes and mucous membranes.",
         dosage: "Laundry boosters are often 50–90%.",
       },
-      sensitization: "Not a sensitizer.",
       myths: [
         myth("Oxygen bleach is just as harsh as chlorine bleach.", "It works more gently and breaks down to harmless products, though it's slower as a disinfectant."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured.",
-        steps: [
-          "Sodium carbonate solution is crystallized with hydrogen peroxide.",
-          "The crystals are coated to improve stability and dried.",
-        ],
-        equations: ["2 Na2CO3 + 3 H2O2 → 2 Na2CO3·3 H2O2"],
-      },
       environment: {
         persistence: "Very low.",
         biodegradability: "Breaks down to carbonate, water and oxygen.",
         aquaticToxicity: "Low after dilution.",
-      },
-      fun: {
-        history: "Popularized for home laundry by OxiClean, launched in 1997.",
-        uses: ["Cleaning aquarium decorations", "Oxygen generation in some emergency kits"],
-        occurrence: "Synthetic.",
       },
     },
   },
@@ -650,13 +432,6 @@ export const CLEANING: SeedIngredient[] = [
     },
     profile: {
       function: "Lifts and suspends oily soils in laundry and dish detergents.",
-      reactions: [
-        item("Sulfonation", "Linear alkylbenzene is sulfonated with sulfur trioxide, then neutralized.", "C12H25C6H5 + SO3 → C12H25C6H4SO3H"),
-        item("Neutralization", "The sulfonic acid is neutralized with sodium hydroxide.", "C12H25C6H4SO3H + NaOH → C12H25C6H4SO3Na + H2O"),
-      ],
-      mechanisms: [
-        item("Detergency", "Adsorbs at fabric and oil surfaces, lowering interfacial tension so oils roll up and wash away in micelles."),
-      ],
       regulatory: [
         reg("EU Detergents Regulation", "Surfactants must meet ready-biodegradability criteria, which LAS does."),
         reg("GHS", "Warning: harmful if swallowed, causes skin irritation and serious eye damage; harmful to aquatic life."),
@@ -665,26 +440,13 @@ export const CLEANING: SeedIngredient[] = [
         mechanism: "Membrane and protein disruption causes irritation; not genotoxic or carcinogenic.",
         dosage: "Laundry detergents contain about 5–25%.",
       },
-      sensitization: "Irritant, not a sensitizer.",
       myths: [
         myth("Detergent foam in rivers means detergents don't biodegrade.", "That was true of branched ABS in the 1950s; linear LAS replaced it and degrades within days."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured from petroleum.",
-        steps: [
-          "Benzene is alkylated with linear C10–C14 olefins to form linear alkylbenzene.",
-          "It is sulfonated with SO3 and neutralized with sodium hydroxide.",
-        ],
-      },
       environment: {
         persistence: "Low under aerobic conditions.",
         biodegradability: "Readily biodegradable (aerobic); persists longer in anaerobic sediments.",
         aquaticToxicity: "Harmful to aquatic life before wastewater treatment.",
-      },
-      fun: {
-        history: "In the early 1960s, branched detergent surfactants caused foam on rivers and even in tap water; the U.S. industry switched to linear LAS in 1965.",
-        uses: ["Laundry and dish detergents", "Industrial degreasers"],
-        occurrence: "Synthetic.",
       },
     },
   },
@@ -709,13 +471,6 @@ export const CLEANING: SeedIngredient[] = [
     },
     profile: {
       function: "Dissolves grease, adhesives and tar, and adds a fresh citrus scent.",
-      reactions: [
-        item("Autoxidation", "On exposure to air, limonene forms hydroperoxides, carvone and limonene oxide; the hydroperoxides are potent skin sensitizers."),
-        item("Indoor ozone chemistry", "Reacts with ozone indoors to form formaldehyde and secondary organic aerosol particles.", "C10H16 + O3 → HCHO + oxygenated products"),
-      ],
-      mechanisms: [
-        item("Allergic contact dermatitis", "Oxidized limonene haptens bind skin proteins and trigger T-cell-mediated allergy."),
-      ],
       regulatory: [
         reg("EU Cosmetics Regulation", "Must be named on labels above 0.001% (leave-on) or 0.01% (rinse-off) as a fragrance allergen."),
         reg("U.S. FDA", "Generally Recognized as Safe as a flavoring.", "21 CFR 182.60"),
@@ -725,27 +480,14 @@ export const CLEANING: SeedIngredient[] = [
         mechanism: "Sensitization and irritation; aspiration hazard if swallowed.",
         dosage: "Cleaners may contain 1–20%; cosmetics usually under 1%.",
       },
-      sensitization: "Oxidized limonene is among the most frequent fragrance allergens in patch testing.",
       myths: [
         myth("Natural citrus cleaners are completely non-toxic.", "Limonene is natural but still a sensitizer and an aquatic toxin."),
       ],
-      synthesis: {
-        method: "Naturally extracted from citrus peels.",
-        steps: [
-          "Orange peels from juice production are cold-pressed or steam-distilled.",
-          "The oil (over 90% limonene) is distilled to purify it.",
-        ],
-      },
       environment: {
         persistence: "Low; degrades quickly in air.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Very toxic to aquatic life.",
         notes: "A volatile organic compound that contributes to indoor air pollution chemistry.",
-      },
-      fun: {
-        history: "Named after the lemon; commercial d-limonene is a by-product of the orange juice industry.",
-        uses: ["Dissolving HIPS supports in 3D printing", "Degreasers", "Flavoring"],
-        occurrence: "Makes up over 90% of orange peel oil.",
       },
     },
   },
@@ -770,13 +512,6 @@ export const CLEANING: SeedIngredient[] = [
     },
     profile: {
       function: "Digests protein stains into small, water-soluble peptides, enabling cold-water washing.",
-      reactions: [
-        item("Peptide-bond hydrolysis", "The enzyme adds water across peptide bonds in protein stains.", "R–CO–NH–R' + H2O → R–COOH + H2N–R'"),
-      ],
-      mechanisms: [
-        item("Catalytic triad", "A serine–histidine–aspartate triad in the active site attacks the peptide bond."),
-        item("Respiratory sensitization", "Inhaled enzyme protein can trigger IgE-mediated allergy and asthma."),
-      ],
       regulatory: [
         reg("GHS", "Danger: may cause allergy or asthma symptoms if inhaled (H334)."),
         reg("Industry practice", "Manufacturers monitor workplace enzyme exposure and encapsulate enzymes to prevent dust."),
@@ -785,27 +520,13 @@ export const CLEANING: SeedIngredient[] = [
         mechanism: "Low toxicity except as an airborne allergen.",
         dosage: "Detergents contain well under 1% active enzyme protein.",
       },
-      sensitization: "Respiratory sensitizer as dust; skin contact with finished detergents rarely causes problems.",
       myths: [
         myth("Enzyme detergents eat your skin.", "They are designed for stains; consumer skin reactions are uncommon at use concentrations."),
       ],
-      synthesis: {
-        method: "Bio-fermented by Bacillus bacteria.",
-        steps: [
-          "Engineered Bacillus strains secrete protease in large fermenters.",
-          "The enzyme is recovered, concentrated and encapsulated or stabilized.",
-          "Protein engineering improves stability against bleach and heat.",
-        ],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Readily biodegradable (it's a protein).",
         aquaticToxicity: "Low.",
-      },
-      fun: {
-        history: "Otto Röhm made the first enzyme detergent, Burnus, in 1913 using pancreatic enzymes; bacterial proteases took over in the 1960s.",
-        uses: ["Contact-lens cleaners", "Meat tenderizing", "Leather processing"],
-        occurrence: "Soil bacteria like Bacillus subtilis.",
       },
     },
   },

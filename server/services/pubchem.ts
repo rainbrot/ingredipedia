@@ -184,7 +184,7 @@ export function parseGhs(entries: ViewEntry[]): HazardFacts {
 
 /**
  * Converts GHS hazard codes and regulatory signals into a 0–100 consumer health score.
- * Used for brand-new ingredients until an admin reviews them.
+ * Used for brand-new ingredients until automatic research completes.
  */
 export function heuristicScore(h: HazardFacts, signals: { cirSafe?: boolean; saferChoiceGreen?: boolean; fdaListed?: boolean }): {
   score: number;
@@ -266,30 +266,27 @@ export function heuristicScore(h: HazardFacts, signals: { cirSafe?: boolean; saf
   return { score, concerns: [...concerns], rationale };
 }
 
-export function firstSentences(text: string, n = 2, maxLen = 420): string {
-  const clean = text.replace(/\s+/g, " ").replace(/\s\|\s/g, " ").trim();
-  const sentences = clean.match(/[^.!?]+[.!?]+(?:\s|$)/g) ?? [clean];
-  let out = sentences.slice(0, n).join("").trim();
-  if (out.length > maxLen) out = `${out.slice(0, maxLen - 1).replace(/\s\S*$/, "")}…`;
-  return out;
+// Periods that don't end a sentence: decimals (8.7%), initials and genus names (E. coli),
+// and common abbreviations (e.g., i.e., et al., vs.).
+const PROTECTED = /(\d)\.(\d)|\b([A-Z])\.(?=\s+[a-z])|\b(e\.g|i\.e|et al|vs|approx|ca|cf|Fig|No|spp?|Dr|St|resp)\.(?=\s)/g;
+const HOLD = "\u2024";
+
+/** Splits prose into sentences without breaking on decimals, initials or abbreviations. */
+export function splitSentences(text: string): string[] {
+  const clean = text.replace(/\s+/g, " ").replace(/\s\|\s/g, ". ").trim();
+  if (!clean) return [];
+  const held = clean.replace(PROTECTED, (_m, d1, d2, initial, abbr) =>
+    d1 !== undefined ? `${d1}${HOLD}${d2}` : initial !== undefined ? `${initial}${HOLD}` : `${abbr}${HOLD}`,
+  );
+  return held
+    .split(/(?<=[.!?])\s+(?=[A-Z0-9("“[])/)
+    .map((x) => x.replaceAll(HOLD, ".").trim())
+    .filter(Boolean);
 }
 
-/** Candidate compounds for an admin search box (name, synonym or CID). */
-export async function searchCandidates(query: string): Promise<PubChemCompound[]> {
-  const q = query.trim();
-  if (/^\d+$/.test(q)) {
-    const c = await getByCid(Number(q));
-    return c ? [c] : [];
-  }
-  let cids: number[] = [];
-  try {
-    const data = await getJson<{ IdentifierList?: { CID?: number[] } }>(`${BASE}/pug/compound/name/${encodeURIComponent(q)}/cids/JSON`, { limiter });
-    cids = data?.IdentifierList?.CID?.slice(0, 5) ?? [];
-  } catch (err) {
-    if (err instanceof HttpError && err.status === 400) return [];
-    throw err;
-  }
-  if (cids.length === 0) return [];
-  const data = await getJson<PropertyTable>(`${BASE}/pug/compound/cid/${cids.join(",")}/property/${PROPS}/JSON`, { limiter });
-  return (data?.PropertyTable?.Properties ?? []).map(toCompound);
+export function firstSentences(text: string, n = 2, maxLen = 420): string {
+  const sentences = splitSentences(text);
+  let out = sentences.slice(0, n).join(" ").trim();
+  if (out.length > maxLen) out = `${out.slice(0, maxLen - 1).replace(/\s\S*$/, "")}…`;
+  return out;
 }

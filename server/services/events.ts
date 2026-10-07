@@ -1,5 +1,5 @@
-// Server-Sent Events hub: pushes "ingredient verified" to every connected client the moment an
-// admin approves a profile (the plan's "Global Sync").
+// Server-Sent Events hub: pushes "ingredient researched" to every connected client the moment
+// automatic research finishes (the plan's "Global Sync").
 
 import type { Response } from "express";
 import type { ServerEvent } from "../../shared/types";

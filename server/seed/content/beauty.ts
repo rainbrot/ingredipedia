@@ -1,4 +1,4 @@
-import { item, myth, reg, type SeedIngredient } from "../types";
+import { myth, reg, type SeedIngredient } from "../types";
 
 export const BEAUTY: SeedIngredient[] = [
   {
@@ -24,14 +24,6 @@ export const BEAUTY: SeedIngredient[] = [
     },
     profile: {
       function: "Attracts and holds water in the skin's outer layer, softens formulas, keeps baked goods and candies moist, and prevents toothpaste from drying out.",
-      reactions: [
-        item("Saponification by-product", "Making soap from fats releases glycerin alongside the soap.", "C3H5(OOCR)3 + 3 NaOH → C3H5(OH)3 + 3 RCOONa"),
-        item("Nitration", "Glycerin reacts with nitric and sulfuric acids to form nitroglycerin, both an explosive and an angina medicine.", "C3H5(OH)3 + 3 HNO3 → C3H5(ONO2)3 + 3 H2O"),
-      ],
-      mechanisms: [
-        item("Stratum corneum hydration", "Its hydroxyl groups hydrogen-bond with water; aquaporin-3 channels transport glycerol in the epidermis, supporting hydration and barrier repair."),
-        item("Barrier support", "Keeps lipids in the skin barrier in a more fluid, functional state in dry conditions."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Generally Recognized as Safe.", "21 CFR 182.1320"),
         reg("Cosmetic Ingredient Review", "Safe as used in cosmetics."),
@@ -41,29 +33,14 @@ export const BEAUTY: SeedIngredient[] = [
         mechanism: "Very low toxicity. Large amounts drunk quickly by small children can cause glycerol intoxication (low blood sugar, shock).",
         dosage: "Cosmetics use about 2–10%; the oral LD50 in rats exceeds 12 g/kg.",
       },
-      sensitization: "Essentially non-sensitizing.",
       myths: [
         myth("Glycerin pulls moisture out of your skin.", "In extremely dry air, pure glycerin could draw water from deeper skin, but at typical 3–10% in formulas it hydrates skin."),
         myth("Vegetable glycerin is healthier than synthetic glycerin.", "They are the same molecule; source matters for sustainability and dietary preferences, not safety."),
       ],
-      synthesis: {
-        method: "Mostly a by-product of biodiesel and soap making (plant or animal fats); also synthesized from propylene.",
-        steps: [
-          "Triglycerides are transesterified with methanol (biodiesel) or saponified with lye (soap).",
-          "The glycerin-rich phase is separated.",
-          "Crude glycerin is neutralized, distilled and bleached to USP grade.",
-        ],
-        equations: ["C3H5(OOCR)3 + 3 CH3OH → C3H5(OH)3 + 3 RCOOCH3"],
-      },
       environment: {
         persistence: "Not persistent.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Very low.",
-      },
-      fun: {
-        history: "Carl Wilhelm Scheele discovered glycerin in 1779 by heating olive oil with lead oxide and called it the \"sweet principle of fat\".",
-        uses: ["Nitroglycerin for dynamite and heart medicine", "E-cigarette liquid base", "Fog machines"],
-        occurrence: "The backbone of every fat and oil molecule.",
       },
     },
   },
@@ -89,14 +66,6 @@ export const BEAUTY: SeedIngredient[] = [
     },
     profile: {
       function: "Lowers surface tension so water can lift oils and dirt, and creates rich foam.",
-      reactions: [
-        item("Micelle formation", "Above its critical micelle concentration, SLS molecules cluster with tails inward, trapping oils in their cores."),
-        item("Protein denaturation", "Binds and unfolds proteins, the basis of SDS-PAGE lab analysis and of its irritancy."),
-      ],
-      mechanisms: [
-        item("Barrier disruption", "Extracts stratum corneum lipids and binds keratin, increasing water loss and letting irritants in; it is the standard reference irritant in dermatology research."),
-        item("Oral mucosa", "In toothpaste it may disrupt the protective mucin layer; some trials show SLS-free toothpaste reduces canker sores in people prone to them."),
-      ],
       regulatory: [
         reg("Cosmetic Ingredient Review", "Safe in rinse-off products; leave-on products should contain no more than 1%."),
         reg("U.S. FDA", "Permitted as a direct food additive, e.g., as a whipping aid for egg whites.", "21 CFR 172.822"),
@@ -106,29 +75,14 @@ export const BEAUTY: SeedIngredient[] = [
         mechanism: "Irritation from lipid extraction and protein denaturation; not genotoxic or carcinogenic.",
         dosage: "Shampoos contain about 10–20%, toothpaste 1–2%. Irritation rises with concentration and contact time.",
       },
-      sensitization: "Irritant but not a true allergen; people with eczema or rosacea often do better without it.",
       myths: [
         myth("SLS causes cancer.", "This traces to a 1998 chain email; SLS is not classified as a carcinogen by IARC, NTP or any regulator."),
         myth("Sodium coco-sulfate is a gentler natural alternative.", "It is mostly the same molecule with a slightly broader chain-length mix, and similarly irritating."),
       ],
-      synthesis: {
-        method: "Semi-synthetic: fatty alcohol from coconut/palm kernel oil or petroleum, then sulfated.",
-        steps: [
-          "Lauryl alcohol is produced by hydrogenating coconut or palm kernel oil fatty acids.",
-          "It is sulfated with sulfur trioxide gas.",
-          "The resulting lauryl sulfuric acid is neutralized with sodium hydroxide.",
-        ],
-        equations: ["C12H25OH + SO3 → C12H25OSO3H", "C12H25OSO3H + NaOH → C12H25OSO3Na + H2O"],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Harmful to aquatic life at elevated concentrations before treatment.",
-      },
-      fun: {
-        history: "Alkyl sulfate detergents appeared in the 1930s as the first synthetic alternatives to soap that didn't form scum in hard water.",
-        uses: ["SDS-PAGE, a core technique in biology labs", "Fire-fighting foam", "Whipping aid for powdered egg whites"],
-        occurrence: "Synthetic, though its lauryl chain comes from coconut and palm kernel oils.",
       },
     },
   },
@@ -155,13 +109,6 @@ export const BEAUTY: SeedIngredient[] = [
     },
     profile: {
       function: "Produces dense lather and removes oil in shampoos, body washes, hand soaps and dish detergents.",
-      reactions: [
-        item("Ethoxylation", "Lauryl alcohol reacts with ethylene oxide to add ether units, making the head group larger and milder.", "C12H25OH + n C2H4O → C12H25(OCH2CH2)nOH"),
-        item("1,4-Dioxane formation", "Two ethylene oxide units can cyclize into 1,4-dioxane, removed by vacuum stripping."),
-      ],
-      mechanisms: [
-        item("Milder barrier interaction", "The ethoxylated head group forms larger micelles that penetrate the skin barrier less than SLS."),
-      ],
       regulatory: [
         reg("Cosmetic Ingredient Review", "Safe as used when formulated to be non-irritating."),
         reg("New York State", "Caps 1,4-dioxane at 1 ppm in household cleaning and personal-care products and 10 ppm in cosmetics."),
@@ -171,27 +118,13 @@ export const BEAUTY: SeedIngredient[] = [
         mechanism: "The surfactant itself is a mild irritant; 1,4-dioxane caused liver tumors in rodents at high doses in drinking water.",
         dosage: "Well-made SLES contains only trace 1,4-dioxane; wash-off exposure is brief.",
       },
-      sensitization: "Low sensitization potential; irritation depends on concentration.",
       myths: [
         myth("SLES contains cancer-causing chemicals.", "The surfactant is not carcinogenic; the concern is a removable impurity that regulators now limit."),
       ],
-      synthesis: {
-        method: "Semi-synthetic.",
-        steps: [
-          "Lauryl alcohol is ethoxylated with ethylene oxide using a base catalyst.",
-          "The ethoxylate is sulfated with sulfur trioxide.",
-          "The acid is neutralized with sodium hydroxide, then vacuum-stripped to remove 1,4-dioxane.",
-        ],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Toxic to aquatic life before wastewater treatment.",
-      },
-      fun: {
-        history: "Became the dominant shampoo surfactant in the 1960s–70s because it lathered well while being gentler than SLS.",
-        uses: ["Dish soap", "Bubble bath"],
-        occurrence: "Synthetic.",
       },
     },
   },
@@ -218,14 +151,6 @@ export const BEAUTY: SeedIngredient[] = [
     },
     profile: {
       function: "Boosts foam and viscosity and reduces the irritation of anionic surfactants like SLES.",
-      reactions: [
-        item("Amidation", "Coconut fatty acids react with dimethylaminopropylamine (DMAPA) to form an amidoamine.", "RCOOH + H2N(CH2)3N(CH3)2 → RCONH(CH2)3N(CH3)2 + H2O"),
-        item("Quaternization", "The amidoamine reacts with sodium monochloroacetate to form the betaine.", "RCONH(CH2)3N(CH3)2 + ClCH2COONa → RCONH(CH2)3N+(CH3)2CH2COO- + NaCl"),
-      ],
-      mechanisms: [
-        item("Mixed micelles", "Pairs with anionic surfactants to form mixed micelles that bind less to skin proteins, lowering irritation."),
-        item("Allergy from impurities", "Residual amidoamine and DMAPA act as haptens that trigger allergic contact dermatitis in sensitized people."),
-      ],
       regulatory: [
         reg("Cosmetic Ingredient Review", "Safe when formulated to be non-sensitizing, with limits on amidoamine and DMAPA impurities."),
         reg("American Contact Dermatitis Society", "Named Allergen of the Year in 2004."),
@@ -234,27 +159,13 @@ export const BEAUTY: SeedIngredient[] = [
         mechanism: "Low systemic toxicity; the main hazard is contact allergy from impurities.",
         dosage: "Shampoos use about 1–10%.",
       },
-      sensitization: "Patch-test positivity is a few percent in dermatitis clinics; purer grades have lowered reaction rates.",
       myths: [
         myth("It's natural because it comes from coconuts.", "The fatty chain comes from coconut oil, but it's made through chemical synthesis."),
       ],
-      synthesis: {
-        method: "Semi-synthetic.",
-        steps: [
-          "Coconut oil fatty acids react with DMAPA to form cocamidopropyl dimethylamine.",
-          "The amidoamine is quaternized with sodium monochloroacetate.",
-          "The product is diluted to a roughly 30% solution.",
-        ],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Toxic to aquatic life at elevated concentrations.",
-      },
-      fun: {
-        history: "Adopted in the 1970s–80s as a mild surfactant for baby shampoos and \"tear-free\" formulas.",
-        uses: ["Baby shampoo", "Contact-lens cleaners", "Oil-field foaming agents"],
-        occurrence: "Synthetic, from coconut fatty acids.",
       },
     },
   },
@@ -282,12 +193,6 @@ export const BEAUTY: SeedIngredient[] = [
     },
     profile: {
       function: "Adds slip and a silky finish, forms a breathable protective film, reduces frizz, and prevents foaming in food frying oil.",
-      reactions: [
-        item("Hydrolysis and polycondensation", "Dimethyldichlorosilane reacts with water to form siloxane chains.", "n (CH3)2SiCl2 + n H2O → [(CH3)2SiO]n + 2n HCl"),
-      ],
-      mechanisms: [
-        item("Skin protectant film", "Forms a water-resistant but gas-permeable layer that reduces water loss and friction without blocking pores."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Approved OTC skin protectant active ingredient.", "1–30% (21 CFR 347)"),
         reg("Cosmetic Ingredient Review", "Safe as used."),
@@ -297,29 +202,14 @@ export const BEAUTY: SeedIngredient[] = [
         mechanism: "Too large to penetrate skin; biologically inert.",
         dosage: "Cosmetics use about 1–15%.",
       },
-      sensitization: "Among the least sensitizing cosmetic ingredients.",
       myths: [
         myth("Silicones suffocate skin and clog pores.", "Dimethicone films are gas-permeable and tested as non-comedogenic."),
         myth("Silicones build up and ruin hair.", "Heavy silicones can accumulate but wash out with regular shampoo; many are water-soluble."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured from silicon and methyl chloride.",
-        steps: [
-          "Müller–Rochow direct process: silicon reacts with methyl chloride over a copper catalyst.",
-          "Dimethyldichlorosilane is hydrolyzed to siloxane oligomers.",
-          "Oligomers are polymerized to the target chain length and end-capped.",
-        ],
-        equations: ["Si + 2 CH3Cl → (CH3)2SiCl2"],
-      },
       environment: {
         persistence: "Persistent in sediments but not bioaccumulative due to large size.",
         biodegradability: "Not biodegradable; degrades slowly in soil to silica and CO2.",
         aquaticToxicity: "Low.",
-      },
-      fun: {
-        history: "Frederic Kipping coined \"silicone\" in the early 1900s; Eugene Rochow's direct process (1940s) made silicones affordable.",
-        uses: ["Silly Putty", "Anti-foaming agent in fast-food fryer oil", "Medical tubing and implants"],
-        occurrence: "Synthetic.",
       },
     },
   },
@@ -344,13 +234,6 @@ export const BEAUTY: SeedIngredient[] = [
     },
     profile: {
       function: "Protects water-based products from bacteria, yeast and mold after opening.",
-      reactions: [
-        item("Hydroxyethylation of phenol", "Phenol opens the ethylene oxide ring in the presence of a base.", "C6H5OH + C2H4O → C6H5OCH2CH2OH"),
-      ],
-      mechanisms: [
-        item("Membrane disruption", "Increases microbial membrane permeability, causing potassium leakage and uncoupling energy production, especially in Gram-negative bacteria."),
-        item("Human metabolism", "Absorbed through skin and oxidized to phenoxyacetic acid, excreted in urine."),
-      ],
       regulatory: [
         reg("EU SCCS (2016)", "Safe at up to 1% in all cosmetic products, including for children."),
         reg("French ANSM (2019)", "Recommends not using it in leave-on products for the diaper area of children under 3."),
@@ -360,26 +243,13 @@ export const BEAUTY: SeedIngredient[] = [
         mechanism: "High oral doses depress the central nervous system; an FDA 2008 warning concerned a nipple cream that infants could swallow.",
         dosage: "Cosmetics are capped at 1%; systemic exposure from normal use is well below levels of concern.",
       },
-      sensitization: "Contact allergy is rare, making it one of the lowest-risk preservatives.",
       myths: [
         myth("Phenoxyethanol is a toxic chemical found in antifreeze.", "It's a glycol ether, a different compound from the ethylene glycol in antifreeze, and it's safe at cosmetic levels."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured.",
-        steps: [
-          "Phenol reacts with ethylene oxide under basic catalysis.",
-          "The product is purified by distillation.",
-        ],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low.",
-      },
-      fun: {
-        history: "Commercialized alongside the glycol-ether solvents of the early 20th century and long used as a perfume fixative before becoming a preservative.",
-        uses: ["Perfume fixative", "Anesthetic for fish in aquaculture", "Vaccine preservative"],
-        occurrence: "Commercial phenoxyethanol is synthetic.",
       },
     },
   },
@@ -405,14 +275,6 @@ export const BEAUTY: SeedIngredient[] = [
     },
     profile: {
       function: "Prevents mold and bacterial growth in creams, lotions and some foods.",
-      reactions: [
-        item("Esterification", "p-Hydroxybenzoic acid reacts with methanol to form the methyl ester.", "HOC6H4COOH + CH3OH → HOC6H4COOCH3 + H2O"),
-        item("Hydrolysis in the body", "Esterases in skin and liver convert it back to p-hydroxybenzoic acid, which is excreted."),
-      ],
-      mechanisms: [
-        item("Antimicrobial action", "Disrupts microbial membrane transport and mitochondrial function."),
-        item("Weak estrogen receptor binding", "Parabens bind estrogen receptors thousands of times more weakly than estradiol; activity increases with chain length."),
-      ],
       regulatory: [
         reg("EU Cosmetics Regulation", "Methyl- and ethylparaben allowed; propyl- and butylparaben capped at 0.14% combined and banned in leave-on diaper-area products; five other parabens banned (2014).", "0.4% single, 0.8% total (methyl/ethyl)"),
         reg("U.S. FDA", "Methylparaben is GRAS in food.", "21 CFR 184.1490"),
@@ -422,27 +284,13 @@ export const BEAUTY: SeedIngredient[] = [
         mechanism: "Low acute toxicity; endocrine concerns stem from receptor binding in cell and animal studies at high doses.",
         dosage: "Cosmetics typically use 0.1–0.3%; urinary levels in people are far below doses that show hormonal effects in animals.",
       },
-      sensitization: "Among the least allergenic preservatives, except on damaged skin (the \"paraben paradox\").",
       myths: [
         myth("Parabens cause breast cancer.", "A 2004 study detected parabens in tumor tissue but did not test healthy tissue or show causation; no causal link has been established."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured.",
-        steps: [
-          "Kolbe–Schmitt carboxylation of potassium phenoxide yields p-hydroxybenzoic acid.",
-          "The acid is esterified with methanol using an acid catalyst.",
-          "The ester is crystallized and purified.",
-        ],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low to moderate.",
-      },
-      fun: {
-        history: "Parabens have been used as preservatives since the 1920s.",
-        uses: ["Preserving injectable medications", "Preserving some food products"],
-        occurrence: "Occurs naturally in blueberries and is a component of the honeybee queen's mandibular pheromone.",
       },
     },
   },
@@ -467,12 +315,6 @@ export const BEAUTY: SeedIngredient[] = [
     },
     profile: {
       function: "Gives products a pleasant scent and masks the odor of other ingredients.",
-      reactions: [
-        item("Autoxidation of terpenes", "Common fragrance terpenes such as limonene and linalool react with air to form hydroperoxides, which are much stronger allergens than the fresh molecules."),
-      ],
-      mechanisms: [
-        item("Allergic contact dermatitis", "Small reactive molecules (haptens) bind skin proteins, and the immune system learns to attack them (type IV hypersensitivity)."),
-      ],
       regulatory: [
         reg("EU Cosmetics Regulation", "26 fragrance allergens must be named on labels above 0.001% in leave-on or 0.01% in rinse-off products; a 2023 update expands this to about 80 allergens."),
         reg("U.S. MoCRA (2022)", "Requires FDA to issue a rule for fragrance allergen labeling."),
@@ -482,28 +324,14 @@ export const BEAUTY: SeedIngredient[] = [
         mechanism: "Sensitization and irritation; some solvents historically used (like diethyl phthalate) have raised separate questions.",
         dosage: "Perfumes contain 10–30% fragrance; lotions and cleaners usually under 1%.",
       },
-      sensitization: "Fragrance allergy affects roughly 1–4% of the general population and is a top cause of cosmetic dermatitis.",
       myths: [
         myth("\"Unscented\" means fragrance-free.", "Unscented products may contain masking fragrance; \"fragrance-free\" is the better choice for allergies."),
         myth("Natural essential oils are safer than synthetic fragrance.", "Essential oils contain the same allergens, such as limonene and linalool, and are common causes of dermatitis."),
       ],
-      synthesis: {
-        method: "Blended from natural extracts and synthetic aroma chemicals.",
-        steps: [
-          "Perfumers combine top, middle and base notes from dozens of ingredients.",
-          "Components are dissolved in ethanol or carrier solvents.",
-          "The blend is aged and added at low levels to products.",
-        ],
-      },
       environment: {
         persistence: "Varies; some synthetic musks are persistent.",
         biodegradability: "Varies by component.",
         aquaticToxicity: "Some components (like musks) are toxic to aquatic life.",
-      },
-      fun: {
-        history: "Chanel No. 5 (1921) was among the first perfumes to rely on synthetic aldehydes, launching modern perfumery.",
-        uses: ["Scenting laundry detergent", "Masking smells in trash bags"],
-        occurrence: "Components come from flowers, woods, citrus peels and petrochemicals.",
       },
     },
   },
@@ -530,14 +358,6 @@ export const BEAUTY: SeedIngredient[] = [
     },
     profile: {
       function: "Hydrates and plumps the skin's surface, improves texture, and gives serums a smooth glide.",
-      reactions: [
-        item("Water binding", "Its many carboxylate and hydroxyl groups hydrogen-bond with water, forming a hydrated gel network."),
-        item("Enzymatic breakdown", "Hyaluronidase enzymes cut it into smaller fragments; the body turns over about a third of its HA daily."),
-      ],
-      mechanisms: [
-        item("Surface film vs. penetration", "High-molecular-weight HA stays on the surface as a hydrating film; low-molecular-weight fragments penetrate the upper skin layers."),
-        item("CD44 signaling", "HA interacts with the CD44 receptor, which influences wound healing and cell migration."),
-      ],
       regulatory: [
         reg("Cosmetic Ingredient Review", "Safe as used."),
         reg("U.S. FDA", "Regulated as a device in dermal fillers and joint injections."),
@@ -546,28 +366,14 @@ export const BEAUTY: SeedIngredient[] = [
         mechanism: "Non-toxic; it's a natural component of skin, joints and eyes.",
         dosage: "Serums typically contain 0.1–2%.",
       },
-      sensitization: "Essentially non-sensitizing.",
       myths: [
         myth("Hyaluronic acid holds 1,000 times its weight in water.", "It binds a lot of water, but this marketing number doesn't reflect what happens on skin."),
         myth("HA dries out skin in dry climates.", "It works best with an occlusive moisturizer on top, but it doesn't dehydrate skin."),
       ],
-      synthesis: {
-        method: "Bio-fermented by Streptococcus zooepidemicus or engineered Bacillus.",
-        steps: [
-          "Bacteria ferment glucose and secrete hyaluronic acid.",
-          "It is purified by filtration and alcohol precipitation.",
-          "It may be hydrolyzed to lower molecular weights.",
-        ],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low.",
-      },
-      fun: {
-        history: "Karl Meyer and John Palmer isolated it from cow eyes in 1934, naming it from Greek \"hyalos\" (glass) plus uronic acid. It was once harvested from rooster combs.",
-        uses: ["Knee injections for osteoarthritis", "Eye surgery", "Dermal fillers"],
-        occurrence: "Skin, joint fluid, the vitreous humor of the eye and umbilical cords.",
       },
     },
   },
@@ -592,15 +398,6 @@ export const BEAUTY: SeedIngredient[] = [
     },
     profile: {
       function: "Improves barrier function, reduces hyperpigmentation and redness, and fortifies foods as vitamin B3.",
-      reactions: [
-        item("NAD+ biosynthesis", "Converted in cells into NAD+ and NADP+, coenzymes for hundreds of redox reactions.", "Nicotinamide + PRPP → NMN + PPi"),
-        item("Hydrolysis to niacin", "Heat and strong acid or base can slowly hydrolyze it to nicotinic acid, which causes flushing.", "C6H6N2O + H2O → C6H5NO2 + NH3"),
-      ],
-      mechanisms: [
-        item("Barrier repair", "Increases ceramide and free fatty acid synthesis in the stratum corneum, reducing water loss."),
-        item("Pigment transfer inhibition", "Reduces transfer of melanosomes from melanocytes to keratinocytes, fading dark spots."),
-        item("DNA repair support", "Oral nicotinamide (500 mg twice daily) reduced new non-melanoma skin cancers by 23% in high-risk patients in the ONTRAC trial (2015)."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Generally Recognized as Safe as a nutrient.", "21 CFR 184.1535"),
         reg("Cosmetic Ingredient Review", "Safe as used."),
@@ -609,28 +406,13 @@ export const BEAUTY: SeedIngredient[] = [
         mechanism: "Very high oral doses (grams per day) can stress the liver; topical use is low risk.",
         dosage: "Serums typically use 2–10%; benefits are seen at 2–5%.",
       },
-      sensitization: "Rarely sensitizing; high concentrations can cause temporary redness or tingling.",
       myths: [
         myth("Never combine niacinamide with vitamin C.", "Conversion to flushing niacin requires high heat over time; modern formulas can be combined safely."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured.",
-        steps: [
-          "3-Methylpyridine undergoes ammoxidation to 3-cyanopyridine.",
-          "The enzyme nitrile hydratase (from Rhodococcus rhodochrous) converts the nitrile to niacinamide.",
-          "The product is crystallized.",
-        ],
-        equations: ["C6H7N + NH3 + 3/2 O2 → C6H4N2 + 3 H2O", "C6H4N2 + H2O → C6H6N2O"],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low.",
-      },
-      fun: {
-        history: "Conrad Elvehjem identified nicotinic acid and its amide as cures for canine black tongue in 1937, solving pellagra, which had killed thousands in the American South.",
-        uses: ["Food and feed fortification", "Skin-cancer prevention in high-risk patients"],
-        occurrence: "Meat, fish, mushrooms and yeast; the body also makes it from tryptophan.",
       },
     },
   },
@@ -655,14 +437,6 @@ export const BEAUTY: SeedIngredient[] = [
     },
     profile: {
       function: "Exfoliates inside pores, reduces acne lesions and treats dandruff, warts and calluses.",
-      reactions: [
-        item("Kolbe–Schmitt carboxylation", "Sodium phenoxide reacts with CO2 under heat and pressure, then acid releases salicylic acid.", "C6H5ONa + CO2 → C6H4(OH)COONa"),
-        item("Acetylation to aspirin", "Reacting with acetic anhydride produces acetylsalicylic acid.", "C7H6O3 + (CH3CO)2O → C9H8O4 + CH3COOH"),
-      ],
-      mechanisms: [
-        item("Comedolysis", "Being lipid-soluble, it penetrates sebum-filled pores and loosens connections between corneocytes."),
-        item("Anti-inflammatory action", "Modulates inflammatory signaling (related to aspirin's effects), calming red acne lesions."),
-      ],
       regulatory: [
         reg("U.S. FDA", "OTC acne drug monograph.", "0.5–2%"),
         reg("EU Cosmetics Regulation", "Allowed as a preservative and for other uses; not for children under 3 except in shampoos.", "Up to 2% (3% in rinse-off hair products)"),
@@ -671,27 +445,13 @@ export const BEAUTY: SeedIngredient[] = [
         mechanism: "Absorbed salicylate can cause salicylism (ringing ears, nausea) when used over large areas, especially in children.",
         dosage: "Face products use 0.5–2%; wart removers up to 40% on small areas.",
       },
-      sensitization: "Allergy is uncommon; people with aspirin allergy should be cautious.",
       myths: [
         myth("Willow bark extract works the same as salicylic acid.", "Willow bark contains salicin and very little free salicylic acid, so it's much weaker."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured via the Kolbe–Schmitt reaction.",
-        steps: [
-          "Phenol is converted to sodium phenoxide with sodium hydroxide.",
-          "It is heated with CO2 at about 125 °C and 100 atm.",
-          "Sulfuric acid converts sodium salicylate to salicylic acid, which is recrystallized.",
-        ],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low to moderate.",
-      },
-      fun: {
-        history: "Willow bark remedies go back to ancient Sumer and Egypt; Raffaele Piria made salicylic acid in 1838, and Bayer's Felix Hoffmann made aspirin from it in 1897.",
-        uses: ["Making aspirin", "Wart and corn removers", "Dandruff shampoo"],
-        occurrence: "Plants use it as a hormone to signal defense against pathogens; found in willow and wintergreen as related compounds.",
       },
     },
   },
@@ -716,13 +476,6 @@ export const BEAUTY: SeedIngredient[] = [
     },
     profile: {
       function: "Reduces fine lines, evens texture and pigmentation, and treats acne.",
-      reactions: [
-        item("Stepwise oxidation", "Skin enzymes convert retinol to retinaldehyde and then retinoic acid, the active form.", "C20H30O → C20H28O → C20H28O2"),
-        item("Photodegradation", "UV light breaks its conjugated double bonds, which is why it's used at night in opaque packaging."),
-      ],
-      mechanisms: [
-        item("Nuclear receptor signaling", "Retinoic acid binds RAR/RXR receptors, switching on genes that increase cell turnover and collagen production and reduce collagen-degrading MMP enzymes."),
-      ],
       regulatory: [
         reg("EU (2024)", "Caps vitamin A in cosmetics.", "0.05% retinol equivalent in body lotions; 0.3% in face and hand products"),
         reg("U.S. FDA", "Cosmetic ingredient; prescription retinoids (tretinoin) are drugs."),
@@ -731,28 +484,14 @@ export const BEAUTY: SeedIngredient[] = [
         mechanism: "High systemic vitamin A is teratogenic; topical cosmetic retinol is minimally absorbed, but avoidance in pregnancy is standard advice.",
         dosage: "Cosmetics typically 0.01–1%. Irritation (\"retinization\") usually subsides after a few weeks.",
       },
-      sensitization: "Irritation is common; true allergy is rare.",
       myths: [
         myth("Retinol thins your skin.", "It thins the outermost dead layer slightly but thickens the living epidermis and increases collagen over time."),
         myth("You can't use retinol in summer.", "You can, with daily sunscreen; it increases sensitivity to sunburn."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured from β-ionone.",
-        steps: [
-          "β-Ionone is built into a C15 or C20 intermediate (Roche Isler or BASF Wittig routes).",
-          "Coupling steps assemble the full polyene chain.",
-          "The product is stabilized, often as retinyl acetate or palmitate.",
-        ],
-      },
       environment: {
         persistence: "Low; degrades in light.",
         biodegradability: "Biodegradable.",
         aquaticToxicity: "Low at use levels.",
-      },
-      fun: {
-        history: "Vitamin A was discovered in 1913; Paul Karrer determined retinol's structure in 1931, and Otto Isler achieved industrial synthesis in 1947.",
-        uses: ["Treating vitamin A deficiency, a leading cause of childhood blindness", "Food fortification"],
-        occurrence: "Liver, eggs and dairy; plants provide beta-carotene, which the body converts to retinol.",
       },
     },
   },
@@ -778,13 +517,6 @@ export const BEAUTY: SeedIngredient[] = [
     },
     profile: {
       function: "Provides broad-spectrum UV protection, protects and soothes irritated skin, and adds opacity.",
-      reactions: [
-        item("UV absorption", "As a semiconductor with a 3.37 eV band gap, ZnO absorbs UVB and UVA up to about 380 nm."),
-        item("Amphoteric behavior", "Dissolves in acids and bases.", "ZnO + 2 HCl → ZnCl2 + H2O"),
-      ],
-      mechanisms: [
-        item("Skin protectant", "Forms a physical barrier and releases small amounts of zinc ions with mild antimicrobial and healing effects."),
-      ],
       regulatory: [
         reg("U.S. FDA (2019 proposal)", "Generally recognized as safe and effective sunscreen active.", "Up to 25%"),
         reg("EU SCCS", "Safe as a UV filter, including nano forms, except in sprayable products that may be inhaled."),
@@ -793,27 +525,13 @@ export const BEAUTY: SeedIngredient[] = [
         mechanism: "Does not penetrate intact skin; inhaled zinc oxide fumes (metalworking) cause \"metal fume fever\".",
         dosage: "Sunscreens use 5–25%; diaper creams 10–40%.",
       },
-      sensitization: "Non-sensitizing; ideal for sensitive and infant skin.",
       myths: [
         myth("Nano zinc oxide enters the bloodstream.", "Studies show nanoparticles remain on the outer skin layers."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured from zinc metal or ore.",
-        steps: [
-          "French process: zinc metal is vaporized and oxidized in air.",
-          "Particles are collected, classified by size, and sometimes coated.",
-        ],
-        equations: ["2 Zn + O2 → 2 ZnO"],
-      },
       environment: {
         persistence: "Persistent as zinc.",
         biodegradability: "Not applicable (inorganic).",
         aquaticToxicity: "Zinc ions are toxic to some aquatic organisms at elevated concentrations.",
-      },
-      fun: {
-        history: "Zinc oxide ointments appear in ancient Indian and Greek medicine; alchemists called it \"philosopher's wool\".",
-        uses: ["Rubber vulcanization (its largest use)", "Calamine lotion", "Diaper cream"],
-        occurrence: "The mineral zincite.",
       },
     },
   },
@@ -838,13 +556,6 @@ export const BEAUTY: SeedIngredient[] = [
     },
     profile: {
       function: "Kills bacteria and fungi in water-based products at parts-per-million levels.",
-      reactions: [
-        item("Thiol attack", "Its electrophilic N–S bond reacts with cysteine thiols in proteins, opening the ring and forming mixed disulfides.", "R–SH + MIT → R–S–S–(ring-opened adduct)"),
-      ],
-      mechanisms: [
-        item("Enzyme inhibition", "Inactivates microbial dehydrogenase enzymes that rely on thiol groups, halting respiration."),
-        item("Haptenation of skin proteins", "The same reactivity lets it bind skin proteins, making it a strong sensitizer."),
-      ],
       regulatory: [
         reg("EU Cosmetics Regulation", "Banned in leave-on cosmetics since 2017.", "0.0015% (15 ppm) in rinse-off"),
         reg("EU CLP", "Mixtures with 15 ppm or more must warn that they may produce an allergic reaction."),
@@ -854,26 +565,13 @@ export const BEAUTY: SeedIngredient[] = [
         mechanism: "Sensitization via haptenation; also toxic to aquatic organisms.",
         dosage: "Cleaners and paints often contain tens of ppm; once sensitized, reactions can occur at a few ppm, including from paint fumes.",
       },
-      sensitization: "Strong sensitizer; sensitization rates in European patch-test clinics exceeded 5% at the epidemic's peak.",
       myths: [
         myth("Rinse-off products with MIT are completely safe.", "Rinse-off exposure is lower, but people already sensitized can still react."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured.",
-        steps: [
-          "N-Methyl-3-mercaptopropionamide (or its disulfide) is cyclized with a chlorinating agent.",
-          "This produces a mixture of MCI and MI, which can be separated.",
-        ],
-      },
       environment: {
         persistence: "Low; degrades in weeks.",
         biodegradability: "Biodegradable.",
         aquaticToxicity: "Very toxic to aquatic life.",
-      },
-      fun: {
-        history: "The MCI/MI blend (Kathon CG) was introduced around 1980; when MI alone was allowed at higher levels in the 2000s, allergy rates surged.",
-        uses: ["Preserving paints and adhesives", "Industrial water treatment"],
-        occurrence: "Synthetic.",
       },
     },
   },
@@ -900,12 +598,6 @@ export const BEAUTY: SeedIngredient[] = [
     },
     profile: {
       function: "Thickens and stabilizes emulsions and conditions skin and hair.",
-      reactions: [
-        item("Fatty acid hydrogenation", "Methyl esters of plant fatty acids are hydrogenated to fatty alcohols.", "RCOOCH3 + 2 H2 → RCH2OH + CH3OH"),
-      ],
-      mechanisms: [
-        item("Lamellar gel networks", "With emulsifiers it forms layered gel structures that trap water and give creams body."),
-      ],
       regulatory: [
         reg("Cosmetic Ingredient Review", "Safe as used."),
         reg("U.S. FDA", "Permitted as an indirect and direct food additive in specific uses."),
@@ -914,26 +606,13 @@ export const BEAUTY: SeedIngredient[] = [
         mechanism: "Very low toxicity; not absorbed meaningfully.",
         dosage: "Creams use about 1–5%.",
       },
-      sensitization: "Rare contact allergy, sometimes from impurities.",
       myths: [
         myth("All alcohols in skincare dry out skin.", "Fatty alcohols are waxy emollients unrelated to ethanol's solvent action."),
       ],
-      synthesis: {
-        method: "Semi-synthetic, from coconut or palm oil fatty acids.",
-        steps: [
-          "Fatty acids or methyl esters are hydrogenated over a copper catalyst.",
-          "C16 and C18 fractions are blended.",
-        ],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low.",
-      },
-      fun: {
-        history: "Michel Eugène Chevreul isolated cetyl alcohol from spermaceti (sperm whale oil) in 1817; \"cetyl\" comes from Latin cetus, whale.",
-        uses: ["Candles and crayons", "Lubricant for nuts and bolts"],
-        occurrence: "Plant waxes and, historically, whale oil.",
       },
     },
   },
@@ -959,13 +638,6 @@ export const BEAUTY: SeedIngredient[] = [
     },
     profile: {
       function: "Retains moisture, dissolves flavors and actives, enhances penetration, and lowers the freezing point.",
-      reactions: [
-        item("Hydration of propylene oxide", "Industrial production opens the epoxide ring with water.", "C3H6O + H2O → C3H8O2"),
-        item("Metabolism", "Alcohol dehydrogenase converts it to lactic acid, a normal metabolite."),
-      ],
-      mechanisms: [
-        item("Penetration enhancement", "Temporarily loosens stratum corneum lipids, helping other ingredients penetrate (which can also increase irritation)."),
-      ],
       regulatory: [
         reg("U.S. FDA", "Generally Recognized as Safe.", "21 CFR 184.1666"),
         reg("EFSA", "ADI 25 mg/kg body weight; EU food use limited to carrier roles."),
@@ -975,27 +647,13 @@ export const BEAUTY: SeedIngredient[] = [
         mechanism: "Very high intravenous doses in hospital drug formulations can cause lactic acidosis.",
         dosage: "Cosmetics use 1–20%; foods use small amounts as a carrier.",
       },
-      sensitization: "Irritant reactions are more common than true allergy, especially at high concentrations.",
       myths: [
         myth("Propylene glycol is antifreeze.", "Toxic antifreeze is ethylene glycol; propylene glycol is used in \"pet-safe\" antifreeze because it's far less toxic."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured from propylene; bio-based versions are made from glycerin.",
-        steps: [
-          "Propylene is oxidized to propylene oxide.",
-          "Propylene oxide is hydrated with water.",
-          "The glycol is distilled to USP grade.",
-        ],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low, though large de-icing runoff can deplete oxygen in streams.",
-      },
-      fun: {
-        history: "Charles-Adolphe Wurtz first prepared it in 1859.",
-        uses: ["Theatrical fog", "Aircraft de-icing", "E-cigarette liquids"],
-        occurrence: "Synthetic, though microbes produce it in some fermentations.",
       },
     },
   },
@@ -1020,13 +678,6 @@ export const BEAUTY: SeedIngredient[] = [
     },
     profile: {
       function: "Moisturizes, calms irritation, supports healing, and adds shine to hair.",
-      reactions: [
-        item("Enzymatic oxidation", "In skin, panthenol is oxidized to pantothenic acid (vitamin B5)."),
-      ],
-      mechanisms: [
-        item("Coenzyme A synthesis", "Pantothenic acid is a building block of coenzyme A, needed for lipid synthesis in barrier repair."),
-        item("Fibroblast activation", "Studies show it promotes fibroblast proliferation and wound re-epithelialization."),
-      ],
       regulatory: [
         reg("Cosmetic Ingredient Review", "Safe as used."),
         reg("Europe", "Dexpanthenol ointments are widely approved for minor wounds and diaper rash."),
@@ -1035,26 +686,13 @@ export const BEAUTY: SeedIngredient[] = [
         mechanism: "Essentially non-toxic.",
         dosage: "Cosmetics use 0.5–5%.",
       },
-      sensitization: "Rare contact allergy.",
       myths: [
         myth("Panthenol makes hair grow thicker.", "It coats and hydrates hair, making it look fuller, but it doesn't increase hair growth."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured.",
-        steps: [
-          "D-pantolactone is prepared and resolved.",
-          "It is condensed with 3-aminopropanol to form D-panthenol.",
-        ],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low.",
-      },
-      fun: {
-        history: "Roger J. Williams discovered pantothenic acid in 1933, naming it from Greek \"pantothen\", meaning \"from everywhere\".",
-        uses: ["Nasal sprays", "Wound-healing ointments"],
-        occurrence: "Pantothenic acid is found in nearly all foods.",
       },
     },
   },
@@ -1080,12 +718,6 @@ export const BEAUTY: SeedIngredient[] = [
     },
     profile: {
       function: "Soothes, hydrates, and provides a cooling feel in after-sun and sensitive-skin products.",
-      reactions: [
-        item("Polysaccharide film", "Acemannan forms a hydrating, film-forming layer on skin."),
-      ],
-      mechanisms: [
-        item("Anti-inflammatory activity", "Compounds in aloe gel may reduce inflammatory mediators and support wound healing; clinical evidence is mixed."),
-      ],
       regulatory: [
         reg("IARC (2015)", "Whole-leaf aloe extract (non-decolorized) is Group 2B, possibly carcinogenic, based on a rat drinking-water study."),
         reg("U.S. FDA (2002)", "Removed aloe as an approved OTC laxative ingredient."),
@@ -1095,27 +727,13 @@ export const BEAUTY: SeedIngredient[] = [
         mechanism: "Aloin and other anthraquinones in the leaf's outer layer are laxatives and caused intestinal tumors in rats.",
         dosage: "Cosmetic grades are decolorized with aloin typically below 50 ppm.",
       },
-      sensitization: "Rare allergy, more common in people allergic to lily-family plants.",
       myths: [
         myth("Aloe heals burns completely.", "It can soothe minor sunburn, but evidence for faster healing is mixed, and it shouldn't be used on serious burns."),
       ],
-      synthesis: {
-        method: "Naturally extracted.",
-        steps: [
-          "Leaves are harvested and the outer rind (containing aloin) is removed.",
-          "The inner gel is filleted, homogenized and filtered.",
-          "Activated charcoal decolorization removes remaining anthraquinones.",
-        ],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low.",
-      },
-      fun: {
-        history: "Aloe appears in the Egyptian Ebers Papyrus (about 1550 BCE) as a remedy.",
-        uses: ["Drinks and yogurts", "After-sun gels"],
-        occurrence: "Aloe barbadensis Miller, native to the Arabian Peninsula.",
       },
     },
   },
@@ -1141,12 +759,6 @@ export const BEAUTY: SeedIngredient[] = [
     },
     profile: {
       function: "Softens and occludes dry skin, adds richness to balms and creams, and conditions hair.",
-      reactions: [
-        item("Saponification", "Like other fats, it reacts with lye to form soap and glycerin."),
-      ],
-      mechanisms: [
-        item("Occlusion and lipid replenishment", "Forms a protective film that reduces water loss; its triterpene esters have anti-inflammatory activity in lab studies."),
-      ],
       regulatory: [
         reg("Cosmetic Ingredient Review", "Safe as used."),
         reg("EU", "Shea is one of six vegetable fats allowed in chocolate up to 5%."),
@@ -1155,28 +767,14 @@ export const BEAUTY: SeedIngredient[] = [
         mechanism: "Non-toxic.",
         dosage: "Balms can be up to 100% shea.",
       },
-      sensitization: "Botanically a tree nut, but refined shea contains negligible protein; allergic reactions are very rare.",
       myths: [
         myth("Shea butter clogs pores.", "It rates low on comedogenicity scales, though very heavy use can feel greasy on oily skin."),
       ],
-      synthesis: {
-        method: "Naturally extracted from shea nuts.",
-        steps: [
-          "Nuts are dried, cracked, roasted and ground.",
-          "The paste is kneaded with water to separate the fat.",
-          "The butter is boiled, filtered and optionally refined and deodorized.",
-        ],
-      },
       environment: {
         persistence: "Low.",
         biodegradability: "Readily biodegradable.",
         aquaticToxicity: "Low.",
         notes: "Shea trees grow wild and are not plantation-farmed; the trade provides income for millions of women in the Sahel.",
-      },
-      fun: {
-        history: "Used for centuries across the Sahel for cooking, medicine and skincare; sometimes called \"women's gold\".",
-        uses: ["Cooking fat in West Africa", "Cocoa butter equivalent in chocolate"],
-        occurrence: "Nuts of the shea tree (Vitellaria paradoxa).",
       },
     },
   },
@@ -1203,12 +801,6 @@ export const BEAUTY: SeedIngredient[] = [
     },
     profile: {
       function: "Binds calcium, magnesium and trace metals to prevent rancidity, color changes and scum, and boosts preservatives and cleaners.",
-      reactions: [
-        item("Chelation", "EDTA wraps around metal ions with six binding sites, forming very stable complexes.", "Ca2+ + H2Y^2- → CaY^2- + 2 H+"),
-      ],
-      mechanisms: [
-        item("Preservative boosting", "Removing metal ions destabilizes bacterial outer membranes, making preservatives more effective."),
-      ],
       regulatory: [
         reg("Cosmetic Ingredient Review", "Safe as used."),
         reg("U.S. FDA", "Calcium disodium EDTA permitted in foods with limits.", "21 CFR 172.120"),
@@ -1218,27 +810,13 @@ export const BEAUTY: SeedIngredient[] = [
         mechanism: "Poorly absorbed through skin or gut; intravenous doses can deplete calcium.",
         dosage: "Cosmetics use 0.05–0.2%.",
       },
-      sensitization: "Rare.",
       myths: [
         myth("EDTA is a penetration enhancer that drags toxins into your body.", "At cosmetic levels it has minimal effect on skin penetration."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured.",
-        steps: [
-          "Ethylenediamine reacts with formaldehyde and sodium cyanide.",
-          "The tetrasodium salt is partially acidified to disodium EDTA and crystallized.",
-        ],
-        equations: ["H2NCH2CH2NH2 + 4 CH2O + 4 NaCN + 4 H2O → Na4EDTA + 4 NH3"],
-      },
       environment: {
         persistence: "Persistent; one of the most abundant synthetic chemicals in European surface waters.",
         biodegradability: "Poorly biodegradable.",
         aquaticToxicity: "Low direct toxicity, but it can remobilize heavy metals from sediments.",
-      },
-      fun: {
-        history: "Ferdinand Münz developed EDTA at IG Farben in 1935 as a citric acid substitute for textile dyeing.",
-        uses: ["Chelation therapy for lead poisoning", "Anticoagulant in lavender-top blood tubes", "Paper and pulp processing"],
-        occurrence: "Synthetic only.",
       },
     },
   },
@@ -1263,13 +841,6 @@ export const BEAUTY: SeedIngredient[] = [
     },
     profile: {
       function: "Absorbs UVB and short-wave UVA radiation in sunscreens and protects products from UV degradation.",
-      reactions: [
-        item("Excited-state proton transfer", "After absorbing UV, an intramolecular hydrogen transfer releases the energy harmlessly as heat."),
-      ],
-      mechanisms: [
-        item("Systemic absorption", "FDA-led trials (2019–2020) found blood levels far above the 0.5 ng/mL threshold that triggers further safety testing."),
-        item("Endocrine activity", "Shows weak estrogenic and anti-androgenic activity in lab and animal studies; human significance is uncertain."),
-      ],
       regulatory: [
         reg("U.S. FDA (2019 proposal)", "Not yet generally recognized as safe and effective; more data requested.", "Up to 6%"),
         reg("EU (2022)", "Restricted.", "6% in face, hand and body products; 0.5% in other products"),
@@ -1279,26 +850,13 @@ export const BEAUTY: SeedIngredient[] = [
         mechanism: "Photoallergic reactions and possible endocrine activity; toxic to coral larvae in laboratory studies.",
         dosage: "Sunscreens use up to 6%; whole-body application leads to measurable absorption.",
       },
-      sensitization: "One of the most common sunscreen photoallergens; benzophenones were the 2014 Allergen of the Year.",
       myths: [
         myth("Because of oxybenzone, sunscreen is more dangerous than sun.", "UV causes skin cancer; mineral or newer filters offer protection without oxybenzone."),
       ],
-      synthesis: {
-        method: "Synthetically manufactured.",
-        steps: [
-          "Resorcinol reacts with benzotrichloride to form 2,4-dihydroxybenzophenone.",
-          "Selective methylation of one hydroxyl group yields oxybenzone.",
-        ],
-      },
       environment: {
         persistence: "Moderately persistent in coastal waters.",
         biodegradability: "Not readily biodegradable.",
         aquaticToxicity: "Toxic to coral larvae and algae in laboratory studies.",
-      },
-      fun: {
-        history: "Used in sunscreens since the 1980s as one of the first broader-spectrum chemical filters.",
-        uses: ["UV stabilizer in plastics and nail polish"],
-        occurrence: "Synthetic.",
       },
     },
   },

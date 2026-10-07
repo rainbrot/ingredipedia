@@ -88,3 +88,25 @@ describe("normalizeKey", () => {
     expect(normalizeKey("Crème Fraîche")).toBe("creme fraiche");
   });
 });
+
+describe("EU functional class prefixes", () => {
+  it("strips class labels like 'emulsifier:' from the ingredient name", () => {
+    const parsed = parseIngredients("Sugar, emulsifier: lecithins (soya), acidity regulator: citric acid, colour: E150d");
+    expect(parsed.map((p) => p.name)).toEqual(["Sugar", "Lecithins", "Citric Acid", "E150d"]);
+    expect(parsed[1].alt).toContain("soya");
+  });
+});
+
+describe("E-numbers", () => {
+  it("keeps standalone E-numbers as ingredients", () => {
+    expect(names("Water, E330, E 202, Sugar")).toEqual(["Water", "E330", "E 202", "Sugar"]);
+  });
+});
+
+describe("British spellings", () => {
+  it("share lookup keys with American ones", () => {
+    expect(normalizeKey("Natural Flavouring")).toBe(normalizeKey("Natural Flavoring"));
+    expect(normalizeKey("Caramel Colour")).toBe("caramel color");
+    expect(normalizeKey("Sodium Lauryl Sulphate")).toBe("sodium lauryl sulfate");
+  });
+});

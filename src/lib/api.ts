@@ -1,7 +1,7 @@
 import { deviceId } from "./device";
 import type {
-  AdminIngredient,
   AppConfig,
+  BarcodeProduct,
   Ingredient,
   IngredientSummary,
   ScanListItem,
@@ -51,7 +51,12 @@ function safeJson(text: string): unknown {
 
 export const api = {
   config: () => request<AppConfig>("/config"),
-  stats: () => request<{ verified: number; pending: number; scans: number }>("/stats"),
+  stats: () => request<{ curated: number; researched: number; preliminary: number; total: number; scans: number }>("/stats"),
+  lexicon: () => request<{ entries: [string, string][] }>("/lexicon"),
+  barcode: (code: string, sector?: Sector) => request<BarcodeProduct>(`/barcode/${encodeURIComponent(code)}${sector ? `?sector=${sector}` : ""}`),
+  myths: () => request<{ items: { ingredientId: string; ingredientName: string; claim: string; consensus: string }[] }>("/learn/myths"),
+  report: (id: string, reason: string) =>
+    request<{ ok: true; requeued: boolean }>(`/ingredients/${encodeURIComponent(id)}/report`, { method: "POST", body: JSON.stringify({ reason }) }),
 
   scans: () => request<{ items: ScanListItem[] }>("/scans"),
   scan: (id: string) => request<ScanResult & { owned: boolean }>(`/scans/${encodeURIComponent(id)}`),
@@ -59,7 +64,7 @@ export const api = {
   deleteScan: (id: string) => request<{ ok: true }>(`/scans/${encodeURIComponent(id)}`, { method: "DELETE" }),
   deleteMyData: () => request<{ deleted: number }>("/me", { method: "DELETE" }),
 
-  ingredients: (params: { q?: string; sector?: Sector; sort?: string; limit?: number; offset?: number }) => {
+  ingredients: (params: { q?: string; sector?: Sector; sort?: string; status?: string; limit?: number; offset?: number }) => {
     const qs = new URLSearchParams();
     for (const [k, v] of Object.entries(params)) if (v !== undefined && v !== "") qs.set(k, String(v));
     return request<{ items: IngredientSummary[]; total: number }>(`/ingredients?${qs}`);
@@ -73,7 +78,10 @@ export const api = {
     }),
 
   /** Streams pipeline progress (newline-delimited JSON) while the label is analyzed. */
-  async analyze(input: { sector: Sector; text: string; name?: string }, onProgress: (p: ScanProgress) => void): Promise<ScanResult> {
+  async analyze(
+    input: { sector: Sector; text: string; name?: string; barcode?: string; imageUrl?: string },
+    onProgress: (p: ScanProgress) => void,
+  ): Promise<ScanResult> {
     let res: Response;
     try {
       res = await fetch("/api/scans", {
@@ -108,57 +116,4 @@ export const api = {
     }
     throw new ApiError(500, "The analysis ended unexpectedly. Please try again.");
   },
-};
-
-// ---------------------------------------------------------------------------
-// Admin
-
-export interface AdminOverview {
-  counts: { verified: number; needs_verification: number };
-  queue: (IngredientSummary & { createdAt: string; scanCount: number; draftModel: string | null })[];
-  jobs: Record<string, number>;
-  ai: {
-    enabled: boolean;
-    model: string;
-    month: { calls: number; inputTokens: number; outputTokens: number; costUsd: number; ingredients: number };
-    allTime: { calls: number; inputTokens: number; outputTokens: number; costUsd: number; ingredients: number };
-    costPerIngredient: number | null;
-  };
-  activeDevices30d: number;
-  totalScans: number;
-  liveClients: number;
-  audit: { id: number; ingredientId: string | null; name: string | null; action: string; detail: string | null; createdAt: string }[];
-}
-
-export interface PubChemCandidate {
-  cid: number;
-  title: string;
-  formula?: string;
-  weight?: number;
-  iupac?: string;
-}
-
-export const adminApi = {
-  login: (passcode: string) => request<{ token: string; expiresAt: number }>("/admin/login", { method: "POST", body: JSON.stringify({ passcode }) }),
-  overview: (t: string) => request<AdminOverview>("/admin/overview", {}, t),
-  list: (t: string, params: { q?: string; status?: string; sort?: string }) => {
-    const qs = new URLSearchParams();
-    for (const [k, v] of Object.entries(params)) if (v) qs.set(k, v);
-    return request<{ items: IngredientSummary[]; total: number }>(`/admin/ingredients?${qs}`, {}, t);
-  },
-  get: (t: string, id: string) => request<AdminIngredient>(`/admin/ingredients/${encodeURIComponent(id)}`, {}, t),
-  update: (t: string, id: string, patch: Partial<Ingredient>) =>
-    request<AdminIngredient>(`/admin/ingredients/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify(patch) }, t),
-  sdf: (t: string, id: string) => request<{ sdf: string; source: string }>(`/admin/ingredients/${encodeURIComponent(id)}/sdf`, {}, t),
-  searchPubChem: (t: string, q: string) => request<{ items: PubChemCandidate[] }>(`/admin/pubchem/search?q=${encodeURIComponent(q)}`, {}, t),
-  setModel: (t: string, id: string, cid: number) =>
-    request<{ ingredient: AdminIngredient; structure: string | null }>(`/admin/ingredients/${encodeURIComponent(id)}/model`, { method: "POST", body: JSON.stringify({ cid }) }, t),
-  uploadSdf: (t: string, id: string, sdf: string) =>
-    request<{ ingredient: AdminIngredient }>(`/admin/ingredients/${encodeURIComponent(id)}/sdf`, { method: "POST", body: JSON.stringify({ sdf }) }, t),
-  approve: (t: string, id: string) => request<AdminIngredient>(`/admin/ingredients/${encodeURIComponent(id)}/approve`, { method: "POST" }, t),
-  unverify: (t: string, id: string) => request<AdminIngredient>(`/admin/ingredients/${encodeURIComponent(id)}/unverify`, { method: "POST" }, t),
-  rerun: (t: string, id: string) => request<AdminIngredient>(`/admin/ingredients/${encodeURIComponent(id)}/rerun`, { method: "POST" }, t),
-  merge: (t: string, id: string, into: string) =>
-    request<{ ok: true; into: string }>(`/admin/ingredients/${encodeURIComponent(id)}/merge`, { method: "POST", body: JSON.stringify({ into }) }, t),
-  reject: (t: string, id: string) => request<{ ok: true }>(`/admin/ingredients/${encodeURIComponent(id)}`, { method: "DELETE" }, t),
 };

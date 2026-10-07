@@ -91,8 +91,23 @@ export function normalizeKey(input: string): string {
     .trim();
   const eNum = s.match(/^(?:e|ins)\s?(\d{3,4}[a-z]?)$/);
   if (eNum) s = `e${eNum[1]}`;
+  // British and European spellings (common on Open Food Facts data) share keys with American ones.
+  for (const [re, us] of BRITISH) s = s.replace(re, us);
   return s;
 }
+
+const BRITISH: [RegExp, string][] = [
+  [/flavour/g, "flavor"],
+  [/colour/g, "color"],
+  [/sulph/g, "sulf"],
+  [/aluminium/g, "aluminum"],
+  [/\bfibre/g, "fiber"],
+  [/stabilis/g, "stabiliz"],
+  [/caramelis/g, "carameliz"],
+  [/pasteuris/g, "pasteuriz"],
+  [/homogenis/g, "homogeniz"],
+  [/\bmaise\b/g, "maize"],
+];
 
 function titleCase(input: string): string {
   const letters = input.replace(/[^A-Za-z]/g, "");
@@ -207,7 +222,12 @@ function cleanName(input: string, organicMarker: string | null): { name: string;
   return { name: s, organic };
 }
 
-function expandToken(token: string, organicMarker: string | null, depth = 0): Candidate[] {
+/** EU-style functional class labels: "emulsifier: lecithins", "acidity regulator: citric acid". */
+const CLASS_PREFIX =
+  /^\s*(?:preservatives?|emulsifiers?|antioxidants?|colou?rs?|colou?rings?|flavou?rings?|thickeners?|thickening agents?|stabili[sz]ers?|acidity regulators?|acidifiers?|acids?|sweeteners?|humectants?|raising agents?|leavening agents?|gelling agents?|glazing agents?|anti-?caking agents?|firming agents?|flour treatment agents?|flavou?r enhancers?)\s*:\s*(?=\S)/i;
+
+function expandToken(rawToken: string, organicMarker: string | null, depth = 0): Candidate[] {
+  const token = rawToken.replace(CLASS_PREFIX, "");
   const { outer, inner, trailing } = splitBrackets(token);
   if (inner !== null && depth < 3) {
     const innerParts = splitTopLevel(inner);
@@ -280,7 +300,8 @@ export function parseIngredients(text: string): ParsedIngredient[] {
       const name = titleCase(cand.name);
       const key = normalizeKey(name);
       const letters = key.replace(/[^a-z]/g, "");
-      if (letters.length < 3 || NOISE.has(key)) continue;
+      const eNumber = /^e ?\d{3,4}[a-z]?$/.test(key);
+      if ((letters.length < 3 && !eNumber) || NOISE.has(key)) continue;
       if (seen.has(key)) continue;
       seen.add(key);
       const alt = [...new Set(cand.alt.map(normalizeKey).filter((a) => a && a !== key && a.replace(/[^a-z]/g, "").length >= 3))];

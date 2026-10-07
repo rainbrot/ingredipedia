@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Database, Info, Lock, ShieldCheck, Trash2, WandSparkles } from "lucide-react";
+import { Database, GraduationCap, Info, Lock, Microscope, ShieldCheck, Trash2 } from "lucide-react";
 import { api } from "../lib/api";
 import { resetDeviceId } from "../lib/device";
+import { resetProgress, useProgress } from "../lib/progress";
 import { getTheme, setTheme, type ThemePref } from "../lib/theme";
 import { useAsync } from "../lib/useAsync";
 import { useToast } from "../components/Toast";
@@ -12,7 +13,8 @@ const DATA_SOURCES = [
   { name: "PubChem (NIH / NCBI)", use: "Chemical identity, properties, GHS hazards, FDA and CIR regulatory data, 2D images and 3D conformers", url: "https://pubchem.ncbi.nlm.nih.gov/" },
   { name: "PubMed E-utilities (NCBI)", use: "Publication counts for the research sort, and peer-reviewed abstracts behind every profile", url: "https://www.ncbi.nlm.nih.gov/books/NBK25501/" },
   { name: "USDA FoodData Central", use: "How many branded U.S. foods list an ingredient", url: "https://fdc.nal.usda.gov/" },
-  { name: "Anthropic Claude (optional)", use: "Basic AI Drafts, grounded extraction from abstracts, and enhanced label reading", url: "https://www.anthropic.com/" },
+  { name: "Open Food, Beauty & Products Facts (ODbL)", use: "Ingredient lists and product photos found by barcode", url: "https://world.openfoodfacts.org/" },
+  { name: "Anthropic Claude (optional)", use: "When configured: richer extraction from abstracts and enhanced label reading. Assay works fully without it.", url: "https://www.anthropic.com/" },
 ];
 
 const LIBRARIES = [
@@ -21,6 +23,7 @@ const LIBRARIES = [
   ["Vite", "MIT", "Build tooling"],
   ["Express", "MIT", "API server"],
   ["Tesseract.js", "Apache-2.0", "On-device OCR (WebAssembly)"],
+  ["ZXing (@zxing/browser)", "Apache-2.0", "Barcode scanning fallback"],
   ["3Dmol.js", "BSD-3-Clause", "Interactive WebGL molecule viewer"],
   ["Zod", "MIT", "Input and AI output validation"],
   ["Anthropic TypeScript SDK", "MIT", "Claude API client"],
@@ -34,6 +37,9 @@ export function AboutPage() {
   const config = useAsync(() => api.config(), []);
   const [theme, setThemeState] = useState<ThemePref>(getTheme());
   const [confirm, setConfirm] = useState(false);
+  const [confirmProgress, setConfirmProgress] = useState(false);
+  const progress = useProgress();
+  const completed = Object.values(progress.lessons).filter((l) => l.completed).length;
 
   const deleteData = async () => {
     try {
@@ -50,8 +56,8 @@ export function AboutPage() {
       <div className="page-head" style={{ marginBottom: 0 }}>
         <h1 className="page-title">About Assay</h1>
         <p className="lede">
-          Ingredient labels are written for regulators, not people. Assay translates them into plain language, rates products on the evidence, and shows its sources so
-          you can check the science yourself, whether an ingredient is harmless or worth avoiding.
+          Ingredient labels are written for regulators, not people. Assay turns them into chemistry you can understand: what each molecule is, how it works, what the
+          evidence says about its safety, and how it's made. Every claim links back to its source.
         </p>
       </div>
 
@@ -83,18 +89,33 @@ export function AboutPage() {
         <hr className="divider" />
         <div className="row-wrap between">
           <div className="row" style={{ alignItems: "flex-start" }}>
-            <WandSparkles width={20} height={20} aria-hidden="true" style={{ color: "var(--draft)", marginTop: 2 }} />
+            <Microscope width={20} height={20} aria-hidden="true" style={{ color: "var(--primary)", marginTop: 2 }} />
             <div>
-              <div style={{ fontWeight: 600 }}>AI pipeline</div>
-              <div className="subtle" style={{ fontSize: "var(--text-sm)" }}>
+              <div style={{ fontWeight: 600 }}>Automatic research</div>
+              <div className="subtle small">
                 {config.data
                   ? config.data.ai
-                    ? `On · drafts and extraction use ${config.data.model}`
-                    : "Off · drafts use an extractive summarizer over PubChem and PubMed text"
+                    ? `On · PubChem and PubMed, with extraction by ${config.data.model}`
+                    : "On · PubChem and PubMed, summarized directly from the source text"
                   : "Checking…"}
               </div>
             </div>
           </div>
+        </div>
+        <hr className="divider" />
+        <div className="row-wrap between">
+          <div className="row" style={{ alignItems: "flex-start" }}>
+            <GraduationCap width={20} height={20} aria-hidden="true" style={{ color: "var(--primary)", marginTop: 2 }} />
+            <div>
+              <div style={{ fontWeight: 600 }}>Learning progress</div>
+              <div className="subtle small">
+                {completed} lessons, {progress.discovered.length} molecules and {progress.myths.answered} Myth or Fact answers, saved on this device.
+              </div>
+            </div>
+          </div>
+          <button className="btn" onClick={() => setConfirmProgress(true)} disabled={!completed && !progress.discovered.length && !progress.myths.answered}>
+            Reset progress
+          </button>
         </div>
         <hr className="divider" />
         <div className="row-wrap between">
@@ -112,38 +133,46 @@ export function AboutPage() {
 
       <section className="stack" aria-labelledby="method-title">
         <h2 id="method-title" className="section-title">
-          How ratings work
+          How Assay works
         </h2>
-        <div className="pf-grid two">
-          <div className="item-card">
-            <h3>Ingredient health scores</h3>
-            <p>
-              Each ingredient gets a 0–100 score for typical consumer use, based on regulatory evaluations (FDA, EFSA, CIR, ECHA), toxicology and the weight of
-              published evidence. The score reflects the dose you'd actually encounter, not a lab worst case.
-            </p>
+        <dl className="method-list">
+          <div>
+            <dt>Ingredient health scores</dt>
+            <dd>
+              Each ingredient gets a 0–100 score for typical consumer use, based on regulatory evaluations (FDA, EFSA, CIR, ECHA), toxicology and the weight of published
+              evidence. The score reflects the dose you'd actually encounter, not a lab worst case.
+            </dd>
           </div>
-          <div className="item-card">
-            <h3>Product ratings</h3>
-            <p>
+          <div>
+            <dt>Product ratings</dt>
+            <dd>
               Ingredients are weighted by label position, since labels list them by amount. Ingredients of concern still count when they appear late in the list,
               certified-organic ingredients earn a small bonus, and long lists of synthetic additives cost a little.
-            </p>
+            </dd>
           </div>
-          <div className="item-card">
-            <h3>Organic vs. artificial</h3>
-            <p>
-              Ingredients labeled organic, or of natural or mineral origin, are grouped separately. Synthetic, fermented and chemically modified ingredients can be
-              sorted by most or least healthy and by most or least researched (PubMed publication count).
-            </p>
+          <div>
+            <dt>Organic vs. artificial</dt>
+            <dd>
+              Ingredients labeled organic, or of natural or mineral origin, are grouped separately. Synthetic, fermented and chemically modified ingredients can be sorted
+              by most or least healthy and by most or least researched (PubMed publication count).
+            </dd>
           </div>
-          <div className="item-card">
-            <h3>Verification</h3>
-            <p>
-              New ingredients get an instant “Basic AI Draft” that only the scanning user sees. After a background literature search, a reviewer fact-checks the draft
-              against its sources, confirms the 3D structure and approves it for everyone.
-            </p>
+          <div>
+            <dt>Automatic research</dt>
+            <dd>
+              No one has to approve a profile before you can read it. <strong>Curated</strong> profiles ship with the app, written with sources. A new ingredient gets an
+              instant <strong>preliminary</strong> profile from chemistry rules and PubChem, then Assay searches PubMed in the background and publishes an{" "}
+              <strong>auto-researched</strong> profile with citations. If something looks wrong, the report button on any profile triggers a fresh research pass.
+            </dd>
           </div>
-        </div>
+          <div>
+            <dt>Evidence levels</dt>
+            <dd>
+              Every mechanism is tagged by how strong its evidence is: well established, human studies, lab and animal studies, or emerging. Learning to tell these apart
+              is part of the point.
+            </dd>
+          </div>
+        </dl>
       </section>
 
       <section className="card card-pad stack" aria-labelledby="privacy-title">
@@ -156,6 +185,8 @@ export function AboutPage() {
         <ul className="prose small" style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 6 }}>
           <li>No accounts, names or emails. Your history is tied to a random ID stored on this device.</li>
           <li>Label photos are read on your device with Tesseract. Images are only uploaded if you turn on enhanced AI reading, and they aren't stored.</li>
+          <li>Barcode lookups send only the barcode number to the open product databases.</li>
+          <li>Lesson progress, quiz scores and your molecule collection never leave this device.</li>
           <li>We store the ingredient text you analyze so your history and shared links work. You can delete it at any time above.</li>
           <li>No ads, trackers or third-party analytics.</li>
         </ul>
@@ -219,22 +250,34 @@ export function AboutPage() {
         <Info aria-hidden="true" />
         <div>
           <strong>Not medical advice.</strong> Assay is an educational tool. Ingredient scores describe typical consumer exposure; if you have allergies, a medical
-          condition or are pregnant, talk to a health professional. <Link to="/admin">Reviewer sign-in</Link>
+          condition or are pregnant, talk to a health professional. Curious about the chemistry? Start with the <Link to="/learn">lessons</Link>.
         </div>
       </div>
 
       <p className="subtle" style={{ fontSize: "var(--text-xs)", textAlign: "center" }}>
-        Assay v1.0
+        Assay v2.0
       </p>
 
       <ConfirmDialog
         open={confirm}
         title="Delete all your data?"
-        body="This permanently removes your scan history from the server. Verified ingredient profiles aren't affected."
+        body="This permanently removes your scan history from the server. Ingredient profiles and your learning progress aren't affected."
         confirmLabel="Delete everything"
         danger
         onConfirm={deleteData}
         onClose={() => setConfirm(false)}
+      />
+      <ConfirmDialog
+        open={confirmProgress}
+        title="Reset learning progress?"
+        body="Completed lessons, quiz scores, your molecule collection and Myth or Fact streaks on this device will be cleared."
+        confirmLabel="Reset progress"
+        danger
+        onConfirm={() => {
+          resetProgress();
+          toast("Learning progress reset.", "info");
+        }}
+        onClose={() => setConfirmProgress(false)}
       />
     </div>
   );

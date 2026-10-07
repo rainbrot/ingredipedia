@@ -1,44 +1,71 @@
-import { lazy, Suspense } from "react";
+import { lazy, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { ToastProvider } from "./components/Toast";
 import { HomePage } from "./pages/Home";
-import { ScanPage } from "./pages/Scan";
-import { ProductPage } from "./pages/Product";
-import { IngredientPage } from "./pages/Ingredient";
-import { LibraryPage } from "./pages/Library";
-import { HistoryPage } from "./pages/History";
-import { AboutPage } from "./pages/About";
 import { NotFoundPage } from "./pages/NotFound";
 
-// The review dashboard is only needed by admins, so it's split into its own bundle.
-const AdminPage = lazy(() => import("./pages/Admin"));
+// Every page but Home is its own chunk, so the first visit downloads less. Once the app is idle the
+// chunks are fetched anyway, which lets the service worker cache them for offline lessons.
+const pages = {
+  scan: () => import("./pages/Scan"),
+  product: () => import("./pages/Product"),
+  ingredient: () => import("./pages/Ingredient"),
+  learn: () => import("./pages/Learn"),
+  lesson: () => import("./pages/Lesson"),
+  myths: () => import("./pages/MythGame"),
+  glossary: () => import("./pages/Glossary"),
+  collection: () => import("./pages/Collection"),
+  library: () => import("./pages/Library"),
+  history: () => import("./pages/History"),
+  about: () => import("./pages/About"),
+};
+
+const ScanPage = lazy(() => pages.scan().then((m) => ({ default: m.ScanPage })));
+const ProductPage = lazy(() => pages.product().then((m) => ({ default: m.ProductPage })));
+const IngredientPage = lazy(() => pages.ingredient().then((m) => ({ default: m.IngredientPage })));
+const LearnPage = lazy(() => pages.learn().then((m) => ({ default: m.LearnPage })));
+const LessonPage = lazy(() => pages.lesson().then((m) => ({ default: m.LessonPage })));
+const MythGamePage = lazy(() => pages.myths().then((m) => ({ default: m.MythGamePage })));
+const GlossaryPage = lazy(() => pages.glossary().then((m) => ({ default: m.GlossaryPage })));
+const CollectionPage = lazy(() => pages.collection().then((m) => ({ default: m.CollectionPage })));
+const LibraryPage = lazy(() => pages.library().then((m) => ({ default: m.LibraryPage })));
+const HistoryPage = lazy(() => pages.history().then((m) => ({ default: m.HistoryPage })));
+const AboutPage = lazy(() => pages.about().then((m) => ({ default: m.AboutPage })));
 
 export function App() {
+  useEffect(() => {
+    const prefetch = () => Object.values(pages).forEach((load) => void load().catch(() => undefined));
+    // Safari has no requestIdleCallback; a short timeout is close enough there.
+    if (typeof window.requestIdleCallback === "function") {
+      const id = window.requestIdleCallback(prefetch, { timeout: 4000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const t = setTimeout(prefetch, 2500);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
-    <ToastProvider>
-      <BrowserRouter>
+    <BrowserRouter>
+      <ToastProvider>
         <Routes>
           <Route element={<Layout />}>
             <Route index element={<HomePage />} />
             <Route path="scan" element={<ScanPage />} />
             <Route path="product/:id" element={<ProductPage />} />
             <Route path="ingredient/:id" element={<IngredientPage />} />
+            <Route path="learn" element={<LearnPage />} />
+            <Route path="learn/myths" element={<MythGamePage />} />
+            <Route path="learn/glossary" element={<GlossaryPage />} />
+            <Route path="learn/collection" element={<CollectionPage />} />
+            <Route path="learn/:id" element={<LessonPage />} />
             <Route path="library" element={<LibraryPage />} />
             <Route path="history" element={<HistoryPage />} />
             <Route path="about" element={<AboutPage />} />
-            <Route
-              path="admin"
-              element={
-                <Suspense fallback={<div className="empty"><span className="spinner" aria-label="Loading" /></div>}>
-                  <AdminPage />
-                </Suspense>
-              }
-            />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
-      </BrowserRouter>
-    </ToastProvider>
+      </ToastProvider>
+    </BrowserRouter>
   );
 }

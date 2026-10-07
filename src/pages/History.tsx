@@ -6,7 +6,7 @@ import { relativeDate } from "../lib/format";
 import { useAsync } from "../lib/useAsync";
 import { useToast } from "../components/Toast";
 import { ConfirmDialog, EmptyState, ErrorState, GradeLabel, RowSkeleton, ScorePill } from "../components/ui";
-import { SECTOR_ICON } from "./Home";
+import { SECTOR_ICON } from "../components/sectorIcon";
 
 export function HistoryPage() {
   const toast = useToast();
@@ -34,7 +34,7 @@ export function HistoryPage() {
     <div className="fade-up">
       <div className="page-head">
         <h1 className="page-title">Scan history</h1>
-        <p className="lede">Products you've scanned on this device. Scores update automatically as new ingredient profiles are verified.</p>
+        <p className="lede">Products you've scanned on this device. Scores update automatically as research on new ingredients finishes.</p>
       </div>
 
       {(data?.items.length ?? 0) > 4 && (
@@ -73,7 +73,7 @@ export function HistoryPage() {
               return (
                 <li key={s.id} className="row" style={{ gap: 0, borderTop: index ? "1px solid var(--line)" : 0 }}>
                   <Link to={`/product/${s.id}`} className="ing-row grow" style={{ borderTop: 0 }}>
-                    <ScorePill score={s.score} />
+                    {s.imageUrl ? <img className="scan-thumb" src={s.imageUrl} alt="" loading="lazy" /> : <ScorePill score={s.score} />}
                     <div className="grow">
                       <div className="name">{s.name}</div>
                       <div className="meta">
@@ -82,6 +82,12 @@ export function HistoryPage() {
                         <span className="sep" aria-hidden="true" />
                         <span>{relativeDate(s.createdAt)}</span>
                         <span className="sep" aria-hidden="true" />
+                        {s.imageUrl && (
+                          <>
+                            <span className="tabular">{s.score}</span>
+                            <span aria-hidden="true">·</span>
+                          </>
+                        )}
                         <GradeLabel score={s.score} />
                       </div>
                     </div>

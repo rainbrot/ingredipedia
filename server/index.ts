@@ -1,11 +1,11 @@
 import express from "express";
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { adminRouter } from "./routes/admin";
 import { publicRouter } from "./routes/public";
 import { aiEnabled, AI_MODEL } from "./services/ai";
 import { startWorker } from "./services/pipeline";
 import { loadSeedIfEmpty } from "./seed/load";
+import * as repo from "./repo";
 
 // In development the API runs beside Vite on API_PORT; in production one server uses PORT.
 const PORT = Number(
@@ -22,7 +22,6 @@ app.use((_req, res, next) => {
   next();
 });
 
-app.use("/api/admin", adminRouter);
 app.use("/api", publicRouter);
 app.use("/api", (_req, res) => res.status(404).json({ error: "Not found" }));
 
@@ -42,11 +41,11 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
 });
 
 const seeded = loadSeedIfEmpty();
+repo.reindexAliases();
 startWorker();
 
 app.listen(PORT, () => {
   console.log(`Assay API listening on http://localhost:${PORT}`);
-  if (seeded) console.log(`Loaded ${seeded} verified ingredient profiles into the database`);
+  if (seeded) console.log(`Loaded ${seeded} curated ingredient profiles into the database`);
   console.log(aiEnabled() ? `AI pipeline enabled (${AI_MODEL})` : "AI pipeline off: using extractive drafts (set ANTHROPIC_API_KEY to enable)");
-  if (!process.env.ADMIN_PASSCODE) console.log("Admin dashboard disabled: set ADMIN_PASSCODE in .env");
 });
