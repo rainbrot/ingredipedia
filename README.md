@@ -1,12 +1,10 @@
-# Ingredipedia: every label is a chemistry lesson
+# Ingredipedia:
 
-**Scan the food, skincare and cleaning products you already own. Ingredipedia identifies every ingredient, shows you the
-molecule, explains what it does in the product and in your body, scores the product out of 100, and turns it all
-into lessons, quizzes and a molecule collection.**
+**Ingredipedia allows for scanning of food, cosmetic, and cleaning products. It isolates each ingredient, shows you the molecule, explains what it does in the product and in your body, scores the product out of 100, and turns it all into lessons, quizzes and a molecule collection. It's a learning suite that you can access with just a scan.**
 
-Built for students and classrooms. It's an installable web app (PWA) that runs on phones, tablets and desktops from
-one codebase. It works without accounts, API keys or human moderators: profiles that aren't in the curated library
-are researched and published automatically from PubChem and PubMed, with citations.
+It's an installable web app (PWA) built for students and teachers that runs on phones, tablets and desktops from one codebase. It works without accounts, API keys or human moderators.
+
+Profiles not already on the platform are researched and published automatically from PubChem and PubMed, with citations.
 
 ---
 
@@ -156,9 +154,7 @@ Data: PubChem (NIH/NCBI), PubMed via NCBI E-utilities, USDA FoodData Central, Op
 Open Products Facts (ODbL), and FDA/CIR/JECFA/EPA regulatory data as republished by PubChem.
 
 Libraries: React, React Router, Vite, Express, Tesseract.js (Apache-2.0), ZXing (Apache-2.0), 3Dmol.js
-(BSD-3-Clause), Zod, Anthropic TypeScript SDK, Lucide icons (ISC), Fontsource (Newsreader, IBM Plex; OFL-1.1). The
+(BSD-3-Clause), Zod, Lucide icons (ISC), Fontsource (Newsreader, IBM Plex; OFL-1.1). The
 full list with licenses is in the in-app About page.
-
-Development note: this project was built with AI assistance (Claude Code).
 
 Ingredipedia provides educational information, not medical advice.
