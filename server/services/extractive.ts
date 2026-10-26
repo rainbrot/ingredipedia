@@ -183,7 +183,7 @@ export function extractiveBasicDraft(name: string, sector: Sector, facts: Facts)
     scoreRationale: rationale,
     summary: description
       ? firstSentences(description, 2)
-      : `${displayName} is listed on this label as ${role === "Ingredient" ? "an ingredient" : `a ${role.toLowerCase()}`}. Assay is searching PubChem and PubMed for more, and this profile updates automatically.`,
+      : `${displayName} is listed on this label as ${role === "Ingredient" ? "an ingredient" : `a ${role.toLowerCase()}`}. Ingredipedia is searching PubChem and PubMed for more, and this profile updates automatically.`,
     productFunction: role === "Ingredient" ? "Function not yet identified." : `Used as a ${role.toLowerCase()}.`,
     sensitization: facts.ghs.hCodes.includes("H317")
       ? "Classified as a potential skin sensitizer (GHS H317) in concentrated form."
@@ -288,100 +288,142 @@ const GHS_HAZARDS: { codes: RegExp; title: string; summary: string; chemical: st
   {
     codes: /^H314/,
     title: "Corrosive when concentrated",
-    summary: "The concentrated chemical can burn skin and eyes; the diluted amount in a finished product is far lower.",
-    chemical: "Strongly acidic or alkaline substances shift the local pH far from neutral. Acids hydrolyze and denature proteins; bases additionally saponify (break apart) the fatty lipids that hold cell membranes together.",
-    biological: "Acid burns cause coagulative necrosis, which forms a crust that limits depth. Alkali burns cause liquefactive necrosis, which keeps penetrating, so they are often deeper, especially in the eye.",
+    summary:
+      "In its pure, concentrated form this chemical can burn skin and eyes on contact. That warning comes from tests on the raw material that factory workers handle, not on the finished product, where it is usually diluted many times over. Dilution matters because corrosion depends on concentration: a strong solution destroys tissue in seconds, while a weak one may do nothing noticeable. Spills of the concentrated substance should be rinsed off with plenty of water straight away. In a consumer product, the realistic risk is mostly from splashing a strong cleaner into the eyes.",
+    chemical:
+      "Corrosive substances are usually strong acids or strong bases, which push the pH of whatever they touch far away from neutral 7. pH is a scale of how acidic or basic a solution is: low numbers are acidic, high numbers are basic. Acids release hydrogen ions that break the weak bonds holding proteins in their folded shapes, a process called denaturing, much like heat turns a clear egg white solid. Bases do the same to proteins and also attack fats. They split the fatty molecules in cell membranes in a reaction called saponification, the same chemistry used to make soap from oil and lye. Once the membrane that wraps each cell breaks down, the cell cannot survive.",
+    biological:
+      "Skin is built from layers of cells, and a corrosive chemical kills them faster than the body can protect itself. Acid burns cause what doctors call coagulative necrosis: the dead proteins clump into a tough crust that slows the acid from going deeper. Alkali (base) burns cause liquefactive necrosis, in which tissue softens and turns to a kind of paste, so the base keeps soaking further in. That is why alkali burns are often deeper and more dangerous, especially in the eye, where they can cloud the cornea permanently. The first aid for both is the same: rinse with running water for at least 15 minutes to dilute and wash the chemical away.",
   },
   {
     codes: /^H31[59]/,
     title: "Skin and eye irritant",
-    summary: "Direct contact with the concentrated chemical can redden skin or sting the eyes.",
-    chemical: "Irritants dissolve or disrupt the lipids and proteins of the outer skin barrier (stratum corneum) or the tear film and corneal surface.",
-    biological: "Damaged surface cells release inflammatory signals (cytokines), causing redness, swelling and stinging. Unlike an allergy, irritation does not involve immune memory and stops when exposure ends.",
+    summary:
+      "Direct contact with the concentrated chemical can make skin red and itchy or make eyes sting and water. Irritation is a local, short-lived reaction, and it fades once the substance is washed off. The warning is based on the pure substance; finished products contain much less, and many are tested on volunteers before sale. People with sensitive skin or eczema are more likely to notice it. Rinsing with water is usually all that is needed.",
+    chemical:
+      "The outermost layer of skin, the stratum corneum, is like a brick wall: flat dead cells are the bricks and a mixture of fats called lipids is the mortar. Irritants either dissolve some of that fatty mortar or bind to and loosen the proteins in the bricks. Molecules with a water-loving end and an oil-loving end, such as detergents, are especially good at pulling lipids out. In the eye, irritants disturb the thin tear film and the surface cells of the cornea in a similar way. Once the barrier has gaps, the chemical and water can move through it more easily than normal.",
+    biological:
+      "When surface cells are damaged they release chemical alarm signals called cytokines. These signals widen nearby blood vessels and draw immune cells to the area, which is why irritated skin turns red, feels warm and may swell. Nerve endings in the skin and eye are also triggered, producing stinging or itching. Unlike an allergy, irritation does not involve the immune system remembering the chemical, so it does not get worse with each exposure. It stops when the exposure ends and the skin rebuilds its barrier over a few days.",
   },
   {
     codes: /^H318/,
     title: "Serious eye damage",
-    summary: "Concentrated splashes can injure the cornea, so goggles are recommended when handling the raw chemical.",
-    chemical: "The substance reacts with or denatures proteins in the corneal epithelium and can penetrate deeper layers of the eye.",
-    biological: "Corneal cells die and the clear tissue can scar or cloud, which is why eye-damage classifications call for immediate rinsing for at least 15 minutes.",
+    summary:
+      "A splash of the concentrated chemical can injure the clear front surface of the eye, called the cornea. This is why safety goggles are recommended when people handle the raw material in factories or labs. Finished products contain far lower amounts, but sprays and strong cleaners can still hurt if they reach the eyes. The longer the chemical stays in contact, the worse the injury. Rinsing immediately and for a long time is the most important thing to do.",
+    chemical:
+      "The cornea is a thin, transparent layer of tightly packed cells and protein fibers, and its transparency depends on those proteins staying in a precise, orderly arrangement. A damaging chemical reacts with these proteins or denatures them, meaning it makes them lose their folded shape. Some substances also dissolve the fatty membranes around the surface cells. Small or highly reactive molecules can pass through the outer layer and reach deeper parts of the eye. The more concentrated the chemical and the longer it sits there, the further it penetrates.",
+    biological:
+      "Corneal cells that are damaged die and must be replaced. If only the surface layer is hurt, it can regrow within days. Deeper injuries can leave scars, and scar tissue is cloudy rather than clear, which can blur vision permanently. The eye responds with pain, tearing and redness as nerves and blood vessels react to the injury. This is why eye-damage warnings tell people to rinse with clean water for at least 15 minutes and seek medical care.",
   },
   {
     codes: /^H317/,
     title: "Skin sensitizer (allergic contact dermatitis)",
-    summary: "Repeated contact can teach the immune system to react to this chemical, causing an itchy rash on later exposures.",
-    chemical: "Small, reactive molecules (or their oxidation products) cross the skin barrier and act as haptens: they bond covalently to the skin's own proteins, creating altered proteins the body has never seen.",
-    biological: "Langerhans cells carry the altered proteins to lymph nodes and train T cells to recognize them. On the next exposure those T cells trigger a delayed (Type IV) immune reaction 24–72 hours later: redness, itching and blistering.",
+    summary:
+      "Repeated contact can teach the immune system to treat this chemical as an enemy, so that later exposures cause an itchy rash. This is called sensitization, and it is different from simple irritation because it involves immune memory. Most people never become sensitized, but once someone is, even tiny amounts can trigger a reaction for years. That is why regulators limit the concentration of known sensitizers in leave-on products like lotions. Patch testing by a dermatologist can show whether someone is allergic.",
+    chemical:
+      "Sensitizers are usually small, chemically reactive molecules, or molecules that become reactive after reacting with oxygen in the air. They are small enough to slip through the skin's outer barrier. Once inside, they form covalent bonds (strong bonds made by sharing electrons) with the skin's own proteins, often at sulfur or nitrogen atoms. A molecule that works this way is called a hapten: on its own it is too small for the immune system to notice, but attached to a protein it creates a new shape the body has never seen before. That altered protein is what the immune system learns to recognize.",
+    biological:
+      "Special immune cells in the skin, called Langerhans cells, pick up the altered proteins and carry them to nearby lymph nodes. There they show the new shape to T cells, a type of white blood cell, which then multiply and remember it. This first stage causes no symptoms. On a later exposure the memory T cells recognize the shape and release signals that cause inflammation one to three days afterward, which is why doctors call it a delayed or Type IV reaction. The result is red, itchy, sometimes blistering skin wherever the chemical touched.",
   },
   {
     codes: /^H334/,
     title: "Respiratory sensitizer",
-    summary: "Breathing in dust or mist of the raw material can cause allergy or asthma in workers handling it.",
-    chemical: "Inhaled particles or proteins are recognized as foreign by the immune system lining the airways.",
-    biological: "The body produces IgE antibodies; later exposures release histamine and other mediators that constrict the airways, producing wheezing and asthma-like symptoms.",
+    summary:
+      "Breathing in dust or mist of the raw material can cause an allergy or asthma in workers who handle it regularly. The concern is mainly occupational, in factories where large quantities are processed, rather than for people using finished products. Once someone is sensitized, small amounts in the air can set off breathing problems. That is why workplaces use ventilation, enclosed equipment and masks. Consumer products are usually designed so the substance is not released as fine dust.",
+    chemical:
+      "When a fine powder or mist is inhaled, particles land on the moist lining of the nose, throat and lungs. Some of these substances are proteins, like the enzymes in detergents, and some are small reactive molecules that bind to the body's own proteins. Either way, the immune system meets a large molecule it does not recognize. Particles small enough to travel deep into the airways have the greatest effect. The more often and the more heavily someone breathes the substance in, the more likely the immune system is to respond.",
+    biological:
+      "In respiratory allergy the body makes antibodies called IgE that are specific to the substance. These antibodies sit on mast cells, immune cells packed with chemical messengers, that line the airways. On later exposures the substance links neighboring antibodies together, and the mast cells burst open and release histamine and other signals. These make the smooth muscle around the airways tighten and the lining swell and produce mucus. The result is sneezing, wheezing, a tight chest or a full asthma attack.",
   },
   {
     codes: /^H33[05]|^H332/,
     title: "Respiratory irritation",
-    summary: "Vapors or dust of the concentrated chemical can irritate the nose, throat and lungs.",
-    chemical: "Reactive vapors and particles dissolve in the moist lining of the airways, changing local pH or reacting with surface proteins.",
-    biological: "Irritated mucous membranes trigger coughing, sneezing and airway narrowing, a protective reflex that stops once you reach fresh air.",
+    summary:
+      "Vapors or dust from the concentrated chemical can irritate the nose, throat and lungs. This mostly matters when the pure substance is handled in bulk or used in a small room without fresh air. Symptoms usually go away soon after moving to fresh air. Using strong cleaners with a window open, and never mixing them, prevents most problems at home. The warning describes the raw material, not a normal amount of a finished product.",
+    chemical:
+      "Gases and fine particles that we breathe in dissolve in the thin layer of moisture that coats the inside of the airways. Once dissolved, some form acids or bases that change the local pH, while others react directly with the proteins and fats of the cells lining the airway. Very water-soluble gases, such as ammonia, dissolve high up in the nose and throat. Less soluble ones travel deeper into the lungs before reacting. The concentration in the air and how long someone breathes it both determine how much reaches the tissue.",
+    biological:
+      "The lining of the airways is packed with nerve endings that act as an early-warning system. When they detect an irritant, they trigger reflexes: sneezing and coughing to push it out, and a slight tightening of the airways to keep more from getting in. The irritated cells also release signals that bring extra blood flow and mucus, which can feel like a burning or sore throat. In people with asthma these reflexes are stronger, so they notice irritants sooner. Once exposure stops, the reflexes calm down and the lining heals.",
   },
   {
     codes: /^H304/,
     title: "Aspiration hazard",
-    summary: "Swallowing the concentrated liquid is dangerous mainly because it can slip into the lungs.",
-    chemical: "Low-viscosity, low-surface-tension liquids (often hydrocarbons) spread easily over wet surfaces.",
-    biological: "If swallowed and then choked on or vomited, the liquid can enter the airways and dissolve the lung's surfactant, the film that keeps air sacs open, causing chemical pneumonitis.",
+    summary:
+      "The main danger of swallowing the concentrated liquid is not poisoning but the risk that it slips into the lungs. This can happen if someone, especially a young child, chokes or vomits after swallowing it. That is why bottles of these liquids say not to induce vomiting and to call a poison center. The warning applies to the concentrated liquid, often an oil or solvent. It is one reason such products need child-resistant caps.",
+    chemical:
+      "Liquids that cause aspiration hazards are usually thin and slippery, with low viscosity (they flow easily) and low surface tension (they spread out instead of forming beads). Many are hydrocarbons, molecules made of only carbon and hydrogen, such as those in lamp oil or some solvents. Because they spread so easily over wet surfaces, a small amount can coat a large area very quickly. They also dissolve fatty substances well. Those two properties together are what make them dangerous inside the lungs.",
+    biological:
+      "The tiny air sacs in the lungs, called alveoli, stay open thanks to a thin film called lung surfactant, a natural soapy mixture of fats and proteins. If an oily liquid gets into the airways, it spreads over the air sacs and dissolves or disrupts this film. Without it, the air sacs collapse and fill with fluid, and the lungs struggle to absorb oxygen. The inflammation that follows is called chemical pneumonitis. It can be serious even when only a small amount was inhaled.",
   },
   {
     codes: /^H30[012]|^H31[012]/,
     title: "Harmful if swallowed or absorbed in large amounts",
-    summary: "Acute toxicity is measured with the dose that would harm a test animal; it applies to the concentrated chemical, not trace amounts.",
-    chemical: "Toxicologists rank acute toxicity by the LD50: the dose per kilogram of body weight that is lethal to half of test animals. A lower LD50 means a more toxic substance.",
-    biological: "Effects depend on how much reaches the bloodstream and which organs process it. The amounts in consumer products are typically a small fraction of a toxic dose.",
+    summary:
+      "This warning means a large enough dose of the pure substance can make a person or animal seriously ill. It is measured in laboratory tests on the concentrated chemical, so it says nothing by itself about the small amounts in a finished product. Almost everything, including salt and water, is harmful at a high enough dose. What matters is how the amount you actually meet compares with the amount that causes harm. Products should still be kept away from small children, who weigh less and are more affected by a given amount.",
+    chemical:
+      "Toxicologists compare how poisonous substances are using a number called the LD50, which stands for 'lethal dose for 50 percent.' It is the amount, in milligrams per kilogram of body weight, that killed half of the test animals in a standard experiment. A lower LD50 means a more toxic substance, because less of it is needed to cause harm. Dividing by body weight lets scientists compare animals of different sizes and estimate effects in people. How a molecule actually causes harm depends on its chemistry, for example whether it blocks an enzyme or damages cell membranes.",
+    biological:
+      "After a substance is swallowed or soaks through the skin, it has to reach the bloodstream before it can affect most organs. The liver then works to break it down, and the kidneys work to remove it in urine. If the dose is small, these systems clear it before it builds up. If the dose is large, the body's clean-up systems can be overwhelmed, and the substance or its breakdown products can damage the organs that handle it. The amounts in consumer products are usually a small fraction of a harmful dose.",
   },
   {
     codes: /^H34[01]/,
     title: "Genetic toxicity flag",
-    summary: "Laboratory tests suggest the pure substance may damage DNA at high doses.",
-    chemical: "Mutagens chemically modify DNA bases (for example by adding alkyl groups or generating reactive oxygen species), causing copying errors.",
-    biological: "If cells cannot repair the damage, mutations can accumulate. Regulators set exposure limits far below the doses that show effects in tests.",
+    summary:
+      "Laboratory tests suggest that the pure substance may damage DNA, the molecule that stores genetic instructions, at high doses. This is a hazard flag based on tests that often use concentrations far above what a person would encounter. Regulators take it seriously by setting exposure limits with large safety margins. A positive lab test does not mean the substance causes harm at everyday levels. Further studies are used to judge whether the effect matters in real life.",
+    chemical:
+      "DNA is a long molecule built from four chemical 'letters' called bases, and their order spells out the instructions for building proteins. A mutagen is a substance that chemically changes those letters. Some mutagens attach small groups of atoms, such as methyl or ethyl groups, to a base, which is called alkylation. Others produce reactive oxygen species, unstable forms of oxygen that tear electrons away from DNA. Either way, the altered base can be misread when the cell copies its DNA, so the wrong letter gets inserted.",
+    biological:
+      "Cells constantly check and repair their DNA, and most damage is fixed before it causes problems. If the damage is too great or is missed, the copying error becomes a permanent mutation, passed on each time the cell divides. Most mutations are harmless, but a few can change how a cell controls its growth. Over many years, an accumulation of such mutations can contribute to cancer. This is why regulators set exposure limits far below the doses that cause effects in tests.",
   },
   {
     codes: /^H35[01]/,
     title: "Carcinogenicity classification",
-    summary: "This is a hazard label: it says the substance can cause cancer under some conditions, not that normal use carries meaningful risk.",
-    chemical: "Carcinogens act either by damaging DNA directly or by promoting cell growth and chronic inflammation over long periods.",
-    biological: "Risk depends on dose, route and duration. Hazard (can it cause harm?) and risk (will it, at this exposure?) are different questions.",
+    summary:
+      "This label means the substance can cause cancer under some conditions, usually at high doses or after long exposure. It is a statement about hazard, meaning what the substance is capable of, not about risk, meaning how likely harm is from normal use. Sunlight and alcoholic drinks carry the same kind of label. Regulators combine this classification with information about how much people are actually exposed to before setting limits. For many substances with this label, everyday exposure is far below the level of concern.",
+    chemical:
+      "Substances can contribute to cancer in two broad ways. Genotoxic carcinogens damage DNA directly, either by reacting with it or by being converted in the body into molecules that do. Non-genotoxic carcinogens do not touch DNA themselves; instead they push cells to divide more often, for example by causing long-lasting irritation or by acting like a hormone. Every cell division is a chance for a copying mistake, so more divisions mean more chances for errors. Which route a substance follows affects whether there is a 'safe' dose below which no extra risk is expected.",
+    biological:
+      "Cancer develops when a cell gathers several mutations that switch off its normal growth controls, so it keeps dividing when it should stop. This usually takes years and needs many separate changes, which is why dose and length of exposure matter so much. The body also has defenses: DNA repair, cells that self-destruct when badly damaged, and immune cells that remove abnormal ones. Hazard asks 'can it cause harm?', while risk asks 'will it, at this exposure?' The two can have very different answers.",
   },
   {
     codes: /^H36[0-2]/,
     title: "Reproductive toxicity flag",
-    summary: "High-dose animal studies of the pure substance raised concerns about fertility or development.",
-    chemical: "Some substances interfere with hormone signaling or with rapidly dividing cells in developing tissue.",
-    biological: "Effects seen at high doses in animals guide the safety margins regulators set for human exposure.",
+    summary:
+      "High-dose studies of the pure substance in animals raised concerns about effects on fertility or on a developing baby. These studies deliberately use large doses to find any possible effect. Regulators use the results to set limits that keep human exposure far below those levels. Pregnant people are often advised to be more cautious, because development before birth is especially sensitive. The flag describes the concentrated chemical, not a typical product.",
+    chemical:
+      "Some substances interfere with hormones, the chemical messengers that control growth, puberty and reproduction. They may have a shape similar enough to a natural hormone to fit its receptor, the protein 'lock' that hormones bind to, either switching it on or blocking it. Others interfere with rapidly dividing cells, which developing tissues have in large numbers. Molecules that easily cross biological barriers, such as the placenta, are more likely to reach a developing baby. Dose and timing both decide whether any effect happens.",
+    biological:
+      "During pregnancy, organs form in a precise sequence, and each one has a window when it is most sensitive. A substance that disturbs cell division or hormone signals during that window can change how the organ develops. In adults, similar disturbances can affect sperm production or the menstrual cycle. Effects seen at high doses in animals are used to calculate safety margins for people. Exposure limits are typically set at least 100 times below the dose with no observed effect.",
   },
   {
     codes: /^H37[0-3]/,
     title: "Organ toxicity with heavy exposure",
-    summary: "Large or repeated exposures to the concentrated chemical can affect specific organs.",
-    chemical: "The substance or its metabolites accumulate in, or are processed by, particular organs such as the liver or kidneys.",
-    biological: "Sustained high exposure can overwhelm the organ's capacity to detoxify, causing damage that occupational limits are designed to prevent.",
+    summary:
+      "Large or repeated exposure to the concentrated chemical can harm specific organs, such as the liver, kidneys or nervous system. The concern is mainly for workers who handle the pure substance every day, or for accidental poisoning. Workplace limits are set to keep exposure well below harmful levels. Consumer products contain far smaller amounts used for short periods. Following label directions keeps exposure in the safe range.",
+    chemical:
+      "When a substance enters the body, it travels in the blood and is processed by particular organs. The liver uses enzymes to change foreign molecules into forms that are easier to excrete; sometimes this step produces a more reactive product that does damage. The kidneys filter the blood and can concentrate substances as they make urine. Fat-soluble molecules can collect in fatty tissue or the brain. Where a substance ends up depends on its size, its solubility and how the body processes it.",
+    biological:
+      "Each organ can safely handle a certain amount of a foreign substance. With heavy or long-term exposure, that capacity can be overwhelmed, and cells in the organ begin to be damaged faster than they can be repaired. In the liver this can show up as inflammation; in the kidneys as reduced filtering; in the nervous system as headaches or dizziness. Many of these effects improve when exposure stops, but some can be lasting. This is what occupational exposure limits are designed to prevent.",
   },
   {
     codes: /^H22[4-6]/,
     title: "Flammable",
-    summary: "The liquid or its vapor can catch fire, so store it away from heat and flames.",
-    chemical: "A low flash point means enough vapor forms at room temperature to ignite; combustion rapidly oxidizes C–H bonds into carbon dioxide and water, releasing heat.",
-    biological: "The main danger is burns and fire rather than toxicity.",
+    summary:
+      "The liquid, or the vapor that rises from it, can catch fire. That is why it should be stored away from heat, sparks and open flames, and why aerosol cans warn against spraying near a flame. The danger is burns and fire, not poisoning. Keeping the container closed reduces the amount of vapor in the air. Products containing flammable solvents, such as some hand sanitizers and hairsprays, carry this warning.",
+    chemical:
+      "Liquids do not burn as liquids; their vapor does. The flash point is the lowest temperature at which a liquid gives off enough vapor to ignite when a flame is nearby. A flammable liquid has a flash point near or below room temperature, so there is always some vapor above it. When that vapor meets a spark, its molecules react rapidly with oxygen in a process called combustion. The carbon–hydrogen bonds are broken and rebuilt as carbon dioxide and water, releasing a lot of energy as heat and light.",
+    biological:
+      "The harm from a flammable substance comes from fire rather than from its chemistry inside the body. Burns damage skin by heating its proteins until they lose their shape, which kills the cells. Breathing in hot gases or smoke can also injure the airways. Vapors that build up in a closed room can ignite all at once, which is why ventilation matters. Storing these products correctly removes almost all of the risk.",
   },
   {
     codes: /^H4(00|10|11|12)/,
     title: "Toxic to aquatic life",
-    summary: "Large releases into waterways can harm fish and invertebrates, which is why disposal is regulated.",
-    chemical: "Hydrophobic or surface-active molecules partition out of water and into the fatty membranes of gills and other tissues.",
-    biological: "Accumulating in membranes disrupts their structure and function, impairing breathing and cell integrity in aquatic organisms.",
+    summary:
+      "If large amounts reach rivers, lakes or the sea, this substance can harm fish, insects and other water life. That is why factories must treat their wastewater and why disposal is regulated. Small amounts that go down a home drain usually pass through a wastewater treatment plant, which removes or breaks down much of it. The concern grows if the substance breaks down slowly and builds up over time. Using products in the recommended amounts helps keep releases low.",
+    chemical:
+      "Many substances that harm aquatic life are hydrophobic, meaning 'water-fearing': they do not dissolve well in water and prefer to move into fatty environments. Others are surfactants, molecules with one end that likes water and another that likes oil. In a river, both kinds tend to leave the water and move into the fatty membranes of living things, especially the thin, delicate membranes of fish gills. Scientists measure this tendency with a number called the partition coefficient. The higher it is, the more the substance concentrates in living tissue.",
+    biological:
+      "Gills are where fish absorb oxygen from water, so their membranes must stay thin and intact. When foreign molecules build up in those membranes, the membranes become leaky or stiff, and oxygen exchange suffers. Small water creatures, such as water fleas, are often even more sensitive and are used as an early-warning test. Substances that persist can build up through the food chain, reaching higher levels in animals that eat contaminated prey. Regulators classify aquatic toxicity using the concentration that harms half of the test organisms.",
   },
 ];
 
@@ -444,8 +486,11 @@ export function extractiveProfile(name: string, docs: SourceDoc[], facts: Facts)
   for (const s of [...(moa ? sentencesOf([moa]) : []), ...papers]) bySource.set(s.source, [...(bySource.get(s.source) ?? []), s]);
   for (const [source, sentences] of bySource) {
     if (mechanisms.length >= 3) break;
-    const chem = pick(sentences, RE.molecular, 1, nameRe, used)[0];
-    const bio = pick(sentences, RE.biological, 1, nameRe, used)[0];
+    // Up to three sentences per scale, so each reads as a paragraph rather than a single line.
+    const chemAll = pick(sentences, RE.molecular, 3, nameRe, used);
+    const bioAll = pick(sentences, RE.biological, 3, nameRe, used);
+    const chem = chemAll.length ? { ...chemAll[0], text: chemAll.map((x) => x.text).join(" ") } : undefined;
+    const bio = bioAll.length ? { ...bioAll[0], text: bioAll.map((x) => x.text).join(" ") } : undefined;
     // A finding only counts if it is actually about this ingredient: named in the sentences (or by the
     // abbreviation the abstract defines for it) or in the paper's title.
     if (!chem && !bio) continue;
@@ -453,8 +498,7 @@ export function extractiveProfile(name: string, docs: SourceDoc[], facts: Facts)
     const abbr = docMeta?.text.match(new RegExp(`${nameRe.source}\\w*\\s*\\(([A-Z][A-Za-z0-9-]{1,7})\\)`, "i"))?.[1];
     const about = (t: string) => nameRe.test(t) || (!!abbr && new RegExp(`\\b${abbr}\\b`).test(t));
     if (!about(`${chem?.text ?? ""} ${bio?.text ?? ""}`) && !nameRe.test(docMeta?.title ?? "")) {
-      if (chem) used.delete(chem.text);
-      if (bio) used.delete(bio.text);
+      for (const x of [...chemAll, ...bioAll]) used.delete(x.text);
       continue;
     }
     const doc = docs.find((d) => d.id === source);
@@ -517,8 +561,8 @@ export function extractiveProfile(name: string, docs: SourceDoc[], facts: Facts)
     ? [
         {
           title: "Industrial manufacturing",
-          summary: firstSentences(manufacturing[0].text, 1, 300),
-          mechanism: firstSentences(manufacturing[0].text, 3, 700),
+          summary: firstSentences(manufacturing[0].text, 2, 420),
+          mechanism: firstSentences(manufacturing[0].text, 6, 1200),
           steps: manufacturing.slice(1, 4).map((e) => firstSentences(e.text, 1, 300)),
           equation: null,
           significance: "Summarized automatically from PubChem's manufacturing records.",

@@ -1,6 +1,6 @@
-# Assay: every label is a chemistry lesson
+# Ingredipedia: every label is a chemistry lesson
 
-**Scan the food, skincare and cleaning products you already own. Assay identifies every ingredient, shows you the
+**Scan the food, skincare and cleaning products you already own. Ingredipedia identifies every ingredient, shows you the
 molecule, explains what it does in the product and in your body, scores the product out of 100, and turns it all
 into lessons, quizzes and a molecule collection.**
 
@@ -132,7 +132,7 @@ Scripts: `npm run dev`, `npm run build`, `npm start`, `npm test`, `npm run typec
 `npm run seed` (rebuild `data/seed.json` from PubChem/PubMed), `npm run seed -- --content` (rebuild from the content
 files offline), `npm run seed -- --load` (reload the database from `data/seed.json`).
 
-- **Storage:** Node's built-in SQLite (`data/assay.db`), plain SQL that ports directly to PostgreSQL.
+- **Storage:** Node's built-in SQLite (`data/ingredipedia.db`), plain SQL that ports directly to PostgreSQL.
 - **Resilience:** per-host rate limiters, retries, a PubMed circuit breaker, durable jobs that resume after restart,
   and automatic evidence backfill.
 - **Privacy:** no accounts; history is keyed to a random device ID; photos are read on-device; barcode lookups send
@@ -161,4 +161,4 @@ full list with licenses is in the in-app About page.
 
 Development note: this project was built with AI assistance (Claude Code).
 
-Assay provides educational information, not medical advice.
+Ingredipedia provides educational information, not medical advice.

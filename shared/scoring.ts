@@ -140,7 +140,7 @@ export function scoreProduct(items: ScanItem[], sector: Sector, productName?: st
   }
   if (preliminary > 0) {
     sentences.push(
-      `${preliminary} ingredient${preliminary === 1 ? " is" : "s are"} new to Assay and still being researched automatically, so this rating may shift as their profiles fill in.`,
+      `${preliminary} ingredient${preliminary === 1 ? " is" : "s are"} new to Ingredipedia and still being researched automatically, so this rating may shift as their profiles fill in.`,
     );
   }
 

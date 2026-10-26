@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Database, GraduationCap, Info, Lock, Microscope, ShieldCheck, Trash2 } from "lucide-react";
 import { api } from "../lib/api";
 import { resetDeviceId } from "../lib/device";
 import { resetProgress, useProgress } from "../lib/progress";
@@ -14,7 +13,7 @@ const DATA_SOURCES = [
   { name: "PubMed E-utilities (NCBI)", use: "Publication counts for the research sort, and peer-reviewed abstracts behind every profile", url: "https://www.ncbi.nlm.nih.gov/books/NBK25501/" },
   { name: "USDA FoodData Central", use: "How many branded U.S. foods list an ingredient", url: "https://fdc.nal.usda.gov/" },
   { name: "Open Food, Beauty & Products Facts (ODbL)", use: "Ingredient lists and product photos found by barcode", url: "https://world.openfoodfacts.org/" },
-  { name: "Anthropic Claude (optional)", use: "When configured: richer extraction from abstracts and enhanced label reading. Assay works fully without it.", url: "https://www.anthropic.com/" },
+  { name: "Anthropic Claude (optional)", use: "When configured: richer extraction from abstracts and enhanced label reading. Ingredipedia works fully without it.", url: "https://www.anthropic.com/" },
 ];
 
 const LIBRARIES = [
@@ -54,9 +53,9 @@ export function AboutPage() {
   return (
     <div className="stack-lg fade-up">
       <div className="page-head" style={{ marginBottom: 0 }}>
-        <h1 className="page-title">About Assay</h1>
+        <h1 className="page-title">About Ingredipedia</h1>
         <p className="lede">
-          Ingredient labels are written for regulators, not people. Assay turns them into chemistry you can understand: what each molecule is, how it works, what the
+          Ingredient labels are written for regulators, not people. Ingredipedia turns them into chemistry you can understand: what each molecule is, how it works, what the
           evidence says about its safety, and how it's made. Every claim links back to its source.
         </p>
       </div>
@@ -89,7 +88,6 @@ export function AboutPage() {
         <hr className="divider" />
         <div className="row-wrap between">
           <div className="row" style={{ alignItems: "flex-start" }}>
-            <Microscope width={20} height={20} aria-hidden="true" style={{ color: "var(--primary)", marginTop: 2 }} />
             <div>
               <div style={{ fontWeight: 600 }}>Automatic research</div>
               <div className="subtle small">
@@ -105,7 +103,6 @@ export function AboutPage() {
         <hr className="divider" />
         <div className="row-wrap between">
           <div className="row" style={{ alignItems: "flex-start" }}>
-            <GraduationCap width={20} height={20} aria-hidden="true" style={{ color: "var(--primary)", marginTop: 2 }} />
             <div>
               <div style={{ fontWeight: 600 }}>Learning progress</div>
               <div className="subtle small">
@@ -126,14 +123,14 @@ export function AboutPage() {
             </div>
           </div>
           <button className="btn btn-danger" onClick={() => setConfirm(true)}>
-            <Trash2 aria-hidden="true" /> Delete my data
+            Delete my data
           </button>
         </div>
       </section>
 
       <section className="stack" aria-labelledby="method-title">
         <h2 id="method-title" className="section-title">
-          How Assay works
+          How Ingredipedia works
         </h2>
         <dl className="method-list">
           <div>
@@ -161,7 +158,7 @@ export function AboutPage() {
             <dt>Automatic research</dt>
             <dd>
               No one has to approve a profile before you can read it. <strong>Curated</strong> profiles ship with the app, written with sources. A new ingredient gets an
-              instant <strong>preliminary</strong> profile from chemistry rules and PubChem, then Assay searches PubMed in the background and publishes an{" "}
+              instant <strong>preliminary</strong> profile from chemistry rules and PubChem, then Ingredipedia searches PubMed in the background and publishes an{" "}
               <strong>auto-researched</strong> profile with citations. If something looks wrong, the report button on any profile triggers a fresh research pass.
             </dd>
           </div>
@@ -177,7 +174,6 @@ export function AboutPage() {
 
       <section className="card card-pad stack" aria-labelledby="privacy-title">
         <div className="row">
-          <Lock width={20} height={20} aria-hidden="true" style={{ color: "var(--primary)" }} />
           <h2 id="privacy-title" className="section-title">
             Privacy
           </h2>
@@ -194,7 +190,6 @@ export function AboutPage() {
 
       <section className="stack" aria-labelledby="sources-title">
         <div className="row">
-          <Database width={20} height={20} aria-hidden="true" style={{ color: "var(--primary)" }} />
           <h2 id="sources-title" className="section-title">
             Data sources
           </h2>
@@ -217,7 +212,6 @@ export function AboutPage() {
 
       <section className="stack" aria-labelledby="oss-title">
         <div className="row">
-          <ShieldCheck width={20} height={20} aria-hidden="true" style={{ color: "var(--primary)" }} />
           <h2 id="oss-title" className="section-title">
             Open-source acknowledgments
           </h2>
@@ -247,15 +241,14 @@ export function AboutPage() {
       </section>
 
       <div className="callout">
-        <Info aria-hidden="true" />
         <div>
-          <strong>Not medical advice.</strong> Assay is an educational tool. Ingredient scores describe typical consumer exposure; if you have allergies, a medical
+          <strong>Not medical advice.</strong> Ingredipedia is an educational tool. Ingredient scores describe typical consumer exposure; if you have allergies, a medical
           condition or are pregnant, talk to a health professional. Curious about the chemistry? Start with the <Link to="/learn">lessons</Link>.
         </div>
       </div>
 
       <p className="subtle" style={{ fontSize: "var(--text-xs)", textAlign: "center" }}>
-        Assay v2.0
+        Ingredipedia v2.0
       </p>
 
       <ConfirmDialog

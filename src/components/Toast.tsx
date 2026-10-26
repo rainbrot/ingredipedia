@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
-import { BadgeCheck, CircleAlert, Info, X } from "lucide-react";
+import { X } from "lucide-react";
 
 type ToastKind = "success" | "info" | "error";
 interface ToastItem {
@@ -26,8 +26,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       <div className="toasts" role="status" aria-live="polite">
         {items.map((t) => (
-          <div key={t.id} className="toast">
-            {t.kind === "success" ? <BadgeCheck aria-hidden="true" /> : t.kind === "error" ? <CircleAlert aria-hidden="true" /> : <Info aria-hidden="true" />}
+          <div key={t.id} className="toast" data-kind={t.kind}>
             <div className="grow">{t.text}</div>
             <button onClick={() => dismiss(t.id)} aria-label="Dismiss notification">
               <X width={16} height={16} aria-hidden="true" />

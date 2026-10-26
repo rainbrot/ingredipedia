@@ -1,8 +1,8 @@
 {
-  "name": "assay",
+  "name": "ingredipedia",
   "version": "1.0.0",
   "private": true,
-  "description": "Assay — scan any ingredient label and understand the science behind every ingredient.",
+  "description": "Ingredipedia — scan any ingredient label and understand the science behind every ingredient.",
   "type": "module",
   "engines": {
     "node": ">=22.13"

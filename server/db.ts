@@ -5,10 +5,10 @@ import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
 
-const DATA_DIR = path.resolve(process.env.ASSAY_DATA_DIR ?? "data");
+const DATA_DIR = path.resolve(process.env.INGREDIPEDIA_DATA_DIR ?? "data");
 mkdirSync(DATA_DIR, { recursive: true });
 
-export const DB_PATH = path.join(DATA_DIR, process.env.ASSAY_DB ?? "assay.db");
+export const DB_PATH = path.join(DATA_DIR, process.env.INGREDIPEDIA_DB ?? "ingredipedia.db");
 
 export const db = new DatabaseSync(DB_PATH);
 

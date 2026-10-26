@@ -1,12 +1,11 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, GraduationCap, Scale, ScanLine } from "lucide-react";
 import { api } from "../lib/api";
 import { relativeDate } from "../lib/format";
 import { useProgress } from "../lib/progress";
 import { useAsync } from "../lib/useAsync";
 import { LESSONS } from "../learn/lessons";
 import { Formula, ScorePill, Skeleton } from "../components/ui";
-import { SECTOR_ICON } from "../components/sectorIcon";
+import { SECTORS } from "../../shared/types";
 
 /** Same molecule for everyone on a given day. */
 function dayIndex(n: number) {
@@ -31,28 +30,30 @@ export function HomePage() {
   const mol = molecule.data;
 
   return (
-    <div className="home fade-up">
+    <div className="home">
       <section className="hero" aria-labelledby="hero-title">
         <div>
           <h1 id="hero-title">
-            Every label is a <em>chemistry lesson.</em>
+            The encyclopedia of what's <em>in</em> your food, skincare and cleaning products.
           </h1>
           <p className="lede">
-            Scan the food, skincare and cleaning products you already own. Assay identifies every ingredient, shows you the molecule, explains what it does in the
-            product and in your body, and backs it all with published research.
+            Scan a label and Ingredipedia looks up every ingredient: what the molecule is, why it was added, how it works in the product and in your body, and
+            what published research says about it. Each entry is written so that someone who has never taken chemistry can follow it, and every claim is cited.
           </p>
           <div className="hero-actions">
             <Link to="/scan" className="btn btn-primary btn-lg">
-              <ScanLine aria-hidden="true" /> Scan a product
+              Scan a label
             </Link>
-            <Link to="/learn" className="btn btn-lg">
-              <GraduationCap aria-hidden="true" /> Start learning
+            <Link to="/library" className="inline-link">
+              Browse all ingredients →
+            </Link>
+            <Link to="/learn" className="inline-link">
+              Start a lesson →
             </Link>
           </div>
         </div>
-        <div className="hero-art" aria-hidden="true">
+        <figure className="hero-art" aria-label="Example: an annotated moisturizer label" style={{ margin: 0 }}>
           <div className="label-specimen">
-            <span className="scanline" />
             <p>
               <strong>Ingredients:</strong> <mark className="tone-excellent">Water</mark>, <mark className="tone-excellent">Glycerin</mark>,{" "}
               <mark className="tone-good">Cetearyl Alcohol</mark>, <mark className="tone-excellent">Niacinamide</mark>, <mark className="tone-excellent">Shea Butter*</mark>,{" "}
@@ -60,52 +61,20 @@ export function HomePage() {
             </p>
             <div className="specimen-callout">
               <span className="sc-name">Methylisothiazolinone</span>
-              <span className="sc-text">Reacts with sulfur atoms in skin proteins, which is how it triggers allergies.</span>
+              <span className="sc-text">A preservative that reacts with sulfur atoms in skin proteins, which is how it can trigger allergies.</span>
             </div>
-            <div className="row" style={{ marginTop: 18, gap: 14 }}>
-              <ScorePill score={71} />
-              <div>
-                <div style={{ fontWeight: 600, color: "var(--ink)" }}>Good · 71/100</div>
-                <div className="subtle small">2 watch-outs · 1 certified organic</div>
-              </div>
-            </div>
+            <p className="specimen-caption">Fig. 1. A moisturizer label as Ingredipedia reads it. Rated 71 out of 100: two ingredients to watch, one certified organic.</p>
           </div>
-        </div>
+        </figure>
       </section>
 
       <div className="home-duo">
-        <section className="continue" aria-labelledby="continue-title">
-          <h2 id="continue-title" className="section-title">
-            {done === 0 ? "Start learning" : done === LESSONS.length ? "All lessons complete" : "Continue learning"}
-          </h2>
-          <div className="lp-bar" role="img" aria-label={`${done} of ${LESSONS.length} lessons complete`}>
-            {LESSONS.map((l) => (
-              <span key={l.id} data-on={!!progress.lessons[l.id]?.completed} />
-            ))}
-          </div>
-          <Link to={`/learn/${next.id}`} className="continue-card">
-            <span className="grow">
-              <strong>{next.title}</strong>
-              <span>{next.summary}</span>
-              <span className="lesson-meta">
-                <span>{next.level}</span>
-                <span className="sep" aria-hidden="true" />
-                <span className="tabular">{next.minutes} min</span>
-              </span>
-            </span>
-            <ArrowRight aria-hidden="true" />
-          </Link>
-          <Link to="/learn/myths" className="inline-link">
-            <Scale aria-hidden="true" /> Play Myth or Fact
-          </Link>
-        </section>
-
         <section className="motd" aria-labelledby="motd-title">
           <h2 id="motd-title" className="section-title">
-            Molecule of the day
+            Today's molecule
           </h2>
           {molecule.loading && !mol ? (
-            <Skeleton h={220} r={18} />
+            <Skeleton h={160} />
           ) : mol ? (
             <Link to={`/ingredient/${mol.id}`} className="motd-card">
               <span className="motd-art">
@@ -120,11 +89,33 @@ export function HomePage() {
                 )}
                 <span className="motd-text">{mol.profile?.overview?.[0] ?? mol.summary}</span>
                 <span className="inline-link">
-                  {progress.discovered.includes(mol.id) ? "Revisit" : "Discover"} {mol.name} <ArrowRight aria-hidden="true" />
+                  {progress.discovered.includes(mol.id) ? "Read again" : "Read the full entry"} →
                 </span>
               </span>
             </Link>
           ) : null}
+        </section>
+
+        <section className="continue" aria-labelledby="continue-title">
+          <h2 id="continue-title" className="section-title">
+            {done === 0 ? "Start learning" : done === LESSONS.length ? "All lessons complete" : "Continue learning"}
+          </h2>
+          <Link to={`/learn/${next.id}`} className="continue-card">
+            <span className="grow">
+              <strong>{next.title}</strong>
+              <span>{next.summary}</span>
+              <span className="lesson-meta">
+                <span>{next.level}</span>
+                <span className="tabular">{next.minutes} min</span>
+                <span className="tabular">
+                  {done} of {LESSONS.length} lessons done
+                </span>
+              </span>
+            </span>
+          </Link>
+          <Link to="/learn/myths" className="inline-link">
+            Or test yourself with Myth or Fact →
+          </Link>
         </section>
       </div>
 
@@ -132,28 +123,25 @@ export function HomePage() {
         <section aria-labelledby="recent-title">
           <div className="section-head">
             <h2 id="recent-title" className="section-title">
-              Recent scans
+              Your recent scans
             </h2>
-            <Link to="/history" className="btn btn-ghost btn-sm">
-              All history <ArrowRight aria-hidden="true" />
+            <Link to="/history" className="inline-link">
+              All history →
             </Link>
           </div>
           <div className="scan-grid">
-            {recent.map((s) => {
-              const Icon = SECTOR_ICON[s.sector];
-              return (
-                <Link key={s.id} to={`/product/${s.id}`} className="scan-card">
-                  {s.imageUrl ? <img className="scan-thumb" src={s.imageUrl} alt="" loading="lazy" /> : <ScorePill score={s.score} />}
-                  <div className="grow">
-                    <div className="title">{s.name}</div>
-                    <div className="subtle row small" style={{ gap: 6 }}>
-                      <Icon width={14} height={14} aria-hidden="true" /> {s.itemCount} ingredients · {relativeDate(s.createdAt)}
-                    </div>
+            {recent.map((s) => (
+              <Link key={s.id} to={`/product/${s.id}`} className="scan-card">
+                {s.imageUrl && <img className="scan-thumb" src={s.imageUrl} alt="" loading="lazy" />}
+                <div className="grow">
+                  <div className="title">{s.name}</div>
+                  <div className="subtle small" style={{ fontFamily: "var(--font-sans)", fontSize: "var(--text-sm)" }}>
+                    {SECTORS.find((x) => x.id === s.sector)?.label} · {s.itemCount} ingredients · {relativeDate(s.createdAt)}
                   </div>
-                  {s.imageUrl && <ScorePill score={s.score} size="sm" />}
-                </Link>
-              );
-            })}
+                </div>
+                <ScorePill score={s.score} />
+              </Link>
+            ))}
           </div>
         </section>
       )}
@@ -161,13 +149,13 @@ export function HomePage() {
       <section aria-labelledby="how-title">
         <div className="section-head">
           <h2 id="how-title" className="section-title">
-            How Assay works
+            How Ingredipedia works
           </h2>
         </div>
         <ol className="steps">
           <li>
             <h3>Scan</h3>
-            <p>Scan a barcode or photograph the label. Text recognition runs on your device and corrects misreads against a vocabulary of known ingredients.</p>
+            <p>Scan a barcode or photograph the label. Text recognition runs on your device and corrects misread words against a list of known ingredients.</p>
           </li>
           <li>
             <h3>Identify</h3>
@@ -175,11 +163,11 @@ export function HomePage() {
           </li>
           <li>
             <h3>Research</h3>
-            <p>New ingredients get an instant profile, then Assay automatically searches PubChem and PubMed and publishes what it finds, with citations.</p>
+            <p>New ingredients get a first draft at once. Ingredipedia then searches PubChem and PubMed automatically and publishes what it finds, with citations.</p>
           </li>
           <li>
             <h3>Learn</h3>
-            <p>Every profile explains mechanisms at the chemical and biological scale, links to lessons, and adds the molecule to your collection.</p>
+            <p>Every entry explains the chemistry and the biology in plain language, links to lessons, and adds the molecule to your collection.</p>
           </li>
         </ol>
       </section>

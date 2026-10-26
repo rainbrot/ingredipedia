@@ -30,7 +30,7 @@ export function MoleculeViewer({ src, sdf, label }: { src?: string; sdf?: string
         let data = sdf;
         let source = "";
         if (!data && src) {
-          const res = await fetch(src, { headers: { "X-Assay-Device": localStorage.getItem("assay.device") ?? "" } });
+          const res = await fetch(src, { headers: { "X-Ingredipedia-Device": localStorage.getItem("ingredipedia.device") ?? "" } });
           if (res.status === 404) {
             if (!cancelled) setState("missing");
             return;

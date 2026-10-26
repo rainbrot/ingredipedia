@@ -28,7 +28,7 @@ export function aiEnabled(): boolean {
 
 let client: Anthropic | null = null;
 function getClient(): Anthropic {
-  client ??= new Anthropic({ maxRetries: 2, timeout: 60_000 });
+  client ??= new Anthropic({ maxRetries: 2, timeout: 180_000 }); // long-form extraction can take over a minute
   return client;
 }
 
@@ -132,8 +132,8 @@ export const ExtractionSchema = z.object({
   mechanisms: z.array(
     z.object({
       title: z.string(),
-      chemical: z.string().describe("What happens at the molecular scale"),
-      biological: z.string().describe("What that means for cells, tissues or the body"),
+      chemical: z.string().describe("A full paragraph (5-7 sentences) on what happens at the molecular scale, defining each chemistry term as it appears"),
+      biological: z.string().describe("A full paragraph (5-7 sentences) on what that means for cells, tissues or the body, step by step"),
       evidence: z.enum(["established", "human", "lab", "emerging"]),
       sources: z.array(z.string()),
     }),
@@ -141,23 +141,32 @@ export const ExtractionSchema = z.object({
   reactions: z.array(
     z.object({
       title: z.string(),
-      summary: z.string(),
-      steps: z.array(z.object({ name: z.string(), text: z.string() })).describe("Mechanism steps in order, e.g. initiation, propagation"),
+      summary: z.string().describe("A full paragraph (5-7 sentences): what the reaction is, where a student would meet it, and what drives it"),
+      steps: z
+        .array(z.object({ name: z.string(), text: z.string().describe("Two or three sentences explaining this step and why it happens") }))
+        .describe("Mechanism steps in order, e.g. initiation, propagation"),
       equation: z.string().nullable().describe("Balanced equation using plain formulas, e.g. 'C6H8O7 + 3 NaHCO3 → Na3C6H5O7 + 3 H2O + 3 CO2'"),
-      result: z.string().describe("The practical outcome a student would notice"),
+      result: z.string().describe("Two to four sentences on the practical outcome a student would notice and why it matters"),
       sources: z.array(z.string()),
     }),
   ),
   regulatory: z.array(z.object({ body: z.string(), status: z.string(), limit: z.string().nullable() })),
-  hazards: z.array(z.object({ title: z.string(), summary: z.string(), chemical: z.string(), biological: z.string() })),
+  hazards: z.array(
+    z.object({
+      title: z.string(),
+      summary: z.string().describe("A paragraph (4-6 sentences) on who could be affected, at what dose or exposure, and how likely it is"),
+      chemical: z.string().describe("A full paragraph on the chemical cause, defining each term"),
+      biological: z.string().describe("A full paragraph on the biological effect, step by step"),
+    }),
+  ),
   dosage: z.string().describe("Safe consumer-use concentrations versus high-dose or occupational exposure"),
   myths: z.array(z.object({ claim: z.string(), consensus: z.string() })),
   environment: z.object({ persistence: z.string(), biodegradability: z.string(), aquaticToxicity: z.string() }),
   synthesis: z.array(
     z.object({
       title: z.string().describe("e.g. 'Biological synthesis', 'Chemical synthesis', 'Industrial manufacturing'"),
-      summary: z.string(),
-      mechanism: z.string(),
+      summary: z.string().describe("A paragraph (4-6 sentences) on where this route is used and why"),
+      mechanism: z.string().describe("A full paragraph (5-7 sentences) explaining the chemistry of the route for a beginner"),
       steps: z.array(z.string()),
       equation: z.string().nullable(),
       significance: z.string(),
@@ -179,8 +188,8 @@ export async function groundedExtraction(input: { name: string; identity: string
   try {
     const response = await getClient().messages.parse({
       model: AI_MODEL,
-      max_tokens: 6000,
-      system: `You write an educational ingredient profile for a chemistry-learning app used by high-school students. It is published automatically, so accuracy matters more than completeness.
+      max_tokens: 16000,
+      system: `You write an educational encyclopedia entry about an ingredient for high-school students who have never studied chemistry. It is published automatically, so accuracy matters more than completeness.
 
 Grounding rule: mechanisms, reactions, hazards and dosage must be supported by the documents provided. Cite supporting document ids in each item's sources.
 If the documents do not support something, leave that list empty rather than guessing.
@@ -190,6 +199,9 @@ If the documents do not support something, leave that list empty rather than gue
 - Hazards pair the chemical mechanism with the biological effect, and must distinguish the pure chemical from the amount in a product.
 - Regulatory entries may use statements found in the documents (FDA, CIR, ECHA, EFSA, EPA Safer Choice).
 - overview, synthesis, environment, myths and physical properties may use well-established chemistry when the documents are silent; list each such field name in unsupportedFields.
+- Length and depth: every mechanism scale, reaction summary, hazard field and synthesis mechanism is a full paragraph of five to seven sentences, never one or two.
+  Assume the reader knows no chemistry. Define each technical word in plain language the first time it appears (for example, "an enzyme, a protein that speeds up one particular reaction"),
+  explain why each step happens rather than only what happens, and use one concrete everyday comparison where it genuinely helps.
 - Write for curious 15-year-olds: precise, vivid, calm, no hype, no fearmongering.`,
       messages: [
         {

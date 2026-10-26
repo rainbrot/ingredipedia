@@ -4,6 +4,6 @@ export default defineConfig({
   test: {
     include: ["tests/**/*.test.ts"],
     environment: "node",
-    env: { ASSAY_DATA_DIR: "data/test", ASSAY_DB: "test.db" },
+    env: { INGREDIPEDIA_DATA_DIR: "data/test", INGREDIPEDIA_DB: "test.db" },
   },
 });

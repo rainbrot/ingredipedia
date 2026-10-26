@@ -195,9 +195,9 @@ export const LESSONS: Lesson[] = [
         ],
       },
       {
-        title: "Why Assay still shows origin",
+        title: "Why Ingredipedia still shows origin",
         body: [
-          "Origin matters for other reasons: farming practices, environmental impact and how heavily a food is processed. Assay separates organic and natural ingredients so you can see a product's makeup, while each health score is based on evidence about the molecule itself.",
+          "Origin matters for other reasons: farming practices, environmental impact and how heavily a food is processed. Ingredipedia separates organic and natural ingredients so you can see a product's makeup, while each health score is based on evidence about the molecule itself.",
         ],
       },
     ],
@@ -598,7 +598,7 @@ export const LESSONS: Lesson[] = [
         title: "Reading a scary headline",
         body: [
           "Ask: Was it a cell, animal or human study? What dose was used compared with real exposure? Is it one study or a consistent body of evidence? Has it been replicated?",
-          "Assay labels every mechanism with its evidence level so you can practice on real ingredients.",
+          "Ingredipedia labels every mechanism with its evidence level so you can practice on real ingredients.",
         ],
       },
     ],

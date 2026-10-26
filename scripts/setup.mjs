@@ -1,4 +1,4 @@
-// Creates .env from .env.example (never overwrites an existing .env). No secrets are required to run Assay.
+// Creates .env from .env.example (never overwrites an existing .env). No secrets are required to run Ingredipedia.
 import { copyFileSync, existsSync } from "node:fs";
 
 if (existsSync(".env")) {

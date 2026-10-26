@@ -3,27 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Assay — Ingredient Scanner</title>
+    <title>Ingredipedia</title>
     <meta name="description" content="Scan any food, beauty or cleaning label to get a 0–100 health rating and the peer-reviewed science behind every ingredient." />
-    <meta name="theme-color" content="#F6F5F1" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0E1113" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#F7F5EF" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#151614" media="(prefers-color-scheme: dark)" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="Assay" />
-    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <meta name="apple-mobile-web-app-title" content="Ingredipedia" />
+    <link rel="icon" href="/favicon-64.png" type="image/png" sizes="64x64" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <script>
       // Apply the saved theme before first paint to avoid a flash.
       try {
-        var t = localStorage.getItem("assay.theme");
+        var t = localStorage.getItem("ingredipedia.theme");
         if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
       } catch (e) {}
     </script>
   </head>
   <body>
     <div id="root"></div>
-    <noscript>Assay needs JavaScript to scan labels.</noscript>
+    <noscript>Ingredipedia needs JavaScript to scan labels.</noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

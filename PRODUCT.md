@@ -8,15 +8,15 @@ web (installable PWA; phones first, also tablets and classroom laptops)
 
 ## Users
 
-Primary: middle- and high-school students learning chemistry and biology, and the teachers who assign them work. They use Assay at home (scanning products in the kitchen, bathroom and laundry room) and in class (a teacher projecting a profile, or students working through a lesson on a laptop).
+Primary: middle- and high-school students learning chemistry and biology, and the teachers who assign them work. They use Ingredipedia at home (scanning products in the kitchen, bathroom and laundry room) and in class (a teacher projecting a profile, or students working through a lesson on a laptop).
 
 Secondary: families and everyday shoppers who want to understand a label without fear or jargon.
 
 ## Product Purpose
 
-Assay turns the ingredient label on any food, personal-care or cleaning product into a chemistry lesson. Scan a barcode or a label and Assay rates the product, separates organic and natural ingredients from synthetic ones, and explains each molecule: its structure, how it works at the chemical scale and in the body, the reactions it takes part in, the evidence on its safety, and how it is made.
+Ingredipedia turns the ingredient label on any food, personal-care or cleaning product into a chemistry lesson. Scan a barcode or a label and Ingredipedia rates the product, separates organic and natural ingredients from synthetic ones, and explains each molecule: its structure, how it works at the chemical scale and in the body, the reactions it takes part in, the evidence on its safety, and how it is made.
 
-The problem it addresses: chemistry feels abstract to students, while social media fills the gap with fear ("if you can't pronounce it, don't eat it"). Assay teaches dose, mechanism and evidence quality using the products students already own.
+The problem it addresses: chemistry feels abstract to students, while social media fills the gap with fear ("if you can't pronounce it, don't eat it"). Ingredipedia teaches dose, mechanism and evidence quality using the products students already own.
 
 Success: a student can explain, in their own words, why an ingredient is in a product, how it works, and how strong the evidence about it is.
 

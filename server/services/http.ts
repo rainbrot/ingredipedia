@@ -26,7 +26,7 @@ export class RateLimiter {
   }
 }
 
-const USER_AGENT = "Assay/1.0 (ingredient research; +https://github.com/)";
+const USER_AGENT = "Ingredipedia/1.0 (ingredient research; +https://github.com/)";
 
 export async function fetchWithRetry(
   url: string,

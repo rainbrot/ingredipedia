@@ -340,7 +340,7 @@ export async function runResearch(ingredientId: string): Promise<void> {
 /** Fallback summary once research has finished but found no descriptive text. */
 function researchedSummary(ing: Ingredient): string {
   const opening = roleOverview(ing, null)[0].split(/(?<=\.)\s/)[0].replace(", a long chain of repeating units,", "");
-  return `${opening} Assay built this profile automatically from published research.`;
+  return `${opening} Ingredipedia built this profile automatically from published research.`;
 }
 
 /**
@@ -478,7 +478,7 @@ export async function processScan(
 
   const matched = parsed.map((p) => ({ p, ...matchIngredient(p) }));
   const known = matched.filter((m) => m.ingredientId).length;
-  onProgress({ type: "progress", stage: "match", done: known, total: parsed.length, message: `${known} of ${parsed.length} already in the Assay database` });
+  onProgress({ type: "progress", stage: "match", done: known, total: parsed.length, message: `${known} of ${parsed.length} already in the Ingredipedia database` });
 
   const fresh = matched.filter((m) => !m.ingredientId);
   let drafted = 0;

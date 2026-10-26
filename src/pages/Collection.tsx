@@ -74,7 +74,7 @@ export function CollectionPage() {
             <section style={{ marginTop: 40 }}>
               <h2 className="section-title">Found on your scans</h2>
               <p className="muted small" style={{ marginBottom: 16 }}>
-                Ingredients you discovered that Assay researched automatically.
+                Ingredients you discovered that Ingredipedia researched automatically.
               </p>
               <ul className="col-grid">
                 {extra.map((ing) => (

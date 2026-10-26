@@ -180,7 +180,7 @@ function Worksheet({ lessonId }: { lessonId: string }) {
   const lesson = LESSON_BY_ID.get(lessonId)!;
   return (
     <div className="print-only worksheet">
-      <p className="ws-brand">Assay · Chemistry of everyday products</p>
+      <p className="ws-brand">Ingredipedia · Chemistry of everyday products</p>
       <h1>{lesson.title}</h1>
       <p className="ws-name">Name ______________________________ Date ____________</p>
       {lesson.steps.map((s, i) => (

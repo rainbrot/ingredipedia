@@ -1,5 +1,5 @@
 export type ThemePref = "system" | "light" | "dark";
-const KEY = "assay.theme";
+const KEY = "ingredipedia.theme";
 
 export function getTheme(): ThemePref {
   try {

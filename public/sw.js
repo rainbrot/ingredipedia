@@ -1,10 +1,10 @@
-// Assay service worker: offline app shell, cached profiles and structures, and the data lessons need.
-const VERSION = "assay-v2";
+// Ingredipedia service worker: offline app shell, cached profiles and structures, and the data lessons need.
+const VERSION = "ingredipedia-v3";
 const SHELL = `${VERSION}-shell`;
 const DATA = `${VERSION}-data`;
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(SHELL).then((c) => c.addAll(["/", "/icon.svg", "/manifest.webmanifest"])).then(() => self.skipWaiting()));
+  event.waitUntil(caches.open(SHELL).then((c) => c.addAll(["/", "/logo.png", "/logo-dark.png", "/favicon-64.png", "/manifest.webmanifest"])).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", (event) => {

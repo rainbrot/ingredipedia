@@ -1,4 +1,4 @@
-// Shared domain types for the Assay client and server.
+// Shared domain types for the Ingredipedia client and server.
 
 export type Sector = "food" | "beauty" | "cleaning";
 
@@ -26,7 +26,7 @@ export type Kind = "compound" | "mixture" | "polymer";
 
 /**
  * How a profile was produced. No human sign-off is required anywhere in the pipeline:
- * - curated: written by the Assay content team and shipped with the app;
+ * - curated: written by the Ingredipedia content team and shipped with the app;
  * - researched: built automatically from PubChem + PubMed (and AI when configured);
  * - preliminary: an instant first draft while (or if) automatic research can't complete.
  */

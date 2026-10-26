@@ -8,7 +8,7 @@ export interface Progress {
   myths: { answered: number; correct: number; bestStreak: number };
 }
 
-const KEY = "assay.progress";
+const KEY = "ingredipedia.progress";
 const EMPTY: Progress = { lessons: {}, discovered: [], myths: { answered: 0, correct: 0, bestStreak: 0 } };
 
 let state: Progress = load();

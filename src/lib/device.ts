@@ -1,6 +1,6 @@
-// Anonymous per-install id. Assay has no accounts; this id keys scan history and draft visibility.
+// Anonymous per-install id. Ingredipedia has no accounts; this id keys scan history and draft visibility.
 
-const KEY = "assay.device";
+const KEY = "ingredipedia.device";
 
 function randomId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();

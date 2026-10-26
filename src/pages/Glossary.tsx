@@ -29,7 +29,7 @@ export function GlossaryPage() {
       </Link>
       <header className="page-head">
         <h1 className="page-title">Glossary</h1>
-        <p className="lede">The chemistry and biology terms used across Assay. Underlined words in any profile or lesson open these definitions in place.</p>
+        <p className="lede">The chemistry and biology terms used across Ingredipedia. Underlined words in any profile or lesson open these definitions in place.</p>
       </header>
 
       <label className="search" style={{ maxWidth: 420 }}>

@@ -114,7 +114,7 @@ export function ProductPage() {
   const share = async () => {
     const url = window.location.href;
     try {
-      if (navigator.share) await navigator.share({ title: `${scan.name} · Assay ${scan.score}/100`, url });
+      if (navigator.share) await navigator.share({ title: `${scan.name} · Ingredipedia ${scan.score}/100`, url });
       else {
         await navigator.clipboard.writeText(url);
         toast("Link copied to clipboard", "success");

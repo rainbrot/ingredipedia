@@ -1,6 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Atom, ExternalLink, FlagTriangleRight, FlaskConical, GraduationCap, Hourglass, Microscope, Share2, TriangleAlert } from "lucide-react";
 import { CONCERN_LABEL, ORIGIN_LABEL, SECTORS, type Citation, type Ingredient, type Mechanism, type Reaction, type Hazard, type SynthesisRoute } from "../../shared/types";
 import { api, ApiError } from "../lib/api";
 import { useServerEvents } from "../lib/events";
@@ -78,7 +77,7 @@ export function IngredientPage() {
     const status = error instanceof ApiError ? error.status : 0;
     if (status === 404) {
       return (
-        <EmptyState icon={<FlaskConical />} title="Ingredient not found" action={<Link to="/library" className="btn">Open the library</Link>}>
+        <EmptyState title="Ingredient not found" action={<Link to="/library" className="btn">Open the library</Link>}>
           It may have been merged into another profile, or the link is mistyped.
         </EmptyState>
       );
@@ -103,7 +102,7 @@ export function IngredientPage() {
   const share = async () => {
     const url = window.location.href;
     try {
-      if (navigator.share) await navigator.share({ title: `${ing.name} · Assay`, url });
+      if (navigator.share) await navigator.share({ title: `${ing.name} · Ingredipedia`, url });
       else {
         await navigator.clipboard.writeText(url);
         toast("Link copied. Paste it into a message or assignment.", "success");
@@ -125,13 +124,13 @@ export function IngredientPage() {
 
   return (
     <div className="fade-up">
-      <div className="row">
-        <button className="btn btn-ghost" onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/library"))}>
-          <ArrowLeft aria-hidden="true" /> Back
+      <div className="page-crumbs">
+        <button className="text-btn" onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/library"))}>
+          ← Back
         </button>
-        <div className="grow" />
-        <button className="icon-btn" onClick={share} aria-label="Share this ingredient">
-          <Share2 aria-hidden="true" />
+        <span className="grow" />
+        <button className="text-btn" onClick={share}>
+          Share this entry
         </button>
       </div>
 
@@ -146,7 +145,7 @@ export function IngredientPage() {
             </>
           )}
         </p>
-        <div className="chip-row">
+        <div className="chip-row profile-meta">
           <StatusChip ing={ing} />
           <ResearchChip state={ing.status === "curated" ? null : ing.researchState} />
           <OriginChip origin={ing.origin} />
@@ -160,20 +159,19 @@ export function IngredientPage() {
 
       {ing.status === "preliminary" && (
         <div className="callout draft">
-          <Hourglass aria-hidden="true" />
           <div>
-            <strong>Preliminary profile.</strong> {ing.name} is new to Assay, so this first draft was built instantly from chemistry rules
+            <strong>Preliminary profile.</strong> {ing.name} is new to Ingredipedia, so this first draft was built instantly from chemistry rules
             {ing.pubchemCid ? " and PubChem" : ""}.{" "}
             {ing.researchState === "complete" || ing.researchState === "failed"
               ? "The automatic literature search found little to add yet, so treat these details as a starting point."
-              : "Assay is searching PubChem and PubMed right now, and this page will update by itself when it's done."}
+              : "Ingredipedia is searching PubChem and PubMed right now, and this page will update by itself when it's done."}
           </div>
         </div>
       )}
 
       <section className="glance" aria-label="At a glance">
         <div className="glance-score">
-          <ScoreRing score={ing.healthScore} size={88} stroke={9} caption="/100" />
+          <ScoreRing score={ing.healthScore} size={136} caption="/100" />
           <div>
             <span className="glance-k">Health score</span>
             <GradeLabel score={ing.healthScore} />
@@ -182,13 +180,9 @@ export function IngredientPage() {
         <div className="glance-body">
           <p className="summary-text">{ing.summary}</p>
           {ing.concerns.length > 0 && (
-            <div className="chip-row" aria-label="Flags">
-              {ing.concerns.map((c) => (
-                <span key={c} className="chip warn">
-                  <TriangleAlert aria-hidden="true" /> {CONCERN_LABEL[c] ?? c}
-                </span>
-              ))}
-            </div>
+            <p className="concerns">
+              <span className="concerns-k">Worth knowing:</span> {ing.concerns.map((c) => CONCERN_LABEL[c] ?? c).join("; ")}.
+            </p>
           )}
           <dl className="glance-facts">
             <div>
@@ -234,8 +228,8 @@ export function IngredientPage() {
 
       {nextTab && (
         <nav className="tab-pager" aria-label="Next section">
-          <button className="btn btn-ghost" onClick={() => goTo(nextTab.id)}>
-            Next: {nextTab.label} <ArrowRight aria-hidden="true" />
+          <button className="text-btn" onClick={() => goTo(nextTab.id)}>
+            Continue to {nextTab.label} →
           </button>
         </nav>
       )}
@@ -287,7 +281,6 @@ function OverviewTab({ ing, lessons }: { ing: Ingredient; lessons: typeof LESSON
           </div>
         ) : (
           <div className="callout">
-            <Microscope aria-hidden="true" />
             <div>
               <strong>{ing.kind === "compound" ? "No structure on file yet." : `${ing.name} is a ${ing.kind}, not a single molecule.`}</strong>{" "}
               {ing.identity.composition ?? "Its composition varies by source and processing, so there's no single structure to show."}
@@ -317,7 +310,7 @@ function OverviewTab({ ing, lessons }: { ing: Ingredient; lessons: typeof LESSON
                 k="PubChem"
                 v={
                   <a href={`https://pubchem.ncbi.nlm.nih.gov/compound/${ing.pubchemCid}`} target="_blank" rel="noreferrer">
-                    CID {ing.pubchemCid} <ExternalLink className="inline-icon" aria-hidden="true" />
+                    CID {ing.pubchemCid}
                   </a>
                 }
               />
@@ -354,7 +347,6 @@ function OverviewTab({ ing, lessons }: { ing: Ingredient; lessons: typeof LESSON
             {lessons.map((l) => (
               <li key={l.id}>
                 <Link to={`/learn/${l.id}`}>
-                  <GraduationCap aria-hidden="true" />
                   <span className="grow">
                     <strong>{l.title}</strong>
                     <span>{l.summary}</span>
@@ -410,8 +402,14 @@ function MechanismsTab({ items, flagged, ...src }: { items: Mechanism[]; flagged
   return (
     <div className="panel-stack">
       <p className="panel-intro">
-        Each mechanism is explained at two scales: what happens to the molecules, and what your body experiences as a result. The evidence meter shows how well
-        each one is supported.
+        A mechanism is the chain of cause and effect that explains how an ingredient actually does its job. Everything you can taste, see or feel, whether it is
+        sweetness, a smooth lotion or a grease-free plate, starts with molecules bumping into other molecules and then sticking to them, reacting with them or
+        changing their shape. That is why each mechanism below is told twice. The <strong>chemical scale</strong> zooms in on atoms and molecules: which parts of
+        the ingredient are attracted to water or to oil, which bonds form or break, and why. The <strong>biological scale</strong> zooms back out to living things
+        and describes what your cells, skin or organs experience as a result, from a signal reaching your brain to a nutrient being absorbed. Each title also
+        says how strong the evidence is: <em>well established</em> means the mechanism is in textbooks and has been confirmed many times; <em>human studies</em>{" "}
+        means it has been measured in people; <em>lab &amp; animal studies</em> means it has so far been shown only in test tubes or animals; and{" "}
+        <em>emerging or debated</em> means scientists are still working it out.
       </p>
       <FlagNote show={flagged} />
       {items.map((m, i) => (
@@ -422,15 +420,11 @@ function MechanismsTab({ items, flagged, ...src }: { items: Mechanism[]; flagged
           </header>
           <div className="scales">
             <div className="scale">
-              <span className="scale-k">
-                <Atom aria-hidden="true" /> Chemical scale
-              </span>
+              <span className="scale-k">Chemical scale</span>
               <ScaleText text={m.chemical} />
             </div>
             <div className="scale">
-              <span className="scale-k">
-                <Microscope aria-hidden="true" /> Biological scale
-              </span>
+              <span className="scale-k">Biological scale</span>
               <ScaleText text={m.biological} />
             </div>
           </div>
@@ -445,7 +439,15 @@ function ReactionsTab({ items, flagged, ...src }: { items: Reaction[]; flagged: 
   if (!items.length) return <None text="No characteristic reactions have been described in the sources reviewed so far." />;
   return (
     <div className="panel-stack">
-      <p className="panel-intro">How this molecule reacts with air, light, water and other chemicals, broken into the steps chemists use to describe it.</p>
+      <p className="panel-intro">
+        A chemical reaction happens when the atoms in molecules rearrange: some bonds break, new ones form, and you end up with different substances from the ones
+        you started with. Reactions are why toast browns, why cooking oil goes stale, why bleach removes stains and why an opened lotion eventually spoils. Each
+        reaction below begins with a plain description and then gives the <strong>chemical equation</strong>, which is chemists' shorthand: the starting
+        substances (the reactants) are written on the left, the new substances (the products) on the right, and the arrow means “turns into.” A double arrow
+        (⇌) means the change runs in both directions at once. The numbered steps then walk through what happens in order, one molecule at a time, and the result
+        explains why the reaction matters for the product or for you. You don't need to memorize the equations. Focus on what goes in, what comes out, and what
+        drives the change, such as heat, light, water, oxygen or an enzyme.
+      </p>
       <FlagNote show={flagged} />
       {items.map((r, i) => (
         <article key={i} className="rxn">
@@ -489,6 +491,16 @@ function SafetyTab({ ing }: { ing: Ingredient }) {
   const p = ing.profile!;
   return (
     <div className="panel-stack">
+      <p className="panel-intro">
+        Toxicologists, the scientists who study poisons, separate two ideas that are easy to mix up. A <strong>hazard</strong> is the harm a substance could
+        cause under some conditions; <strong>risk</strong> is how likely that harm is at the amount you actually meet. Water and table salt both have hazards,
+        yet they are safe at everyday amounts, because “the dose makes the poison.” This tab starts with how government safety agencies around the world have
+        judged the ingredient and any limits they set. Each hazard is then explained on two scales, like the mechanisms: the chemical cause (what the molecule does
+        to other molecules) and the biological effect (what that means for cells and organs). The dose section compares the amounts normally used with the
+        amounts that cause problems. After that come popular claims checked against the evidence, and finally what happens to the ingredient once it washes down
+        the drain into rivers and soil.
+      </p>
+
       <section>
         <h2 className="panel-h">Regulatory status</h2>
         {p.regulatory.length ? (
@@ -536,7 +548,7 @@ function SafetyTab({ ing }: { ing: Ingredient }) {
           <GlossaryText text={has(p.dosage) ? p.dosage : "Concentration context hasn't been documented yet."} />
         </p>
         <Link to="/learn/dose" className="inline-link">
-          Why the dose makes the poison <ArrowRight aria-hidden="true" />
+          Lesson: why the dose makes the poison →
         </Link>
       </section>
 
@@ -595,23 +607,17 @@ function SafetyTab({ ing }: { ing: Ingredient }) {
 function HazardItem({ h }: { h: Hazard }) {
   return (
     <article className="hazard">
-      <h3>
-        <TriangleAlert aria-hidden="true" /> {h.title}
-      </h3>
+      <h3>{h.title}</h3>
       <p className="prose">
         <GlossaryText text={h.summary} />
       </p>
       <div className="scales">
         <div className="scale">
-          <span className="scale-k">
-            <Atom aria-hidden="true" /> Chemical mechanism
-          </span>
+          <span className="scale-k">Chemical cause</span>
           <ScaleText text={h.chemical} />
         </div>
         <div className="scale">
-          <span className="scale-k">
-            <Microscope aria-hidden="true" /> Biological mechanism
-          </span>
+          <span className="scale-k">Biological effect</span>
           <ScaleText text={h.biological} />
         </div>
       </div>
@@ -623,7 +629,15 @@ function SynthesisTab({ routes }: { routes: SynthesisRoute[] }) {
   if (!routes.length) return <None text="How this ingredient is made hasn't been documented yet." />;
   return (
     <div className="panel-stack">
-      <p className="panel-intro">How this ingredient is made, in living things, in the lab and at industrial scale.</p>
+      <p className="panel-intro">
+        Every ingredient has to come from somewhere. Some are extracted from plants, animals or rocks; some are made by microbes such as yeast or bacteria
+        during fermentation; and many are built in factories from simpler chemicals. <strong>Synthesis</strong> simply means making a compound from other
+        substances. A biological route is how living things make the molecule, using <strong>enzymes</strong>, proteins that speed up one particular reaction. An
+        industrial route is how manufacturers make it by the ton, often with heat, pressure and <strong>catalysts</strong>, substances that speed up a reaction
+        without being used up themselves. Knowing how something is made helps answer questions people often ask: whether the “natural” and “synthetic”
+        versions are really the same molecule (very often they are identical), what traces of other chemicals might be left behind, and why one ingredient costs
+        more than another.
+      </p>
       {routes.map((r, i) => (
         <article key={i} className="route">
           <h3>{r.title}</h3>
@@ -672,7 +686,6 @@ function SourcesTab({ ing }: { ing: Ingredient }) {
           </ol>
         ) : (
           <div className="callout">
-            <Hourglass aria-hidden="true" />
             <div>Citations are gathered from PubMed automatically. None are attached yet; they'll appear here when the literature search finishes.</div>
           </div>
         )}
@@ -684,19 +697,19 @@ function SourcesTab({ ing }: { ing: Ingredient }) {
           <p className="muted small" style={{ marginBottom: 12 }}>
             The PubChem records and abstracts this profile was built from, so you can check any statement against the original.
           </p>
-          <div className="card">
+          <div className="source-docs">
             {ing.sources.map((d) => (
               <Disclosure
                 key={d.id}
                 summary={
                   <span className="source-doc-sum">
-                    <span className="chip">{d.source === "pubmed" ? "PubMed" : "PubChem"}</span> {d.title}
+                    <span className="source-kind">{d.source === "pubmed" ? "PubMed" : "PubChem"}</span> {d.title}
                   </span>
                 }
               >
                 <p className="prose small">{d.text}</p>
                 <a href={d.url} target="_blank" rel="noreferrer" className="small">
-                  Open original <ExternalLink className="inline-icon" aria-hidden="true" />
+                  Open the original →
                 </a>
               </Disclosure>
             ))}
@@ -729,7 +742,7 @@ function ReportForm({ ing }: { ing: Ingredient }) {
     try {
       const r = await api.report(ing.id, reason.trim());
       setSent(r.requeued);
-      toast(r.requeued ? "Thanks. Assay is re-researching this profile now." : "Thanks. This profile was refreshed recently, so your note was saved for the next update.", "success");
+      toast(r.requeued ? "Thanks. Ingredipedia is re-researching this profile now." : "Thanks. This profile was refreshed recently, so your note was saved for the next update.", "success");
       setReason("");
     } catch (err) {
       toast(err instanceof Error ? err.message : "Couldn't send your report.", "error");
@@ -741,7 +754,6 @@ function ReportForm({ ing }: { ing: Ingredient }) {
   if (sent !== null) {
     return (
       <div className="callout success" role="status">
-        <FlagTriangleRight aria-hidden="true" />
         <div>{sent ? "Report received. Fresh research is running, and this page will update automatically." : "Report received and saved for the next refresh."}</div>
       </div>
     );
@@ -750,8 +762,8 @@ function ReportForm({ ing }: { ing: Ingredient }) {
   return (
     <section className="report">
       {!open ? (
-        <button className="btn btn-ghost" onClick={() => setOpen(true)}>
-          <FlagTriangleRight aria-hidden="true" /> Report a problem with this profile
+        <button className="text-btn" onClick={() => setOpen(true)}>
+          Report a problem with this entry
         </button>
       ) : (
         <form onSubmit={submit} className="stack" style={{ gap: 12 }}>
@@ -806,12 +818,12 @@ function CitationItem({ c, n }: { c: Citation; n: number }) {
         <div className="links">
           {c.pmid && (
             <a href={c.url} target="_blank" rel="noreferrer">
-              PubMed {c.pmid} <ExternalLink className="inline-icon" aria-hidden="true" />
+              PubMed {c.pmid}
             </a>
           )}
           {c.doi && (
             <a href={`https://doi.org/${c.doi}`} target="_blank" rel="noreferrer">
-              DOI <ExternalLink className="inline-icon" aria-hidden="true" />
+              DOI
             </a>
           )}
         </div>
@@ -833,7 +845,6 @@ function None({ text }: { text: string }) {
 function Pending() {
   return (
     <div className="callout">
-      <Hourglass aria-hidden="true" />
       <div>This section is still being researched automatically. It will fill in on its own.</div>
     </div>
   );

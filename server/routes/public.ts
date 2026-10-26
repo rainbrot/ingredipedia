@@ -12,7 +12,7 @@ export const publicRouter = Router();
 
 /** Anonymous per-install id (no accounts): scan history is keyed to it. */
 function deviceId(req: Request): string {
-  const id = String(req.header("x-assay-device") ?? "");
+  const id = String(req.header("x-ingredipedia-device") ?? "");
   return /^[a-zA-Z0-9-]{8,64}$/.test(id) ? id : "";
 }
 

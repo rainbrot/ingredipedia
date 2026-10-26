@@ -69,7 +69,7 @@ export function LibraryPage() {
     <div className="fade-up">
       <div className="page-head">
         <h1 className="page-title">Ingredient library</h1>
-        <p className="lede">Every ingredient profile in Assay, curated or researched automatically. Search by common name, INCI or chemical name, or E-number.</p>
+        <p className="lede">Every ingredient profile in Ingredipedia, curated or researched automatically. Search by common name, INCI or chemical name, or E-number.</p>
       </div>
 
       <div className="stack" style={{ gap: 12, marginBottom: 20 }}>

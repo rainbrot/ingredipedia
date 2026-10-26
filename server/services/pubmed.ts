@@ -10,7 +10,7 @@ const hasKey = () => !!process.env.NCBI_API_KEY;
 const limiter = new RateLimiter(hasKey() ? 120 : 400);
 
 function common(): string {
-  const params = new URLSearchParams({ tool: "assay" });
+  const params = new URLSearchParams({ tool: "ingredipedia" });
   if (process.env.NCBI_API_KEY) params.set("api_key", process.env.NCBI_API_KEY);
   if (process.env.NCBI_EMAIL) params.set("email", process.env.NCBI_EMAIL);
   return params.toString();

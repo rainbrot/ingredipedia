@@ -22,7 +22,7 @@ export class ApiError extends Error {
 
 async function request<T>(path: string, init: RequestInit = {}, token?: string): Promise<T> {
   const headers = new Headers(init.headers);
-  headers.set("X-Assay-Device", deviceId());
+  headers.set("X-Ingredipedia-Device", deviceId());
   if (init.body && typeof init.body === "string") headers.set("Content-Type", "application/json");
   if (token) headers.set("Authorization", `Bearer ${token}`);
   let res: Response;
@@ -86,7 +86,7 @@ export const api = {
     try {
       res = await fetch("/api/scans", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Assay-Device": deviceId() },
+        headers: { "Content-Type": "application/json", "X-Ingredipedia-Device": deviceId() },
         body: JSON.stringify(input),
       });
     } catch {

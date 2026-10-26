@@ -95,7 +95,7 @@ export function ScanPage() {
             if (ai.productName && !name) setName(ai.productName);
           }
         } catch {
-          toast("Enhanced reading is unavailable right now, so Assay used on-device OCR.", "info");
+          toast("Enhanced reading is unavailable right now, so Ingredipedia used on-device OCR.", "info");
         }
       }
       if (!recognized) {
@@ -278,7 +278,7 @@ function CaptureStep({
         <h1 id="capture-title" className="page-title">
           Scan a product
         </h1>
-        <p className="lede">Assay reads the ingredients, explains the chemistry of each one, and scores the product for the way you use it.</p>
+        <p className="lede">Ingredipedia reads the ingredients, explains the chemistry of each one, and scores the product for the way you use it.</p>
       </div>
 
       <div className="field">
@@ -525,7 +525,7 @@ function BarcodeStep({ sector, onProduct, onPhoto }: { sector: Sector; onProduct
         <h1 id="barcode-title" className="page-title">
           Scan the barcode
         </h1>
-        <p className="lede">Line up the barcode inside the frame. Assay detects it automatically.</p>
+        <p className="lede">Line up the barcode inside the frame. Ingredipedia detects it automatically.</p>
       </div>
 
       {cam.state === "error" ? (
@@ -713,7 +713,7 @@ function CropStep({
           <span className="grow">
             <strong>Enhanced AI reading</strong>
             <br />
-            <span className="small">More accurate on curved or glossy packaging. Sends the cropped image to the Assay server.</span>
+            <span className="small">More accurate on curved or glossy packaging. Sends the cropped image to the Ingredipedia server.</span>
           </span>
           <input type="checkbox" checked={useAi} onChange={(e) => onToggleAi(e.target.checked)} className="check-lg" />
         </label>
@@ -798,7 +798,7 @@ function ReviewStep({
           {product
             ? "Here's the ingredient list on file for this product. Compare it with your package; recipes sometimes change."
             : ocr
-              ? "Here's what Assay read from the label. Fix any misread words before analyzing."
+              ? "Here's what Ingredipedia read from the label. Fix any misread words before analyzing."
               : "Paste or type the ingredient list exactly as it appears on the package."}
         </p>
       </div>
@@ -900,14 +900,14 @@ function ReviewStep({
             {parsed.map((p) => {
               const isKnown = lexicon ? inLibrary([p.key, ...p.alt], lexicon) : true;
               return (
-                <span key={p.position} className={`token ${p.labeledOrganic ? "organic" : ""} ${isKnown ? "" : "new"}`} title={isKnown ? "Has a profile in the library" : "New: Assay will research it automatically"}>
+                <span key={p.position} className={`token ${p.labeledOrganic ? "organic" : ""} ${isKnown ? "" : "new"}`} title={isKnown ? "Has a profile in the library" : "New: Ingredipedia will research it automatically"}>
                   {p.name}
                 </span>
               );
             })}
           </div>
           {known != null && known < parsed.length && (
-            <p className="hint">Dashed ingredients are new to Assay. They'll get an instant preliminary profile, then automatic research from PubChem and PubMed.</p>
+            <p className="hint">Dashed ingredients are new to Ingredipedia. They'll get an instant preliminary profile, then automatic research from PubChem and PubMed.</p>
           )}
         </div>
       )}

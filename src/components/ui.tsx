@@ -1,6 +1,6 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { BadgeCheck, ChevronDown, CircleHelp, FlaskConical, Hourglass, Leaf, Microscope, Mountain, TriangleAlert, X } from "lucide-react";
+import { CircleHelp, X } from "lucide-react";
 import { formulaParts } from "../../shared/formula";
 import { EVIDENCE_LABEL, gradeFor, ORIGIN_LABEL, STATUS_LABEL, type EvidenceLevel, type Grade, type IngredientSummary, type Origin, type Status } from "../../shared/types";
 
@@ -21,38 +21,17 @@ export function ScorePill({ score, size, label }: { score: number | null; size?:
   );
 }
 
-/** Animated circular score gauge. */
-export function ScoreRing({ score, size = 176, stroke = 14, caption = "out of 100" }: { score: number; size?: number; stroke?: number; caption?: string }) {
-  const [shown, setShown] = useState(0);
-  useEffect(() => {
-    const id = requestAnimationFrame(() => setShown(score));
-    return () => cancelAnimationFrame(id);
-  }, [score]);
-  const r = (size - stroke) / 2;
-  const c = 2 * Math.PI * r;
+/** The score set as a figure: a large numeral over its scale, no gauge. */
+export function ScoreRing({ score, size = 176, caption = "out of 100" }: { score: number; size?: number; stroke?: number; caption?: string }) {
   const tone = toneFor(score);
   return (
-    <div className={`score-ring tone-${tone}`} style={{ width: size, height: size }} role="img" aria-label={`Health score ${score} out of 100, ${gradeFor(score)}`}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
-        <circle className="track" cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth={stroke} />
-        <circle
-          className="value"
-          cx={size / 2}
-          cy={size / 2}
-          r={r}
-          fill="none"
-          strokeWidth={stroke}
-          strokeLinecap="round"
-          strokeDasharray={c}
-          strokeDashoffset={c * (1 - shown / 100)}
-        />
-      </svg>
-      <div className="center" aria-hidden="true">
-        <span className="num" style={{ fontSize: size * 0.34 }}>
-          {score}
-        </span>
-        <span className="of">{caption}</span>
-      </div>
+    <div className={`score-figure tone-${tone}`} role="img" aria-label={`Health score ${score} out of 100, ${gradeFor(score)}`}>
+      <span className="num" style={{ fontSize: Math.round(size * 0.42) }} aria-hidden="true">
+        {score}
+      </span>
+      <span className="of" aria-hidden="true">
+        {caption}
+      </span>
     </div>
   );
 }
@@ -62,34 +41,24 @@ export function GradeLabel({ score }: { score: number }) {
 }
 
 const STATUS_HINT: Record<Status, string> = {
-  curated: "Written by the Assay content team, with sources",
+  curated: "Written by the Ingredipedia content team, with sources",
   researched: "Built automatically from PubChem and PubMed",
   preliminary: "A first draft; automatic research is still filling it in",
 };
 
 export function StatusChip({ ing }: { ing: Pick<IngredientSummary, "status" | "researchState"> }) {
-  const Icon = ing.status === "curated" ? BadgeCheck : ing.status === "researched" ? Microscope : Hourglass;
   return (
     <span className={`chip status-${ing.status}`} title={STATUS_HINT[ing.status]}>
-      <Icon aria-hidden="true" /> {STATUS_LABEL[ing.status]}
+      {STATUS_LABEL[ing.status]}
     </span>
   );
 }
 
-const EVIDENCE_RANK: Record<EvidenceLevel, number> = { established: 4, human: 3, lab: 2, emerging: 1 };
-
-/** How strong the evidence behind a claim is, as a four-step meter plus words. */
+/** How strong the evidence behind a claim is, stated in words. */
 export function EvidenceBadge({ level }: { level: EvidenceLevel }) {
-  const rank = EVIDENCE_RANK[level] ?? 1;
   return (
-    <span className={`evidence ev-${level}`} title={`Evidence: ${EVIDENCE_LABEL[level]}`}>
-      <span className="ev-meter" aria-hidden="true">
-        {[1, 2, 3, 4].map((i) => (
-          <i key={i} data-on={i <= rank} />
-        ))}
-      </span>
-      <span className="sr-only">Evidence level: </span>
-      {EVIDENCE_LABEL[level]}
+    <span className={`evidence ev-${level}`}>
+      Evidence: <em>{EVIDENCE_LABEL[level].toLowerCase()}</em>
     </span>
   );
 }
@@ -97,40 +66,14 @@ export function EvidenceBadge({ level }: { level: EvidenceLevel }) {
 export function ResearchChip({ state }: { state: IngredientSummary["researchState"] }) {
   if (!state || state === "complete") return null;
   const label = state === "failed" ? "Research retrying" : state === "running" ? "Researching…" : "Research queued";
-  return (
-    <span className="chip">
-      <Hourglass aria-hidden="true" /> {label}
-    </span>
-  );
+  return <span className="chip">{label}</span>;
 }
 
 export function OriginChip({ origin, organic }: { origin: Origin; organic?: boolean }) {
-  if (organic) {
-    return (
-      <span className="chip organic">
-        <Leaf aria-hidden="true" /> Certified organic
-      </span>
-    );
-  }
-  if (origin === "natural") {
-    return (
-      <span className="chip organic">
-        <Leaf aria-hidden="true" /> {ORIGIN_LABEL[origin]}
-      </span>
-    );
-  }
-  if (origin === "mineral") {
-    return (
-      <span className="chip organic">
-        <Mountain aria-hidden="true" /> Mineral
-      </span>
-    );
-  }
-  return (
-    <span className="chip">
-      <FlaskConical aria-hidden="true" /> {ORIGIN_LABEL[origin]}
-    </span>
-  );
+  if (organic) return <span className="chip organic">Certified organic</span>;
+  if (origin === "natural") return <span className="chip organic">{ORIGIN_LABEL[origin]}</span>;
+  if (origin === "mineral") return <span className="chip organic">Mineral</span>;
+  return <span className="chip">{ORIGIN_LABEL[origin]}</span>;
 }
 
 /** Chemical formula / equation with real subscripts and charges. */
@@ -144,8 +87,8 @@ export function Formula({ value, className }: { value: string; className?: strin
   );
 }
 
-export function Skeleton({ h = 16, w = "100%", r }: { h?: number; w?: number | string; r?: number }) {
-  return <div className="skeleton" style={{ height: h, width: w, borderRadius: r }} aria-hidden="true" />;
+export function Skeleton({ h = 16, w = "100%" }: { h?: number; w?: number | string; r?: number }) {
+  return <div className="skeleton" style={{ height: h, width: w }} aria-hidden="true" />;
 }
 
 export function RowSkeleton({ rows = 4 }: { rows?: number }) {
@@ -164,12 +107,9 @@ export function RowSkeleton({ rows = 4 }: { rows?: number }) {
   );
 }
 
-export function EmptyState({ icon, title, children, action }: { icon: ReactNode; title: string; children?: ReactNode; action?: ReactNode }) {
+export function EmptyState({ title, children, action }: { icon?: ReactNode; title: string; children?: ReactNode; action?: ReactNode }) {
   return (
     <div className="empty">
-      <div className="empty-icon" aria-hidden="true">
-        {icon}
-      </div>
       <h3>{title}</h3>
       {children && <p style={{ maxWidth: "42ch" }}>{children}</p>}
       {action}
@@ -180,7 +120,6 @@ export function EmptyState({ icon, title, children, action }: { icon: ReactNode;
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
     <div className="callout danger" role="alert">
-      <TriangleAlert aria-hidden="true" />
       <div className="grow">
         <strong>Something went wrong.</strong> {message}
       </div>
@@ -220,7 +159,6 @@ export function Disclosure({ summary, children, defaultOpen }: { summary: ReactN
     <details className="disclosure" open={defaultOpen}>
       <summary>
         <span>{summary}</span>
-        <ChevronDown aria-hidden="true" />
       </summary>
       <div className="content">{children}</div>
     </details>

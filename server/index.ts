@@ -45,7 +45,7 @@ repo.reindexAliases();
 startWorker();
 
 app.listen(PORT, () => {
-  console.log(`Assay API listening on http://localhost:${PORT}`);
+  console.log(`Ingredipedia API listening on http://localhost:${PORT}`);
   if (seeded) console.log(`Loaded ${seeded} curated ingredient profiles into the database`);
   console.log(aiEnabled() ? `AI pipeline enabled (${AI_MODEL})` : "AI pipeline off: using extractive drafts (set ANTHROPIC_API_KEY to enable)");
 });

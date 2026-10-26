@@ -83,7 +83,7 @@ export function roleOverview(
   if (science) out[0] += ` ${science}`;
   if (researchCount && researchCount > 0) {
     out.push(
-      `PubMed lists about ${researchCount.toLocaleString("en-US")} publications that mention it. Assay collected the most relevant abstracts under Sources, and the Mechanisms tab draws on them.`,
+      `PubMed lists about ${researchCount.toLocaleString("en-US")} publications that mention it. Ingredipedia collected the most relevant abstracts under Sources, and the Mechanisms tab draws on them.`,
     );
   }
   return out;

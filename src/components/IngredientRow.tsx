@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
 import type { IngredientSummary } from "../../shared/types";
 import { papersLabel } from "../lib/format";
 import { OriginChip, ResearchChip, ScorePill, StatusChip } from "./ui";
@@ -22,31 +21,23 @@ export function IngredientRow({
     <Link to={`/ingredient/${ing.id}`} className="ing-row">
       {position != null && (
         <span className="pos" aria-label={`Label position ${position}`}>
-          #{position}
+          {position}.
         </span>
       )}
-      <ScorePill score={ing.healthScore} />
       <div className="grow">
         <div className="name">
           {ing.name}
-          {renamed && <span className="subtle" style={{ fontWeight: 400 }}> · “{rawName}”</span>}
+          {renamed && <span className="subtle" style={{ fontWeight: 400 }}> (listed as “{rawName}”)</span>}
         </div>
         <div className="meta">
           <span>{ing.primaryRole}</span>
-          {ing.researchCount != null && (
-            <>
-              <span className="sep" aria-hidden="true" />
-              <span className="tabular">{papersLabel(ing.researchCount)}</span>
-            </>
-          )}
-        </div>
-        <div className="chip-row row-chips">
+          {ing.researchCount != null && <span className="tabular">{papersLabel(ing.researchCount)}</span>}
           {showOrigin && <OriginChip origin={ing.origin} organic={labeledOrganic} />}
-          <StatusChip ing={ing} />
+          {ing.status !== "curated" && <StatusChip ing={ing} />}
           <ResearchChip state={ing.status === "curated" ? null : ing.researchState} />
         </div>
       </div>
-      <ChevronRight className="chev" aria-hidden="true" />
+      <ScorePill score={ing.healthScore} />
     </Link>
   );
 }
