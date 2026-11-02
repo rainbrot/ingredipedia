@@ -25,7 +25,7 @@ const LIBRARIES = [
   ["ZXing (@zxing/browser)", "Apache-2.0", "Barcode scanning fallback"],
   ["3Dmol.js", "BSD-3-Clause", "Interactive WebGL molecule viewer"],
   ["Zod", "MIT", "Input and AI output validation"],
-  ["Anthropic TypeScript SDK", "MIT", "Claude API client"],
+  ["Anthropic TypeScript SDK", "MIT",],
   ["Lucide", "ISC", "Icons"],
   ["Fontsource (Newsreader, IBM Plex)", "OFL-1.1", "Self-hosted typefaces"],
   ["Node.js node:sqlite", "MIT", "Embedded database"],
